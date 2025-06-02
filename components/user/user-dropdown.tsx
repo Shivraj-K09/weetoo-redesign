@@ -1,0 +1,102 @@
+"use client";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  BellIcon,
+  HelpCircleIcon,
+  LogOutIcon,
+  SettingsIcon,
+  UserIcon,
+} from "lucide-react";
+
+export function UserDropdown() {
+  return (
+    <div className="flex justify-end">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="relative h-9 w-9 rounded-full p-0 hover:bg-accent transition-colors cursor-pointer"
+          >
+            <Avatar className="w-8 h-8">
+              <AvatarImage
+                src="https://vercel.com/api/www/avatar?s=64&u=shivraj-k09"
+                alt="@shadcn"
+              />
+              <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white text-sm font-medium">
+                CN
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent
+          className="w-64 p-0 bg-card/95 backdrop-blur-sm border shadow-lg rounded-xl overflow-hidden"
+          align="end"
+          sideOffset={8}
+        >
+          {/* Header */}
+          <div className="px-4 py-3 border-b bg-muted/30">
+            <div className="flex items-center gap-3">
+              <Avatar className="w-9 h-9">
+                <AvatarImage
+                  src="https://github.com/shadcn.png"
+                  alt="@shadcn"
+                />
+                <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white font-medium">
+                  CN
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium">shadcn</div>
+                <div className="text-xs text-muted-foreground">
+                  shadcn@gmail.com
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Menu Items */}
+          <div className="p-2">
+            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+              <UserIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+              Profile
+            </DropdownMenuItem>
+
+            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+              <SettingsIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+              Settings
+            </DropdownMenuItem>
+
+            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+              <BellIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+              Notifications
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator className="my-2" />
+
+            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+              <HelpCircleIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+              Help & Support
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator className="my-2" />
+
+            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
+              <LogOutIcon className="w-4 h-4 mr-3 text-red-500" />
+              Sign Out
+            </DropdownMenuItem>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}

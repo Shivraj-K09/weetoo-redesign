@@ -1,4 +1,5 @@
-import { TopPost } from "@/components/board/top-post";
+import { PostsList } from "@/components/board/free-board/post-list";
+import { TopPost } from "@/components/board/free-board/top-post";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,8 +10,9 @@ export const metadata: Metadata = {
 
 export default function FreeBoard() {
   return (
-    <div className="container flex flex-col gap-3 mx-auto py-4 pb-10">
+    <div className="container flex flex-col gap-5 mx-auto py-4 pb-10">
       <TopPost />
+      <PostsList />
     </div>
   );
 }

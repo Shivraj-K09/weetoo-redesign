@@ -16,6 +16,7 @@ import {
   SettingsIcon,
   UserIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 export function UserDropdown() {
   return (
@@ -66,34 +67,44 @@ export function UserDropdown() {
 
           {/* Menu Items */}
           <div className="p-2">
-            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
-              <UserIcon className="w-4 h-4 mr-3 text-muted-foreground" />
-              Profile
-            </DropdownMenuItem>
+            <Link href="/profile">
+              <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+                <UserIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+                Profile
+              </DropdownMenuItem>
+            </Link>
 
-            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
-              <SettingsIcon className="w-4 h-4 mr-3 text-muted-foreground" />
-              Settings
-            </DropdownMenuItem>
+            <Link href="/settings">
+              <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+                <SettingsIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+                Settings
+              </DropdownMenuItem>
+            </Link>
 
-            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
-              <BellIcon className="w-4 h-4 mr-3 text-muted-foreground" />
-              Notifications
-            </DropdownMenuItem>
+            <Link href="/notifications">
+              <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+                <BellIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+                Notifications
+              </DropdownMenuItem>
+            </Link>
 
             <DropdownMenuSeparator className="my-2" />
 
-            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
-              <HelpCircleIcon className="w-4 h-4 mr-3 text-muted-foreground" />
-              Help & Support
-            </DropdownMenuItem>
+            <Link href="/help">
+              <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+                <HelpCircleIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+                Help & Support
+              </DropdownMenuItem>
+            </Link>
 
             <DropdownMenuSeparator className="my-2" />
 
-            <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
-              <LogOutIcon className="w-4 h-4 mr-3 text-red-500" />
-              Sign Out
-            </DropdownMenuItem>
+            <Link href="/signout">
+              <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
+                <LogOutIcon className="w-4 h-4 mr-3 text-red-500" />
+                Sign Out
+              </DropdownMenuItem>
+            </Link>
           </div>
         </DropdownMenuContent>
       </DropdownMenu>

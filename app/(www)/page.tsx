@@ -1,7 +1,3 @@
 export default function Home() {
-  return (
-    <div className="flex items-center justify-center h-full w-full">
-      Trading
-    </div>
-  );
+  return <div>Website is Still Under Construction</div>;
 }

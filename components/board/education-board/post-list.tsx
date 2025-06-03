@@ -73,14 +73,6 @@ const tableRowVariants = {
   }),
 };
 
-// Static configurations
-const ROW_BACKGROUNDS = {
-  pinned:
-    "bg-gradient-to-r from-blue-50/80 to-blue-100/60 dark:from-blue-950/30 dark:to-blue-900/20 border-l-4 border-l-blue-400",
-  hot: "bg-gradient-to-r from-orange-50/80 to-orange-100/60 dark:from-orange-950/30 dark:to-orange-900/20 border-l-4 border-l-orange-400",
-  default: "hover:bg-muted/50 transition-colors",
-} as const;
-
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
 
 export const PostsList = memo(() => {

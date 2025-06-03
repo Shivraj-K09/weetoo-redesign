@@ -38,13 +38,13 @@ const community: { title: string; href: string; description: string }[] = [
 const information: { title: string; href: string; description: string }[] = [
   {
     title: "Comprehensive Data",
-    href: "#",
+    href: "/comprehensive-data",
     description:
       "Access real-time market data, charts, analytics, and trading indicators",
   },
   {
     title: "News",
-    href: "#",
+    href: "/news",
     description:
       "Stay updated with breaking crypto news, market analysis, and regulatory updates",
   },

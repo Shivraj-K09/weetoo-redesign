@@ -367,7 +367,14 @@ export const PostsList = memo(() => {
                   initial="hidden"
                   animate="visible"
                   className={cn(
-                    "border-b last:border-b-0 hover:bg-muted/50 transition-colors"
+                    "border-b last:border-b-0",
+                    row.original.isPinned && ROW_BACKGROUNDS.pinned,
+                    row.original.isHot &&
+                      !row.original.isPinned &&
+                      ROW_BACKGROUNDS.hot,
+                    !row.original.isPinned &&
+                      !row.original.isHot &&
+                      ROW_BACKGROUNDS.default
                   )}
                 >
                   {row.getVisibleCells().map((cell) => (

@@ -104,7 +104,10 @@ export function Menu() {
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
-            <Link href="#" className={navigationMenuTriggerStyle()}>
+            <Link
+              href="/investment-competition"
+              className={navigationMenuTriggerStyle()}
+            >
               Investment Competition
             </Link>
           </NavigationMenuLink>

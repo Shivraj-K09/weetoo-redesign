@@ -5,7 +5,7 @@ import { UserDropdown } from "./user/user-dropdown";
 
 export function Header() {
   return (
-    <header className="w-full border-dashed border-border border-b sticky top-0 z-50 bg-background ">
+    <header className="w-full border-dashed border-border border-b sticky top-0 z-50 bg-background">
       <div className="h-14 flex justify-between w-full items-center container mx-auto gap-2 md:gap-4">
         <Link href="/">
           <span className="font-semibold text-xl">WEETOO</span>

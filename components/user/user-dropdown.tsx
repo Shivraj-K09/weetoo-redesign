@@ -74,14 +74,14 @@ export function UserDropdown() {
               </DropdownMenuItem>
             </Link>
 
-            <Link href="/settings">
+            <Link href="#">
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
                 <SettingsIcon className="w-4 h-4 mr-3 text-muted-foreground" />
                 Settings
               </DropdownMenuItem>
             </Link>
 
-            <Link href="/notifications">
+            <Link href="#">
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
                 <BellIcon className="w-4 h-4 mr-3 text-muted-foreground" />
                 Notifications
@@ -90,7 +90,7 @@ export function UserDropdown() {
 
             <DropdownMenuSeparator className="my-2" />
 
-            <Link href="/help">
+            <Link href="#">
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
                 <HelpCircleIcon className="w-4 h-4 mr-3 text-muted-foreground" />
                 Help & Support
@@ -99,7 +99,7 @@ export function UserDropdown() {
 
             <DropdownMenuSeparator className="my-2" />
 
-            <Link href="/signout">
+            <Link href="#">
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
                 <LogOutIcon className="w-4 h-4 mr-3 text-red-500" />
                 Sign Out

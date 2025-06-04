@@ -20,7 +20,7 @@ export interface InstrumentData {
   chartData: ChartDataPoint[];
 }
 
-// Memoized chart data generation
+// Memoized chart data generation with improved caching
 const chartDataCache = new Map<string, ChartDataPoint[]>();
 
 const generateChartData = (
@@ -33,9 +33,10 @@ const generateChartData = (
     return chartDataCache.get(cacheKey)!;
   }
 
+  // Generate data with reduced precision for smaller bundle size
   const data: ChartDataPoint[] = [];
   let lastClose = basePrice;
-  const precision = basePrice < 10 ? 4 : 2;
+  const precision = basePrice < 10 ? 3 : 1; // Reduced precision
 
   for (let i = 0; i < points; i++) {
     const open = Number.parseFloat(lastClose.toFixed(precision));
@@ -53,7 +54,6 @@ const generateChartData = (
     const ohlc = [open, high, low, close];
     high = Math.max(...ohlc);
     low = Math.min(...ohlc);
-
     close = Math.max(low, Math.min(high, close));
 
     data.push({

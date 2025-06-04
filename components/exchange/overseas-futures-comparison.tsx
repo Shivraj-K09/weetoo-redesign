@@ -268,7 +268,7 @@ const columns: ColumnDef<Platform>[] = [
 ];
 
 export const OverseasFuturesComparison = () => {
-  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+  const [, setHoveredRow] = useState<string | null>(null);
 
   const table = useReactTable({
     data: PLATFORMS,

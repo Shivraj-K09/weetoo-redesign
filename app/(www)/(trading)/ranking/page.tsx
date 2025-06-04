@@ -1,5 +1,4 @@
 import { TraderRanking } from "@/components/trading/trader-ranking";
-import { TraderRankingTable } from "@/components/trading/trader-ranking-table";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

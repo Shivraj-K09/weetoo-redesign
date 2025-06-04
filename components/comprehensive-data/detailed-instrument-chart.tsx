@@ -2,31 +2,42 @@
 // The ChartContainer within this component will benefit from its parent having position: relative.
 "use client";
 
-import React from "react";
-import { useMemo } from "react";
-import {
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Cell,
-} from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import React, { useMemo } from "react";
+import {
+  Bar,
+  CartesianGrid,
+  Cell,
+  ComposedChart,
+  Line,
+  XAxis,
+  YAxis,
+} from "recharts";
 import type { ChartDataPoint, InstrumentData } from "./market-data";
 
 interface DetailedInstrumentChartProps {
   instrument: InstrumentData;
 }
 
+interface CandlestickProps {
+  x: number;
+  width: number;
+  payload: ChartDataPoint;
+  yAxis?: {
+    scale: (value: number) => number;
+  };
+  fill: string;
+  y?: number;
+  height?: number;
+}
+
 // Custom Candlestick Shape Component
-const Candlestick = (props: any) => {
+const Candlestick = (props: CandlestickProps) => {
   const { x, width, payload, yAxis, fill } = props;
 
   if (
@@ -40,13 +51,13 @@ const Candlestick = (props: any) => {
   }
 
   if (!yAxis || typeof yAxis.scale !== "function") {
-    const { y: rechartsY, height: rechartsHeight } = props;
+    const { y = 0, height = 0 } = props;
     return (
       <rect
         x={x}
-        y={rechartsY}
+        y={y}
         width={width}
-        height={Math.max(0.5, rechartsHeight)}
+        height={Math.max(0.5, height)}
         fill={fill}
       />
     );
@@ -85,7 +96,10 @@ const Candlestick = (props: any) => {
 export function DetailedInstrumentChart({
   instrument,
 }: DetailedInstrumentChartProps) {
-  const chartData = instrument.chartData || [];
+  const chartData = useMemo(
+    () => instrument.chartData || [],
+    [instrument.chartData]
+  );
 
   const chartConfig = useMemo(
     () => ({
@@ -241,7 +255,9 @@ export function DetailedInstrumentChart({
         <Bar
           dataKey={(d: ChartDataPoint) => [d.open, d.close]}
           barSize={6}
-          shape={<Candlestick />}
+          shape={(props: unknown) => (
+            <Candlestick {...(props as CandlestickProps)} />
+          )}
         >
           {validChartData.map((entry, index) => (
             <Cell

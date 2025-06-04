@@ -1,11 +1,20 @@
+import { Suspense, lazy } from "react";
 import { InstrumentCard } from "@/components/comprehensive-data/instrument-card";
 import {
   forexData,
   commoditiesData,
   type InstrumentData,
 } from "@/components/comprehensive-data/market-data";
-import { RelativePerformanceChart } from "@/components/comprehensive-data/relative-performance-chart";
 import { Metadata } from "next";
+
+// Lazy load the chart component
+const RelativePerformanceChart = lazy(() =>
+  import("@/components/comprehensive-data/relative-performance-chart").then(
+    (mod) => ({
+      default: mod.RelativePerformanceChart,
+    })
+  )
+);
 
 export const metadata: Metadata = {
   title: "Comprehensive Data - Market Insights and Analytics",
@@ -29,7 +38,13 @@ export default function ComprehensiveData() {
           />
         ))}
       </div>
-      <RelativePerformanceChart />
+      <Suspense
+        fallback={
+          <div className="h-96 w-full bg-muted animate-pulse rounded-lg" />
+        }
+      >
+        <RelativePerformanceChart />
+      </Suspense>
     </div>
   );
 }

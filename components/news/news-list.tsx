@@ -261,7 +261,7 @@ export const NewsList = memo(() => {
             )}
             {!hasMore && displayedArticles.length > ITEMS_PER_LOAD && (
               <p className="text-muted-foreground text-sm">
-                You've reached the end of the articles
+                You&apos;ve reached the end of the articles
               </p>
             )}
           </div>

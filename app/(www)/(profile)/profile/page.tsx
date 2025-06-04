@@ -1,7 +1,5 @@
 import { IdCard } from "@/components/profile/id-card";
 import { ProfileSettingsForm } from "@/components/profile/profile-settings-form";
-import { Separator } from "@/components/ui/separator";
-import { UserCircle2Icon } from "lucide-react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

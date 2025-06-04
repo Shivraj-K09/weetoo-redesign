@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 
-import Image from "next/image";
 import { TradingRoomsList } from "@/components/trading/trading-rooms-list";
 
 export const metadata: Metadata = {

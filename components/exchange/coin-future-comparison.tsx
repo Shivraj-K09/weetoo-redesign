@@ -318,7 +318,7 @@ const columns: ColumnDef<Exchange>[] = [
 ];
 
 export const CoinFuturesComparison = () => {
-  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+  const [, setHoveredRow] = useState<string | null>(null);
 
   const table = useReactTable({
     data: EXCHANGES,

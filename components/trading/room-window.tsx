@@ -226,7 +226,7 @@ export function TradingRoomWindow({
       if (windowState.isMaximized) {
         // Restore
         if (previousState) {
-          setWindowState((prev) => ({ ...previousState, isMaximized: false }));
+          setWindowState(() => ({ ...previousState, isMaximized: false }));
           windowPositionRef.current = {
             x: previousState.x,
             y: previousState.y,

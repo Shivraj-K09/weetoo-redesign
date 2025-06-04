@@ -103,15 +103,15 @@ const cardVariants = {
   }),
 };
 
-const hoverVariants = {
-  hover: (custom: number) => ({
-    scale: custom === 1 ? 1.03 : custom === 2 ? 0.92 : 0.87,
-    y: custom === 1 ? -23 : custom === 2 ? 36 : 48,
-    rotateY: custom === 2 ? 10 : custom === 3 ? -10 : 0,
-    z: custom === 1 ? 5 : custom === 2 ? -75 : -115,
-    transition: { duration: 0.2, ease: "easeInOut" },
-  }),
-};
+// const hoverVariants = {
+//   hover: (custom: number) => ({
+//     scale: custom === 1 ? 1.03 : custom === 2 ? 0.92 : 0.87,
+//     y: custom === 1 ? -23 : custom === 2 ? 36 : 48,
+//     rotateY: custom === 2 ? 10 : custom === 3 ? -10 : 0,
+//     z: custom === 1 ? 5 : custom === 2 ? -75 : -115,
+//     transition: { duration: 0.2, ease: "easeInOut" },
+//   }),
+// };
 
 // Memoized card component
 const TraderCard = memo(({ data }: { data: CardData }) => {

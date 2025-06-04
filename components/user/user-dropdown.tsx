@@ -14,6 +14,7 @@ import {
   HelpCircleIcon,
   LogOutIcon,
   SettingsIcon,
+  ShieldIcon,
   UserIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -78,6 +79,13 @@ export function UserDropdown() {
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
                 <SettingsIcon className="w-4 h-4 mr-3 text-muted-foreground" />
                 Settings
+              </DropdownMenuItem>
+            </Link>
+
+            <Link href="#">
+              <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+                <ShieldIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+                Go to Admin Dashboard
               </DropdownMenuItem>
             </Link>
 

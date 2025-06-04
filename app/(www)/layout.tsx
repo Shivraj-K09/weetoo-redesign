@@ -1,3 +1,4 @@
+import { FloatingChat } from "@/components/chat/floating-chat";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
@@ -9,8 +10,9 @@ export default function RootLayout({
   return (
     <div className="min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)]">
       <Header />
-      <main className="flex-1 flex flex-col">{children}</main>
+      <main className="flex-1 flex flex-col h-full">{children}</main>
       <Footer />
+      <FloatingChat />
     </div>
   );
 }

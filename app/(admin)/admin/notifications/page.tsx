@@ -1,3 +1,4 @@
+import { NotificationPage } from "@/components/admin/notification/notification-page";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,6 +9,8 @@ export const metadata: Metadata = {
 
 export default function Notifications() {
   return (
-    <div className="font-sans h-full">This is the Notifications Page.</div>
+    <div className="font-sans h-full">
+      <NotificationPage />
+    </div>
   );
 }

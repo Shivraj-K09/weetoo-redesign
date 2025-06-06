@@ -33,7 +33,7 @@ export default function AdminVerification() {
           <div className="space-y-1.5 text-center">
             <CardTitle className="text-xl">Admin Verification</CardTitle>
             <p className="text-sm text-muted-foreground">
-              We've sent a verification code to{" "}
+              We&apos;ve sent a verification code to{" "}
               <span className="font-medium text-foreground">
                 shadcn@gmail.com
               </span>

@@ -1,3 +1,4 @@
+import { GlobeIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
@@ -7,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { GlobeIcon, LogOutIcon, ShieldIcon } from "lucide-react";
 
 export function AdminProfile() {
   return (

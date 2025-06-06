@@ -15,8 +15,38 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+// Add type definitions
+interface BaseNotification {
+  id: string;
+  category: "korCoin" | "user" | "report" | "system";
+  title: string;
+  description: string;
+  date: string;
+  status: "read" | "unread";
+  priority: "high" | "medium" | "low";
+}
+
+interface KorCoinNotification extends BaseNotification {
+  category: "korCoin";
+  type?: "deposit" | "withdrawal";
+  user?: string;
+  amount?: number;
+  requiresApproval?: boolean;
+  approved?: boolean;
+}
+
+type Notification = BaseNotification | KorCoinNotification;
+
+interface NotificationData {
+  all: Notification[];
+  korCoin: KorCoinNotification[];
+  user: BaseNotification[];
+  report: BaseNotification[];
+  system: BaseNotification[];
+}
+
 // Sample notification data
-const notificationData = {
+const notificationData: NotificationData = {
   all: [
     {
       id: "1",
@@ -338,6 +368,13 @@ function getCategoryIcon(category: string) {
   }
 }
 
+// Add type guard for KorCoin notifications
+function isKorCoinNotification(
+  notification: Notification
+): notification is KorCoinNotification {
+  return notification.category === "korCoin";
+}
+
 interface NotificationProps {
   searchTerm: string;
 }
@@ -358,7 +395,7 @@ export function NotificationTabs({ searchTerm }: NotificationProps) {
           .includes(searchTerm.toLowerCase())
     );
     return acc;
-  }, {} as typeof notificationData);
+  }, {} as Record<keyof typeof notificationData, Notification[]>);
 
   // Count unread notifications by category
   const unreadCounts = {
@@ -380,7 +417,7 @@ export function NotificationTabs({ searchTerm }: NotificationProps) {
       onValueChange={setActiveTab}
       className="w-full"
     >
-      <div className=" rounded-lg">
+      <div className="rounded-lg">
         <TabsList className="h-auto rounded-none border-b bg-transparent p-0 w-full justify-start">
           <TabsTrigger
             value="all"
@@ -466,7 +503,7 @@ export function NotificationTabs({ searchTerm }: NotificationProps) {
               <div>
                 {filteredNotifications[
                   category as keyof typeof filteredNotifications
-                ].map((notification: any) => (
+                ].map((notification: Notification) => (
                   <div
                     key={notification.id}
                     className="border-b last:border-b-0"
@@ -481,7 +518,7 @@ export function NotificationTabs({ searchTerm }: NotificationProps) {
                           )}
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <div className={`text-sm font-medium`}>
+                              <div className="text-sm font-medium">
                                 {notification.title}
                               </div>
                               <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -498,8 +535,7 @@ export function NotificationTabs({ searchTerm }: NotificationProps) {
                               {notification.description}
                             </p>
 
-                            {/* Show transaction details for KOR_Coin deposits and withdrawals */}
-                            {notification.category === "korCoin" &&
+                            {isKorCoinNotification(notification) &&
                               notification.type && (
                                 <div className="mt-2 text-xs text-muted-foreground">
                                   <div className="flex items-center gap-2">
@@ -511,7 +547,8 @@ export function NotificationTabs({ searchTerm }: NotificationProps) {
                                     <span>•</span>
                                     <span>
                                       Amount:{" "}
-                                      {formatAmount(notification.amount)} KOR
+                                      {formatAmount(notification.amount || 0)}{" "}
+                                      KOR
                                     </span>
                                   </div>
                                 </div>
@@ -523,9 +560,9 @@ export function NotificationTabs({ searchTerm }: NotificationProps) {
                             {formatDate(notification.date)}
                           </div>
 
-                          {/* Standard actions */}
                           {(!notification.category ||
                             notification.category !== "korCoin" ||
+                            !isKorCoinNotification(notification) ||
                             !notification.requiresApproval) && (
                             <div className="flex gap-1">
                               <Button
@@ -549,8 +586,7 @@ export function NotificationTabs({ searchTerm }: NotificationProps) {
                             </div>
                           )}
 
-                          {/* Approval actions for KOR_Coin transactions */}
-                          {notification.category === "korCoin" &&
+                          {isKorCoinNotification(notification) &&
                             notification.requiresApproval &&
                             !notification.approved && (
                               <div className="flex gap-2">
@@ -583,4 +619,3 @@ export function NotificationTabs({ searchTerm }: NotificationProps) {
     </Tabs>
   );
 }
-``;

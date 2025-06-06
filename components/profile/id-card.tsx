@@ -29,13 +29,7 @@ export function IdCard({ user }: IdCardProps) {
       <CardHeader className="">
         <div className="bg-muted/20 p-6 border rounded-lg flex flex-col items-center text-center">
           <Avatar className="w-28 h-28 mb-4 border-4 border-background shadow-md">
-            <AvatarImage
-              src={
-                user.avatarUrl ||
-                "/placeholder.svg?width=120&height=120&query=user+avatar"
-              }
-              alt={user.fullName}
-            />
+            <AvatarImage src={user.avatarUrl || ""} alt={user.fullName} />
             <AvatarFallback className="text-4xl bg-gradient-to-br from-primary/70 to-primary">
               {getInitials(user.fullName)}
             </AvatarFallback>

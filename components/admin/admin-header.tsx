@@ -6,6 +6,7 @@ import { AdminNav } from "./admin-nav";
 import { AdminProfile } from "./admin-profile";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
+import { AdminNotification } from "./admin-notification";
 
 export function AdminHeader() {
   const navRef = useRef<HTMLDivElement>(null);
@@ -62,6 +63,7 @@ export function AdminHeader() {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <AdminNotification />
             <AdminProfile />
           </div>
         </div>

@@ -40,7 +40,7 @@ const registrationData: UserRegistration[] = [
   {
     id: "1",
     name: "Park Ji-won",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "",
     uid: "UID-24060501",
     registered: "2024-06-30T08:45:00",
     status: "verified",
@@ -48,7 +48,7 @@ const registrationData: UserRegistration[] = [
   {
     id: "2",
     name: "Kim Tae-hyung",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "",
     uid: "UID-24060502",
     registered: "2024-06-29T15:30:00",
     status: "pending",
@@ -56,7 +56,7 @@ const registrationData: UserRegistration[] = [
   {
     id: "3",
     name: "Lee Min-ho",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "",
     uid: "UID-24060503",
     registered: "2024-06-29T12:15:00",
     status: "verified",
@@ -64,7 +64,7 @@ const registrationData: UserRegistration[] = [
   {
     id: "4",
     name: "Choi Soo-young",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "",
     uid: "UID-24060504",
     registered: "2024-06-28T09:20:00",
     status: "rejected",
@@ -72,7 +72,7 @@ const registrationData: UserRegistration[] = [
   {
     id: "5",
     name: "Jung Ho-yeon",
-    avatar: "/placeholder.svg?height=40&width=40",
+    avatar: "",
     uid: "UID-24060505",
     registered: "2024-06-27T14:10:00",
     status: "verified",

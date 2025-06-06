@@ -42,7 +42,7 @@ const NewsCard = memo(
           <div className="p-2">
             <div className="h-48 w-full relative overflow-hidden rounded-xl">
               <Image
-                src={article.image || "/placeholder.svg"}
+                src={article.image || ""}
                 alt={article.title}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-110"

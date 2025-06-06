@@ -13,7 +13,7 @@ export default function Profile() {
     fullName: "Shad CN",
     nickname: "shadcn",
     email: "shadcn@example.com",
-    avatarUrl: "/placeholder.svg?width=120&height=120",
+    avatarUrl: "",
     joinDate: "2023-01-15",
     bio: "Building beautiful and accessible web experiences. Passionate about open source and design systems.",
     role: "Administrator",

@@ -268,7 +268,7 @@ export function FloatingChat() {
                               <div className="relative">
                                 <Avatar className="h-6 w-6">
                                   <AvatarImage
-                                    src={user.avatar || "/placeholder.svg"}
+                                    src={user.avatar || ""}
                                     alt={user.name}
                                   />
                                   <AvatarFallback className="text-xs">

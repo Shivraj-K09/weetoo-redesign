@@ -71,7 +71,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
     >
       <Avatar className="h-8 w-8 flex-shrink-0 ring-2 ring-background">
         <AvatarImage
-          src={message.sender.avatar || "/placeholder.svg"}
+          src={message.sender.avatar || ""}
           alt={message.sender.name}
         />
         <AvatarFallback className="text-xs bg-gradient-to-br from-[#549BCC] to-[#63b3e4] text-white">

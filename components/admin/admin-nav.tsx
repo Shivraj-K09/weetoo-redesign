@@ -11,7 +11,7 @@ const tabs = [
   { name: "Activity Log", path: "/admin/activity-log" },
   { name: "Livekit Management", path: "/admin/livekit-management" },
   { name: "Kor Coins", path: "/admin/kor-coins" },
-  { name: "Deposite Management", path: "/admin/deposite-management" },
+  { name: "Deposit Management", path: "/admin/deposit-management" },
   { name: "Withdraw Management", path: "/admin/withdraw-management" },
   { name: "Activity Points", path: "/admin/activity-points" },
   { name: "Usage History", path: "/admin/usage-history" },

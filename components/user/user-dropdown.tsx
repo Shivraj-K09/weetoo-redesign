@@ -82,7 +82,7 @@ export function UserDropdown() {
               </DropdownMenuItem>
             </Link>
 
-            <Link href="#">
+            <Link href="/admin-verification">
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
                 <ShieldIcon className="w-4 h-4 mr-3 text-muted-foreground" />
                 Go to Admin Dashboard

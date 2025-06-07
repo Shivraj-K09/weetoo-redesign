@@ -27,7 +27,8 @@ export interface StatCardProps {
     | "violet"
     | "rose"
     | "fuchsia"
-    | "cyan";
+    | "cyan"
+    | "red";
 }
 
 export function StatCard({
@@ -50,11 +51,12 @@ export function StatCard({
     rose: "from-rose-500/15 to-card",
     fuchsia: "from-fuchsia-500/15 to-card",
     cyan: "from-cyan-500/15 to-card",
+    red: "from-red-500/15 to-card",
   };
 
   return (
     <Card
-      className={`@container/card bg-gradient-to-l ${gradientClasses[color]} shadow-xs`}
+      className={`@container/card bg-gradient-to-l ${gradientClasses[color]} shadow-xs border-dotted border-2`}
     >
       <CardHeader>
         <CardDescription>{title}</CardDescription>

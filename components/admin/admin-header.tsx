@@ -1,13 +1,12 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "../theme-toggle";
 import { AdminNav } from "./admin-nav";
-import { AdminProfile } from "./admin-profile";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
 import { AdminNotification } from "./admin-notification";
-import { Input } from "../ui/input";
+import { AdminProfile } from "./admin-profile";
 
 export function AdminHeader() {
   const navRef = useRef<HTMLDivElement>(null);

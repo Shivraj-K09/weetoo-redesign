@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/dialog";
 
 // Mock data for the activity log
-const activityLogData = [
+const activityLogData: Activity[] = [
   {
     id: "act_1",
     adminId: "admin_1",
@@ -168,6 +168,84 @@ const activityLogData = [
   },
 ];
 
+interface PostApprovalDetails {
+  previousStatus: string;
+  newStatus: string;
+  category: string;
+  authorId: string;
+  authorName: string;
+}
+
+interface UserUpdateDetails {
+  changes: {
+    role: {
+      from: string;
+      to: string;
+    };
+    permissions: {
+      added: string[];
+      removed: string[];
+    };
+  };
+}
+
+interface ContentRemovalDetails {
+  reason: string;
+  reportId: string;
+  reportedBy: string;
+}
+
+interface SystemSettingsDetails {
+  changes: Record<
+    string,
+    {
+      from: string;
+      to: string;
+    }
+  >;
+}
+
+interface UserBanDetails {
+  reason: string;
+  duration: string;
+  previousWarnings: number;
+}
+
+interface PostRejectionDetails {
+  reason: string;
+  feedback: string;
+  authorId: string;
+}
+
+interface CategoryCreationDetails {
+  parentCategory: string;
+  description: string;
+  visibility: string;
+}
+
+type ActivityDetails =
+  | PostApprovalDetails
+  | UserUpdateDetails
+  | ContentRemovalDetails
+  | SystemSettingsDetails
+  | UserBanDetails
+  | PostRejectionDetails
+  | CategoryCreationDetails;
+
+interface Activity {
+  id: string;
+  adminId: string;
+  adminName: string;
+  adminAvatar: string;
+  action: string;
+  actionLabel: string;
+  target: string;
+  targetId: string;
+  timestamp: Date;
+  status: string;
+  details: ActivityDetails;
+}
+
 interface ActivityLogTableProps {
   searchQuery: string;
   filters: {
@@ -188,13 +266,64 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
+// Type guards
+function isPostApprovalDetails(
+  details: ActivityDetails
+): details is PostApprovalDetails {
+  return "previousStatus" in details && "newStatus" in details;
+}
+
+function isUserUpdateDetails(
+  details: ActivityDetails
+): details is UserUpdateDetails {
+  return "changes" in details && "role" in details.changes;
+}
+
+function isContentRemovalDetails(
+  details: ActivityDetails
+): details is ContentRemovalDetails {
+  return "reason" in details && "reportId" in details;
+}
+
+function isSystemSettingsDetails(
+  details: ActivityDetails
+): details is SystemSettingsDetails {
+  return "changes" in details && !("role" in details.changes);
+}
+
+function isUserBanDetails(details: ActivityDetails): details is UserBanDetails {
+  return (
+    "reason" in details &&
+    "duration" in details &&
+    "previousWarnings" in details
+  );
+}
+
+function isPostRejectionDetails(
+  details: ActivityDetails
+): details is PostRejectionDetails {
+  return "reason" in details && "feedback" in details && "authorId" in details;
+}
+
+function isCategoryCreationDetails(
+  details: ActivityDetails
+): details is CategoryCreationDetails {
+  return (
+    "parentCategory" in details &&
+    "description" in details &&
+    "visibility" in details
+  );
+}
+
 export function ActivityLogTable({
   searchQuery,
   filters,
 }: ActivityLogTableProps) {
-  const [sortColumn, setSortColumn] = useState<string>("timestamp");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [selectedActivity, setSelectedActivity] = useState<any>(null);
+  const [sortColumn] = useState<string>("timestamp");
+  const [sortDirection] = useState<"asc" | "desc">("desc");
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
+    null
+  );
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   // Filter and search logic
@@ -242,15 +371,6 @@ export function ActivityLogTable({
 
     return filtered;
   }, [searchQuery, filters]);
-
-  const handleSort = (column: string) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(column);
-      setSortDirection("desc");
-    }
-  };
 
   const sortedData = [...filteredData].sort((a, b) => {
     if (sortColumn === "timestamp") {
@@ -362,7 +482,7 @@ export function ActivityLogTable({
     }
   };
 
-  const viewDetails = (activity: any) => {
+  const viewDetails = (activity: Activity) => {
     setSelectedActivity(activity);
     setDetailsOpen(true);
   };
@@ -530,178 +650,196 @@ export function ActivityLogTable({
                   Details
                 </h4>
                 <div className="bg-muted rounded-md p-4 text-sm">
-                  {selectedActivity.action === "post_approval" && (
-                    <div className="space-y-2">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <span className="text-muted-foreground">
-                            Previous Status:
-                          </span>{" "}
-                          {selectedActivity.details.previousStatus}
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">
-                            New Status:
-                          </span>{" "}
-                          {selectedActivity.details.newStatus}
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Category:</span>{" "}
-                        {selectedActivity.details.category}
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Author:</span>{" "}
-                        {selectedActivity.details.authorName} (
-                        {selectedActivity.details.authorId})
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedActivity.action === "user_update" && (
-                    <div className="space-y-3">
-                      <div>
-                        <h5 className="font-medium mb-1">Role Change</h5>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">
-                            {selectedActivity.details.changes.role.from}
-                          </Badge>
-                          <ArrowRight className="h-4 w-4" />
-                          <Badge
-                            variant="outline"
-                            className="bg-blue-50 text-blue-700 border-blue-200"
-                          >
-                            {selectedActivity.details.changes.role.to}
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h5 className="font-medium mb-1">Permissions Added</h5>
-                        <div className="flex flex-wrap gap-1">
-                          {selectedActivity.details.changes.permissions.added.map(
-                            (perm: string) => (
-                              <Badge
-                                key={perm}
-                                variant="outline"
-                                className="bg-green-50 text-green-700 border-green-200"
-                              >
-                                {perm}
-                              </Badge>
-                            )
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedActivity.action === "content_removal" && (
-                    <div className="space-y-2">
-                      <div>
-                        <span className="text-muted-foreground">Reason:</span>{" "}
-                        {selectedActivity.details.reason}
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Report ID:
-                        </span>{" "}
-                        {selectedActivity.details.reportId}
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Reported By:
-                        </span>{" "}
-                        {selectedActivity.details.reportedBy}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedActivity.action === "system_settings" && (
-                    <div className="space-y-3">
-                      {Object.entries(selectedActivity.details.changes).map(
-                        ([key, value]: [string, any]) => (
-                          <div key={key}>
-                            <h5 className="font-medium mb-1">
-                              {key
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}
-                            </h5>
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline">{value.from}</Badge>
-                              <ArrowRight className="h-4 w-4" />
-                              <Badge
-                                variant="outline"
-                                className="bg-amber-50 text-amber-700 border-amber-200"
-                              >
-                                {value.to}
-                              </Badge>
-                            </div>
+                  {selectedActivity.action === "post_approval" &&
+                    isPostApprovalDetails(selectedActivity.details) && (
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <span className="text-muted-foreground">
+                              Previous Status:
+                            </span>{" "}
+                            {selectedActivity.details.previousStatus}
                           </div>
-                        )
-                      )}
-                    </div>
-                  )}
+                          <div>
+                            <span className="text-muted-foreground">
+                              New Status:
+                            </span>{" "}
+                            {selectedActivity.details.newStatus}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Category:
+                          </span>{" "}
+                          {selectedActivity.details.category}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Author:</span>{" "}
+                          {selectedActivity.details.authorName} (
+                          {selectedActivity.details.authorId})
+                        </div>
+                      </div>
+                    )}
 
-                  {selectedActivity.action === "user_ban" && (
-                    <div className="space-y-2">
-                      <div>
-                        <span className="text-muted-foreground">Reason:</span>{" "}
-                        {selectedActivity.details.reason}
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Duration:</span>{" "}
-                        {selectedActivity.details.duration}
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Previous Warnings:
-                        </span>{" "}
-                        {selectedActivity.details.previousWarnings}
-                      </div>
-                    </div>
-                  )}
+                  {selectedActivity.action === "user_update" &&
+                    isUserUpdateDetails(selectedActivity.details) && (
+                      <div className="space-y-3">
+                        <div>
+                          <h5 className="font-medium mb-1">Role Change</h5>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">
+                              {selectedActivity.details.changes.role.from}
+                            </Badge>
+                            <ArrowRight className="h-4 w-4" />
+                            <Badge
+                              variant="outline"
+                              className="bg-blue-50 text-blue-700 border-blue-200"
+                            >
+                              {selectedActivity.details.changes.role.to}
+                            </Badge>
+                          </div>
+                        </div>
 
-                  {selectedActivity.action === "post_rejection" && (
-                    <div className="space-y-2">
-                      <div>
-                        <span className="text-muted-foreground">Reason:</span>{" "}
-                        {selectedActivity.details.reason}
+                        <div>
+                          <h5 className="font-medium mb-1">
+                            Permissions Added
+                          </h5>
+                          <div className="flex flex-wrap gap-1">
+                            {selectedActivity.details.changes.permissions.added.map(
+                              (perm: string) => (
+                                <Badge
+                                  key={perm}
+                                  variant="outline"
+                                  className="bg-green-50 text-green-700 border-green-200"
+                                >
+                                  {perm}
+                                </Badge>
+                              )
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">Feedback:</span>{" "}
-                        {selectedActivity.details.feedback}
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Author ID:
-                        </span>{" "}
-                        {selectedActivity.details.authorId}
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {selectedActivity.action === "category_creation" && (
-                    <div className="space-y-2">
-                      <div>
-                        <span className="text-muted-foreground">
-                          Parent Category:
-                        </span>{" "}
-                        {selectedActivity.details.parentCategory}
+                  {selectedActivity.action === "content_removal" &&
+                    isContentRemovalDetails(selectedActivity.details) && (
+                      <div className="space-y-2">
+                        <div>
+                          <span className="text-muted-foreground">Reason:</span>{" "}
+                          {selectedActivity.details.reason}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Report ID:
+                          </span>{" "}
+                          {selectedActivity.details.reportId}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Reported By:
+                          </span>{" "}
+                          {selectedActivity.details.reportedBy}
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Description:
-                        </span>{" "}
-                        {selectedActivity.details.description}
+                    )}
+
+                  {selectedActivity.action === "system_settings" &&
+                    isSystemSettingsDetails(selectedActivity.details) && (
+                      <div className="space-y-3">
+                        {Object.entries(selectedActivity.details.changes).map(
+                          ([key, value]: [
+                            string,
+                            { from: string; to: string }
+                          ]) => (
+                            <div key={key}>
+                              <h5 className="font-medium mb-1">
+                                {key
+                                  .replace(/([A-Z])/g, " $1")
+                                  .replace(/^./, (str) => str.toUpperCase())}
+                              </h5>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline">{value.from}</Badge>
+                                <ArrowRight className="h-4 w-4" />
+                                <Badge
+                                  variant="outline"
+                                  className="bg-amber-50 text-amber-700 border-amber-200"
+                                >
+                                  {value.to}
+                                </Badge>
+                              </div>
+                            </div>
+                          )
+                        )}
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Visibility:
-                        </span>{" "}
-                        {selectedActivity.details.visibility}
+                    )}
+
+                  {selectedActivity.action === "user_ban" &&
+                    isUserBanDetails(selectedActivity.details) && (
+                      <div className="space-y-2">
+                        <div>
+                          <span className="text-muted-foreground">Reason:</span>{" "}
+                          {selectedActivity.details.reason}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Duration:
+                          </span>{" "}
+                          {selectedActivity.details.duration}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Previous Warnings:
+                          </span>{" "}
+                          {selectedActivity.details.previousWarnings}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+
+                  {selectedActivity.action === "post_rejection" &&
+                    isPostRejectionDetails(selectedActivity.details) && (
+                      <div className="space-y-2">
+                        <div>
+                          <span className="text-muted-foreground">Reason:</span>{" "}
+                          {selectedActivity.details.reason}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Feedback:
+                          </span>{" "}
+                          {selectedActivity.details.feedback}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Author ID:
+                          </span>{" "}
+                          {selectedActivity.details.authorId}
+                        </div>
+                      </div>
+                    )}
+
+                  {selectedActivity.action === "category_creation" &&
+                    isCategoryCreationDetails(selectedActivity.details) && (
+                      <div className="space-y-2">
+                        <div>
+                          <span className="text-muted-foreground">
+                            Parent Category:
+                          </span>{" "}
+                          {selectedActivity.details.parentCategory}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Description:
+                          </span>{" "}
+                          {selectedActivity.details.description}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">
+                            Visibility:
+                          </span>{" "}
+                          {selectedActivity.details.visibility}
+                        </div>
+                      </div>
+                    )}
                 </div>
               </div>
             </div>

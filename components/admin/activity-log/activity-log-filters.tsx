@@ -18,13 +18,15 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 
+interface Filters {
+  dateRange: { from: Date | undefined; to: Date | undefined };
+  selectedAdmins: string[];
+  selectedActions: string[];
+}
+
 interface ActivityLogFiltersProps {
-  filters: {
-    dateRange: { from: Date | undefined; to: Date | undefined };
-    selectedAdmins: string[];
-    selectedActions: string[];
-  };
-  onFiltersChange: (filters: any) => void;
+  filters: Filters;
+  onFiltersChange: (filters: Filters) => void;
 }
 
 export function ActivityLogFilters({

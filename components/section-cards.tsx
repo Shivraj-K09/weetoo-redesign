@@ -28,7 +28,8 @@ export interface StatCardProps {
     | "rose"
     | "fuchsia"
     | "cyan"
-    | "red";
+    | "red"
+    | "yellow";
 }
 
 export function StatCard({
@@ -52,6 +53,7 @@ export function StatCard({
     fuchsia: "from-fuchsia-500/15 to-card",
     cyan: "from-cyan-500/15 to-card",
     red: "from-red-500/15 to-card",
+    yellow: "from-yellow-500/15 to-card",
   };
 
   return (

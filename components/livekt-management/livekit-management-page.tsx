@@ -58,7 +58,7 @@ export function LiveKitManagementPage() {
 
   return (
     <div className="bg-background">
-      <div className="container mx-auto space-y-5">
+      <div className="container mx-auto space-y-5 mt-5">
         {/* Header */}
         <div className="flex items-center justify-between pb-6 border-b border-border">
           <div className="space-y-1">

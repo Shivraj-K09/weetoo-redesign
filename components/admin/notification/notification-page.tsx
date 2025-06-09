@@ -10,7 +10,7 @@ export function NotificationPage() {
   const totalCount = 100; // This should ideally come from your data source
 
   return (
-    <div className="flex flex-col gap-3 h-full ">
+    <div className="flex flex-col gap-3 h-full container mx-auto">
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-2">
           <BellIcon className="size-4" />

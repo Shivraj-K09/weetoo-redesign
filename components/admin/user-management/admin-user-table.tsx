@@ -33,7 +33,7 @@ export function AdminUserTable() {
   };
 
   return (
-    <div className="bg-background">
+    <div className="bg-background pb-5">
       <div className="">
         {/* Header */}
         <div className="mb-1">

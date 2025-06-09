@@ -106,7 +106,7 @@ export function ActivityLogFilters({
           <Button
             variant="outline"
             size="sm"
-            className="gap-2 min-w-[140px] justify-start"
+            className="gap-2 min-w-[200px] justify-start h-10"
           >
             <CalendarIcon className="h-4 w-4" />
             <span className="truncate">{formatDateRange()}</span>
@@ -115,7 +115,7 @@ export function ActivityLogFilters({
         </PopoverTrigger>
         <PopoverContent
           className="w-auto p-0"
-          align="end"
+          align="start"
           side="bottom"
           sideOffset={4}
         >
@@ -141,7 +141,7 @@ export function ActivityLogFilters({
       {/* Admin Filter */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2 h-10">
             Admin
             {filters.selectedAdmins.length > 0 && (
               <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 text-xs">
@@ -151,7 +151,7 @@ export function ActivityLogFilters({
             <ChevronDown className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="start" className="w-48">
           <DropdownMenuLabel>Filter by admin</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {admins.map((admin) => (
@@ -169,7 +169,7 @@ export function ActivityLogFilters({
       {/* Action Filter */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2 h-10">
             Action
             {filters.selectedActions.length > 0 && (
               <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 text-xs">
@@ -179,7 +179,7 @@ export function ActivityLogFilters({
             <ChevronDown className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="start" className="w-48">
           <DropdownMenuLabel>Filter by action</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {actions.map((action) => (

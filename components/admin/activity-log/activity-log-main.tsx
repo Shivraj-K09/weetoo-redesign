@@ -1,12 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { DownloadIcon, SearchIcon } from "lucide-react";
-import { ActivityLogStats } from "./activity-log-stats";
-import { ActivityLogFilters } from "./activity-log-filters";
-import { ActivityLogTable } from "./activity-log-table";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { SearchIcon } from "lucide-react";
+import { useState } from "react";
+import { ActivityLogFilters } from "./activity-log-filters";
+import { ActivityLogStats } from "./activity-log-stats";
+import { ActivityLogTable } from "./activity-log-table";
 
 export function ActivityLogMain() {
   const [searchQuery, setSearchQuery] = useState("");

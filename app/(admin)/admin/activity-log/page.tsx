@@ -1,3 +1,4 @@
+import { ActivityLogMain } from "@/components/admin/activity-log/activity-log-main";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function ActivityLog() {
-  return <div>Activity Logs</div>;
+  return (
+    <div className="flex flex-col gap-8">
+      <ActivityLogMain />
+    </div>
+  );
 }

@@ -1,4 +1,4 @@
-import { StatCard } from "../overview/section-cards";
+import { StatCard } from "@/components/section-cards";
 
 export function UserStats() {
   return (

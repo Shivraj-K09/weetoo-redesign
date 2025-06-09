@@ -1,7 +1,7 @@
 import { KorCoinsChart } from "@/components/admin/overview/kor-coins-chart";
 import { KorCoinsTable } from "@/components/admin/overview/kor-coins-table";
 import { NewUserTable } from "@/components/admin/overview/new-user-table";
-import { StatCard } from "@/components/admin/overview/section-cards";
+import { StatCard } from "@/components/section-cards";
 import { UserSignupBar } from "@/components/admin/overview/user-signup-bar";
 import { Metadata } from "next";
 

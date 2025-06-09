@@ -22,6 +22,15 @@ import {
   topUsers,
   topRooms,
 } from "./mock-data";
+import { StatCard } from "@/components/section-cards";
+
+// Helper function to format currency
+function formatCurrency(value: number, isKRW: boolean) {
+  if (isKRW) {
+    return `₩${value.toLocaleString()}`;
+  }
+  return `$${value}`;
+}
 
 export function LiveKitManagementPage() {
   const [date, setDate] = useState<DateRange | undefined>({
@@ -30,60 +39,28 @@ export function LiveKitManagementPage() {
   });
   const [isKRW, setIsKRW] = useState(false);
 
-  const metricCards = [
-    {
-      title: "Broadcasting Time",
-      icon: Mic,
-      data: metrics.broadcastingTime,
-      description: "Higher rate than listening time",
-      colorScheme: {
-        gradient:
-          "bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20",
-        border: "border-orange-100 dark:border-orange-900/30",
-        icon: "text-orange-600 dark:text-orange-400",
-        badge:
-          "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300",
-        decorative:
-          "bg-gradient-to-br from-orange-200/30 to-red-200/30 dark:from-orange-800/30 dark:to-red-800/30",
-      },
-    },
-    {
-      title: "Listening Time",
-      icon: Users,
-      data: metrics.listeningTime,
-      description: "Based on LiveKit pricing",
-      colorScheme: {
-        gradient:
-          "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20",
-        border: "border-blue-100 dark:border-blue-900/30",
-        icon: "text-blue-600 dark:text-blue-400",
-        badge:
-          "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
-        decorative:
-          "bg-gradient-to-br from-blue-200/30 to-indigo-200/30 dark:from-blue-800/30 dark:to-indigo-800/30",
-      },
-    },
-    {
-      title: "Total Cost",
-      icon: DollarSign,
-      data: metrics.totalCost,
-      description: "This month's usage statistics",
-      colorScheme: {
-        gradient:
-          "bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20",
-        border: "border-emerald-100 dark:border-emerald-900/30",
-        icon: "text-emerald-600 dark:text-emerald-400",
-        badge:
-          "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300",
-        decorative:
-          "bg-gradient-to-br from-emerald-200/30 to-teal-200/30 dark:from-emerald-800/30 dark:to-teal-800/30",
-      },
-    },
-  ];
+  // Conversion rate (example, update as needed)
+  const USD_TO_KRW = 1350;
+
+  // Get values from metrics
+  const broadcastingTime = metrics.broadcastingTime;
+  const listeningTime = metrics.listeningTime;
+  const totalCost = metrics.totalCost;
+
+  // Calculate cost in KRW if needed
+  const broadcastingCost = isKRW
+    ? Math.round(Number(broadcastingTime.cost) * USD_TO_KRW)
+    : Number(broadcastingTime.cost);
+  const listeningCost = isKRW
+    ? Math.round(Number(listeningTime.cost) * USD_TO_KRW)
+    : Number(listeningTime.cost);
+  const totalCostValue = isKRW
+    ? Math.round(Number(totalCost.value) * USD_TO_KRW)
+    : Number(totalCost.value);
 
   return (
     <div className="bg-background">
-      <div className="container mx-auto p-6 space-y-8">
+      <div className="container mx-auto space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between pb-6 border-b border-border">
           <div className="space-y-1">
@@ -112,27 +89,49 @@ export function LiveKitManagementPage() {
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {metricCards.map((card, index) => (
-            <MetricCard
-              key={index}
-              title={card.title}
-              icon={card.icon}
-              data={card.data}
-              description={card.description}
-              colorScheme={card.colorScheme}
-              isKRW={isKRW}
-            />
-          ))}
+          <StatCard
+            title="Broadcasting Time"
+            value={`${broadcastingTime.value} min`}
+            trend={{ value: 12.5, isPositive: true }}
+            description={`Estimated cost: ${formatCurrency(
+              broadcastingCost,
+              isKRW
+            )}`}
+            subDescription="Higher rate than listening time"
+            color="blue"
+          />
+          <StatCard
+            title="Listening Time"
+            value={`${listeningTime.value} min`}
+            trend={{ value: 12.5, isPositive: true }}
+            description={`Estimated cost: ${formatCurrency(
+              listeningCost,
+              isKRW
+            )}`}
+            subDescription="Based on LiveKit pricing"
+            color="green"
+          />
+          <StatCard
+            title="Total Cost"
+            value={formatCurrency(totalCostValue, isKRW)}
+            trend={{ value: 12.5, isPositive: true }}
+            description={`Estimated cost: ${formatCurrency(
+              totalCostValue,
+              isKRW
+            )}`}
+            subDescription="This month's usage statistics"
+            color="purple"
+          />
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <UsagePatternChart data={usagePatternData} />
           <DayOfWeekChart data={dayOfWeekData} />
         </div>
 
         {/* Tables Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <TopUsersTable users={topUsers} isKRW={isKRW} />
           <TopRoomsTable rooms={topRooms} isKRW={isKRW} />
         </div>

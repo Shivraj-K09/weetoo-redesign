@@ -288,7 +288,12 @@ function isContentRemovalDetails(
 function isSystemSettingsDetails(
   details: ActivityDetails
 ): details is SystemSettingsDetails {
-  return "changes" in details && !("role" in details.changes);
+  return (
+    "changes" in details &&
+    typeof details.changes === "object" &&
+    !("role" in details.changes) &&
+    !("permissions" in details.changes)
+  );
 }
 
 function isUserBanDetails(details: ActivityDetails): details is UserBanDetails {

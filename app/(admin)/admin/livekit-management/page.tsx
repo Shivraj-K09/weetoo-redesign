@@ -1,3 +1,4 @@
+import { LiveKitManagementPage } from "@/components/livekt-management/livekit-management-page";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function LivekitManagement() {
-  return <div>Livekit Management</div>;
+  return <LiveKitManagementPage />;
 }

@@ -52,7 +52,7 @@ const depositData = [
     id: "DEP-24060501",
     user: {
       name: "Kim Min-ji",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "",
       uid: "UID-24060501",
     },
     amount: 250000,
@@ -65,7 +65,7 @@ const depositData = [
     id: "DEP-24060502",
     user: {
       name: "Park Ji-sung",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "",
       uid: "UID-24060502",
     },
     amount: 500000,
@@ -78,7 +78,7 @@ const depositData = [
     id: "DEP-24060503",
     user: {
       name: "Lee Soo-jin",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "",
       uid: "UID-24060503",
     },
     amount: 1500000,
@@ -91,7 +91,7 @@ const depositData = [
     id: "DEP-24060504",
     user: {
       name: "Choi Woo-shik",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "",
       uid: "UID-24060504",
     },
     amount: 100000,
@@ -104,7 +104,7 @@ const depositData = [
     id: "DEP-24060505",
     user: {
       name: "Kang Hye-jung",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "",
       uid: "UID-24060505",
     },
     amount: 750000,
@@ -117,7 +117,7 @@ const depositData = [
     id: "DEP-24060506",
     user: {
       name: "Jung Ho-yeon",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "",
       uid: "UID-24060506",
     },
     amount: 300000,
@@ -130,7 +130,7 @@ const depositData = [
     id: "DEP-24060507",
     user: {
       name: "Bae Suzy",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "",
       uid: "UID-24060507",
     },
     amount: 200000,
@@ -143,7 +143,7 @@ const depositData = [
     id: "DEP-24060508",
     user: {
       name: "Gong Yoo",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "",
       uid: "UID-24060508",
     },
     amount: 1000000,
@@ -156,7 +156,7 @@ const depositData = [
     id: "DEP-24060509",
     user: {
       name: "Son Ye-jin",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "",
       uid: "UID-24060509",
     },
     amount: 450000,
@@ -169,7 +169,7 @@ const depositData = [
     id: "DEP-24060510",
     user: {
       name: "Hyun Bin",
-      avatar: "/placeholder.svg?height=40&width=40",
+      avatar: "",
       uid: "UID-24060510",
     },
     amount: 800000,

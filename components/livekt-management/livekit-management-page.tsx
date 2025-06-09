@@ -1,28 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { Users, Mic, DollarSign } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { addDays } from "date-fns";
+import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 
 // Components
-import { MetricCard } from "./metric-card";
-import { UsagePatternChart } from "./usage-pattern-chart";
-import { DayOfWeekChart } from "./day-of-week-chart";
-import { TopUsersTable } from "./top-users-table";
-import { TopRoomsTable } from "./top-rooms-table";
 import { DateRangePicker } from "./date-range-picker";
+import { DayOfWeekChart } from "./day-of-week-chart";
+import { TopRoomsTable } from "./top-rooms-table";
+import { TopUsersTable } from "./top-users-table";
+import { UsagePatternChart } from "./usage-pattern-chart";
 
 // Data
-import {
-  metrics,
-  usagePatternData,
-  dayOfWeekData,
-  topUsers,
-  topRooms,
-} from "./mock-data";
 import { StatCard } from "@/components/section-cards";
+import {
+  dayOfWeekData,
+  metrics,
+  topRooms,
+  topUsers,
+  usagePatternData,
+} from "./mock-data";
 
 // Helper function to format currency
 function formatCurrency(value: number, isKRW: boolean) {

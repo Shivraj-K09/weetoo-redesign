@@ -601,7 +601,8 @@ export function PostManagementTable({
             value={pageSize.toString()}
             onValueChange={(value) => {
               setPageSize(Number(value));
-              table.setPageIndex(0); // Reset to first page when page size changes
+              table.setPageSize(Number(value));
+              table.setPageIndex(0);
             }}
           >
             <SelectTrigger className="h-8 w-[70px] shadow-none cursor-pointer">

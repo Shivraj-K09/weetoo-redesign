@@ -201,7 +201,9 @@ body {
   }
 }
 
-/* :root {
+/* Theme for the color #26568  */
+/* 
+:root {
   --background: oklch(0.9702 0 0);
   --foreground: oklch(0.3211 0 0);
   --card: oklch(1.0000 0 0);
@@ -247,9 +249,9 @@ body {
   --shadow-xl: 0px 2px 4px 0px hsl(0 0% 0% / 0.20), 0px 8px 10px -1px hsl(0 0% 0% / 0.20);
   --shadow-2xl: 0px 2px 4px 0px hsl(0 0% 0% / 0.50);
   --tracking-normal: 0px;
-}
+} */
 
-.dark {
+/* .dark {
   --background: oklch(0.3052 0 0);
   --foreground: oklch(1.0000 0 0);
   --card: oklch(0.3211 0 0);
@@ -294,9 +296,9 @@ body {
   --shadow-lg: 0px 2px 4px 0px hsl(0 0% 0% / 0.20), 0px 4px 6px -1px hsl(0 0% 0% / 0.20);
   --shadow-xl: 0px 2px 4px 0px hsl(0 0% 0% / 0.20), 0px 8px 10px -1px hsl(0 0% 0% / 0.20);
   --shadow-2xl: 0px 2px 4px 0px hsl(0 0% 0% / 0.50);
-}
+} */
 
-@theme inline {
+/* @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -354,8 +356,8 @@ body {
   --tracking-wide: calc(var(--tracking-normal) + 0.025em);
   --tracking-wider: calc(var(--tracking-normal) + 0.05em);
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
-}
+} */
 
-body {
+/* body {
   letter-spacing: var(--tracking-normal);
 } */

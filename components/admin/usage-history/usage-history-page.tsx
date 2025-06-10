@@ -4,17 +4,17 @@ import { useState } from "react";
 import { UsageHistoryTable } from "./usage-history-table";
 import { DateRange } from "react-day-picker";
 import { DownloadIcon, SearchIcon, XIcon } from "lucide-react";
-import { Input } from "../ui/input";
-import { DateRangePicker } from "../date-range-picker";
+import { Input } from "../../ui/input";
+import { DateRangePicker } from "../../date-range-picker";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
+} from "../../ui/select";
+import { Button } from "../../ui/button";
+import { Badge } from "../../ui/badge";
 import { format } from "date-fns";
 
 export function UsageHistoryPage() {

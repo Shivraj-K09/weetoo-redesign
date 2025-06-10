@@ -19,14 +19,27 @@ import { format } from "date-fns";
 import { X } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/date-range-picker";
+
+type Situation = "all" | "verified" | "pending" | "rejected" | "suspended";
+type Exchange = "all" | "Binance" | "Coinbase" | "Kraken" | "Upbit" | "Bithumb";
+
+interface Filters {
+  situation: Situation;
+  exchange: Exchange;
+  dateRange: {
+    from: Date | undefined;
+    to: Date | undefined;
+  };
+}
+
 export function UidManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Filters>({
     situation: "all",
     exchange: "all",
     dateRange: {
-      from: undefined as Date | undefined,
-      to: undefined as Date | undefined,
+      from: undefined,
+      to: undefined,
     },
   });
 
@@ -39,7 +52,10 @@ export function UidManagementPage() {
     return value !== "all";
   }).length;
 
-  const handleFilterChange = (key: "situation" | "exchange", value: string) => {
+  const handleFilterChange = (
+    key: keyof Filters,
+    value: Filters[keyof Filters]
+  ) => {
     setFilters((prev) => ({
       ...prev,
       [key]: value,
@@ -95,7 +111,9 @@ export function UidManagementPage() {
           />
           <Select
             value={filters.situation}
-            onValueChange={(value) => handleFilterChange("situation", value)}
+            onValueChange={(value) =>
+              handleFilterChange("situation", value as Situation)
+            }
           >
             <SelectTrigger className="w-[150px] shadow-none h-10 cursor-pointer">
               <SelectValue placeholder="Situation" />
@@ -110,7 +128,9 @@ export function UidManagementPage() {
           </Select>
           <Select
             value={filters.exchange}
-            onValueChange={(value) => handleFilterChange("exchange", value)}
+            onValueChange={(value) =>
+              handleFilterChange("exchange", value as Exchange)
+            }
           >
             <SelectTrigger className="w-[150px] shadow-none h-10 cursor-pointer">
               <SelectValue placeholder="Exchange" />

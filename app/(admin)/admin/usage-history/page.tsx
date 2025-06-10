@@ -1,4 +1,4 @@
-import { UsageHistoryPage } from "@/components/usage-history/usage-history-page";
+import { UsageHistoryPage } from "@/components/admin/usage-history/usage-history-page";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

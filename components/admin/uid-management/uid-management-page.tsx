@@ -39,7 +39,7 @@ export function UidManagementPage() {
     return value !== "all";
   }).length;
 
-  const handleFilterChange = (key: string, value: any) => {
+  const handleFilterChange = (key: "situation" | "exchange", value: string) => {
     setFilters((prev) => ({
       ...prev,
       [key]: value,

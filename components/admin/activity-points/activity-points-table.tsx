@@ -10,13 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ArrowUpDown,
-  CheckCircle,
-  Clock,
-  MoreHorizontal,
-  XCircle,
-} from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -53,290 +47,267 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { DateRange } from "react-day-picker";
-import { WithdrawDetailsDialog } from "./withdraw-details-dialog";
+import { ActivityPointsDetailsDialog } from "./activity-points-dialog";
 
-// Sample withdraw data
-const withdrawData = [
+const activityPointsData = [
   {
-    id: "WDR-24060501",
+    act_id: "ACT-24060501",
     user: {
-      name: "Kim Min-ji",
-      avatar: "",
+      first_name: "Kim",
+      last_name: "Min-ji",
+      avatar_url: "",
       uid: "UID-24060501",
     },
-    amount: 150000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "approved",
-    date: "2024-06-30T08:15:00",
-    approvedBy: "Admin 1",
+    exp_earned: 100,
+    coins_earned: 500,
+    transaction_type: "post_create",
+    created_at: "2024-06-30T08:15:00",
+    metadata: {
+      post_title: "My First Post",
+    },
   },
   {
-    id: "WDR-24060502",
+    act_id: "ACT-24060502",
     user: {
-      name: "Park Ji-sung",
-      avatar: "",
+      first_name: "Park",
+      last_name: "Ji-sung",
+      avatar_url: "",
       uid: "UID-24060502",
     },
-    amount: 300000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "pending",
-    date: "2024-06-29T13:22:00",
-    approvedBy: null,
+    exp_earned: 50,
+    coins_earned: 250,
+    transaction_type: "comment_add",
+    created_at: "2024-06-29T13:22:00",
+    metadata: {
+      post_title: "Interesting Discussion",
+    },
   },
   {
-    id: "WDR-24060503",
+    act_id: "ACT-24060503",
     user: {
-      name: "Lee Soo-jin",
-      avatar: "",
+      first_name: "Lee",
+      last_name: "Soo-jin",
+      avatar_url: "",
       uid: "UID-24060503",
     },
-    amount: 750000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "approved",
-    date: "2024-06-29T10:05:00",
-    approvedBy: "Admin 2",
+    exp_earned: 25,
+    coins_earned: 100,
+    transaction_type: "post_like",
+    created_at: "2024-06-29T10:05:00",
+    metadata: {
+      post_title: "Amazing Content",
+    },
   },
   {
-    id: "WDR-24060504",
+    act_id: "ACT-24060504",
     user: {
-      name: "Choi Woo-shik",
-      avatar: "",
+      first_name: "Choi",
+      last_name: "Woo-shik",
+      avatar_url: "",
       uid: "UID-24060504",
     },
-    amount: 50000,
-    withdrawalMethod: "Mobile Wallet",
-    situation: "rejected",
-    date: "2024-06-28T15:48:00",
-    approvedBy: "Admin 3",
+    exp_earned: 75,
+    coins_earned: 300,
+    transaction_type: "post_share",
+    created_at: "2024-06-28T15:48:00",
+    metadata: {
+      post_title: "Shared Post",
+      share_platform: "Twitter",
+    },
   },
   {
-    id: "WDR-24060505",
+    act_id: "ACT-24060505",
     user: {
-      name: "Kang Hye-jung",
-      avatar: "",
+      first_name: "Kang",
+      last_name: "Hye-jung",
+      avatar_url: "",
       uid: "UID-24060505",
     },
-    amount: 450000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "pending",
-    date: "2024-06-28T09:30:00",
-    approvedBy: null,
+    exp_earned: 200,
+    coins_earned: 1000,
+    transaction_type: "welcome_bonus",
+    created_at: "2024-06-28T09:30:00",
+    metadata: {},
   },
   {
-    id: "WDR-24060506",
+    act_id: "ACT-24060506",
     user: {
-      name: "Jung Ho-yeon",
-      avatar: "",
+      first_name: "Jung",
+      last_name: "Ho-yeon",
+      avatar_url: "",
       uid: "UID-24060506",
     },
-    amount: 200000,
-    withdrawalMethod: "Mobile Wallet",
-    situation: "approved",
-    date: "2024-06-27T14:40:00",
-    approvedBy: "Admin 1",
+    exp_earned: 150,
+    coins_earned: 750,
+    transaction_type: "post_create",
+    created_at: "2024-06-27T14:40:00",
+    metadata: {
+      post_title: "My Travel Experience",
+    },
   },
   {
-    id: "WDR-24060507",
+    act_id: "ACT-24060507",
     user: {
-      name: "Bae Suzy",
-      avatar: "",
+      first_name: "Bae",
+      last_name: "Suzy",
+      avatar_url: "",
       uid: "UID-24060507",
     },
-    amount: 100000,
-    withdrawalMethod: "Mobile Wallet",
-    situation: "approved",
-    date: "2024-06-27T12:25:00",
-    approvedBy: "Admin 2",
+    exp_earned: 30,
+    coins_earned: 150,
+    transaction_type: "post_like",
+    created_at: "2024-06-27T12:25:00",
+    metadata: {
+      post_title: "Beautiful Sunset",
+    },
   },
   {
-    id: "WDR-24060508",
+    act_id: "ACT-24060508",
     user: {
-      name: "Gong Yoo",
-      avatar: "",
+      first_name: "Gong",
+      last_name: "Yoo",
+      avatar_url: "",
       uid: "UID-24060508",
     },
-    amount: 600000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "pending",
-    date: "2024-06-26T09:15:00",
-    approvedBy: null,
+    exp_earned: 60,
+    coins_earned: 300,
+    transaction_type: "comment_add",
+    created_at: "2024-06-26T09:15:00",
+    metadata: {
+      post_title: "Movie Review",
+    },
   },
   {
-    id: "WDR-24060509",
+    act_id: "ACT-24060509",
     user: {
-      name: "Son Ye-jin",
-      avatar: "",
+      first_name: "Son",
+      last_name: "Ye-jin",
+      avatar_url: "",
       uid: "UID-24060509",
     },
-    amount: 350000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "approved",
-    date: "2024-06-25T15:20:00",
-    approvedBy: "Admin 3",
+    exp_earned: 90,
+    coins_earned: 450,
+    transaction_type: "post_share",
+    created_at: "2024-06-25T15:20:00",
+    metadata: {
+      post_title: "Recipe Collection",
+      share_platform: "Facebook",
+    },
   },
   {
-    id: "WDR-24060510",
+    act_id: "ACT-24060510",
     user: {
-      name: "Hyun Bin",
-      avatar: "",
+      first_name: "Hyun",
+      last_name: "Bin",
+      avatar_url: "",
       uid: "UID-24060510",
     },
-    amount: 500000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "approved",
-    date: "2024-06-25T10:45:00",
-    approvedBy: "Admin 1",
+    exp_earned: 200,
+    coins_earned: 1000,
+    transaction_type: "welcome_bonus",
+    created_at: "2024-06-25T10:45:00",
+    metadata: {},
   },
-
   {
-    id: "WDR-24060511",
+    act_id: "ACT-24060511",
     user: {
-      name: "Seo Yea-ji",
-      avatar: "",
+      first_name: "Seo",
+      last_name: "Yea-ji",
+      avatar_url: "",
       uid: "UID-24060511",
     },
-    amount: 250000,
-    withdrawalMethod: "Mobile Wallet",
-    situation: "approved",
-    date: "2024-06-24T17:10:00",
-    approvedBy: "Admin 2",
+    exp_earned: 40,
+    coins_earned: 200,
+    transaction_type: "post_like",
+    created_at: "2024-06-24T17:10:00",
+    metadata: {
+      post_title: "Art Gallery",
+    },
   },
   {
-    id: "WDR-24060512",
+    act_id: "ACT-24060512",
     user: {
-      name: "Nam Joo-hyuk",
-      avatar: "",
+      first_name: "Nam",
+      last_name: "Joo-hyuk",
+      avatar_url: "",
       uid: "UID-24060512",
     },
-    amount: 800000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "rejected",
-    date: "2024-06-24T11:05:00",
-    approvedBy: "Admin 3",
+    exp_earned: 120,
+    coins_earned: 600,
+    transaction_type: "post_create",
+    created_at: "2024-06-24T11:05:00",
+    metadata: {
+      post_title: "Fitness Journey",
+    },
   },
   {
-    id: "WDR-24060513",
+    act_id: "ACT-24060513",
     user: {
-      name: "Han So-hee",
-      avatar: "",
+      first_name: "Han",
+      last_name: "So-hee",
+      avatar_url: "",
       uid: "UID-24060513",
     },
-    amount: 120000,
-    withdrawalMethod: "Mobile Wallet",
-    situation: "pending",
-    date: "2024-06-23T16:45:00",
-    approvedBy: null,
+    exp_earned: 50,
+    coins_earned: 250,
+    transaction_type: "daily_login",
+    created_at: "2024-06-23T16:45:00",
+    metadata: {},
   },
   {
-    id: "WDR-24060514",
+    act_id: "ACT-24060514",
     user: {
-      name: "Kim Seon-ho",
-      avatar: "",
+      first_name: "Kim",
+      last_name: "Seon-ho",
+      avatar_url: "",
       uid: "UID-24060514",
     },
-    amount: 950000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "approved",
-    date: "2024-06-23T08:00:00",
-    approvedBy: "Admin 1",
+    exp_earned: 70,
+    coins_earned: 350,
+    transaction_type: "comment_add",
+    created_at: "2024-06-23T08:00:00",
+    metadata: {
+      post_title: "Photography Tips",
+    },
   },
   {
-    id: "WDR-24060515",
+    act_id: "ACT-24060515",
     user: {
-      name: "Shin Min-a",
-      avatar: "",
+      first_name: "Shin",
+      last_name: "Min-a",
+      avatar_url: "",
       uid: "UID-24060515",
     },
-    amount: 300000,
-    withdrawalMethod: "Mobile Wallet",
-    situation: "pending",
-    date: "2024-06-22T14:50:00",
-    approvedBy: null,
-  },
-  {
-    id: "WDR-24060516",
-    user: {
-      name: "Lee Dong-wook",
-      avatar: "",
-      uid: "UID-24060516",
+    exp_earned: 80,
+    coins_earned: 400,
+    transaction_type: "post_share",
+    created_at: "2024-06-22T14:50:00",
+    metadata: {
+      post_title: "Book Review",
+      share_platform: "Instagram",
     },
-    amount: 400000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "approved",
-    date: "2024-06-21T09:35:00",
-    approvedBy: "Admin 2",
-  },
-  {
-    id: "WDR-24060517",
-    user: {
-      name: "IU",
-      avatar: "",
-      uid: "UID-24060517",
-    },
-    amount: 550000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "rejected",
-    date: "2024-06-21T07:20:00",
-    approvedBy: "Admin 3",
-  },
-  {
-    id: "WDR-24060518",
-    user: {
-      name: "Rowoon",
-      avatar: "",
-      uid: "UID-24060518",
-    },
-    amount: 150000,
-    withdrawalMethod: "Mobile Wallet",
-    situation: "approved",
-    date: "2024-06-20T12:10:00",
-    approvedBy: "Admin 1",
-  },
-  {
-    id: "WDR-24060519",
-    user: {
-      name: "Kim Go-eun",
-      avatar: "",
-      uid: "UID-24060519",
-    },
-    amount: 220000,
-    withdrawalMethod: "Mobile Wallet",
-    situation: "pending",
-    date: "2024-06-19T18:40:00",
-    approvedBy: null,
-  },
-  {
-    id: "WDR-24060520",
-    user: {
-      name: "Cha Eun-woo",
-      avatar: "",
-      uid: "UID-24060520",
-    },
-    amount: 1000000,
-    withdrawalMethod: "Bank Transfer",
-    situation: "approved",
-    date: "2024-06-18T10:00:00",
-    approvedBy: "Admin 2",
   },
 ];
 
-export type Withdraw = (typeof withdrawData)[0];
+export type ActivityPoints = (typeof activityPointsData)[0];
 
-interface WithdrawTableProps {
+interface ActivityPointsTableProps {
   searchTerm: string;
   filters: {
-    status: string;
+    activityType: string;
     dateRange: DateRange;
   };
 }
 
-export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
+export function ActivityPointsTable({
+  searchTerm,
+  filters,
+}: ActivityPointsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "date", desc: true },
+    { id: "created_at", desc: true },
   ]);
-  const [selectedWithdraw, setSelectedWithdraw] = useState<Withdraw | null>(
-    null
-  );
+  const [selectedActivity, setSelectedActivity] =
+    useState<ActivityPoints | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(0);
@@ -360,13 +331,9 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
     }).format(date);
   }, []);
 
-  // Format amount
-  const formatAmount = useCallback((amount: number) => {
-    return new Intl.NumberFormat("ko-KR").format(amount);
-  }, []);
-
   // Get initials from name
   const getInitials = useCallback((name: string) => {
+    if (!name) return "?";
     return name
       .split(" ")
       .map((part) => part.charAt(0))
@@ -374,10 +341,74 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
       .toUpperCase();
   }, []);
 
-  const columns = useMemo<ColumnDef<Withdraw>[]>(
+  // Get activity type badge color
+  const getActivityTypeBadgeClass = useCallback((activityType: string) => {
+    switch (activityType) {
+      case "post_create":
+        return "bg-blue-50 text-blue-700 dark:bg-blue-900/20";
+      case "comment_add":
+        return "bg-green-50 text-green-700 dark:bg-green-900/20";
+      case "post_like":
+        return "bg-pink-50 text-pink-700 dark:bg-pink-900/20";
+      case "post_share":
+        return "bg-purple-50 text-purple-700 dark:bg-purple-900/20";
+      case "welcome_bonus":
+        return "bg-amber-50 text-amber-700 dark:bg-amber-900/20";
+      case "daily_login":
+        return "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20";
+      default:
+        return "bg-gray-50 text-gray-700 dark:bg-gray-900/20";
+    }
+  }, []);
+
+  // Get activity type label
+  const getActivityTypeLabel = useCallback((activityType: string) => {
+    switch (activityType) {
+      case "post_create":
+        return "Post Creation";
+      case "comment_add":
+        return "Comment";
+      case "post_like":
+        return "Like";
+      case "post_share":
+        return "Share";
+      case "welcome_bonus":
+        return "Welcome Bonus";
+      case "daily_login":
+        return "Daily Login";
+      default:
+        return activityType;
+    }
+  }, []);
+
+  // Get content description from metadata
+  const getContentDescription = useCallback((activity: ActivityPoints) => {
+    const metadata = activity.metadata || {};
+
+    switch (activity.transaction_type) {
+      case "post_create":
+        return `Created a post: ${metadata.post_title || "Untitled Post"}`;
+      case "comment_add":
+        return `Commented on: ${metadata.post_title || "Unknown Post"}`;
+      case "post_like":
+        return `Liked a post: ${metadata.post_title || "Unknown Post"}`;
+      case "post_share":
+        return `Shared a post: ${metadata.post_title || "Unknown Post"}${
+          metadata.share_platform ? ` on ${metadata.share_platform}` : ""
+        }`;
+      case "welcome_bonus":
+        return "Received welcome bonus for joining";
+      case "daily_login":
+        return "Daily login bonus";
+      default:
+        return "Performed an activity";
+    }
+  }, []);
+
+  const columns = useMemo<ColumnDef<ActivityPoints>[]>(
     () => [
       {
-        accessorKey: "id",
+        accessorKey: "act_id",
         header: ({ column }) => {
           return (
             <Button
@@ -393,7 +424,7 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
           );
         },
         cell: ({ row }) => (
-          <div className="font-mono text-sm">{row.getValue("id")}</div>
+          <div className="font-mono text-sm">{row.getValue("act_id")}</div>
         ),
       },
       {
@@ -414,31 +445,41 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
         },
         cell: ({ row }) => {
           const user = row.getValue("user") as {
-            name: string;
-            avatar: string;
+            first_name: string;
+            last_name: string;
+            avatar_url: string;
             uid: string;
           };
+          const name = `${user.first_name} ${user.last_name}`;
           return (
             <div className="flex items-center gap-3">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                <AvatarImage src={user.avatar_url} alt={name} />
+                <AvatarFallback>{getInitials(name)}</AvatarFallback>
               </Avatar>
               <div>
-                <div className="font-medium">{user.name}</div>
+                <div className="font-medium">{name}</div>
                 <div className="text-xs text-muted-foreground">{user.uid}</div>
               </div>
             </div>
           );
         },
         sortingFn: (rowA, rowB) => {
-          const userA = rowA.getValue("user") as { name: string };
-          const userB = rowB.getValue("user") as { name: string };
-          return userA.name.localeCompare(userB.name);
+          const userA = rowA.getValue("user") as {
+            first_name: string;
+            last_name: string;
+          };
+          const userB = rowB.getValue("user") as {
+            first_name: string;
+            last_name: string;
+          };
+          const nameA = `${userA.first_name} ${userA.last_name}`;
+          const nameB = `${userB.first_name} ${userB.last_name}`;
+          return nameA.localeCompare(nameB);
         },
       },
       {
-        accessorKey: "amount",
+        accessorKey: "exp_earned",
         header: ({ column }) => {
           return (
             <Button
@@ -448,23 +489,18 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
               }
               className="p-0 hover:bg-transparent"
             >
-              Amount
+              Earned EXP
               <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
           );
         },
         cell: ({ row }) => {
-          const amount = row.getValue("amount") as number;
-          return <div className="font-medium">{formatAmount(amount)} KOR</div>;
+          const value = row.getValue("exp_earned") as number;
+          return <div className="font-medium">{value} EXP</div>;
         },
       },
       {
-        accessorKey: "withdrawalMethod",
-        header: "Withdrawal Method",
-        cell: ({ row }) => <div>{row.getValue("withdrawalMethod")}</div>,
-      },
-      {
-        accessorKey: "situation",
+        accessorKey: "coins_earned",
         header: ({ column }) => {
           return (
             <Button
@@ -474,48 +510,56 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
               }
               className="p-0 hover:bg-transparent"
             >
-              Status
+              Earned KOR Coins
               <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
           );
         },
         cell: ({ row }) => {
-          const status = row.getValue("situation") as string;
+          const value = row.getValue("coins_earned") as number;
+          return <div className="font-medium">{value} KOR</div>;
+        },
+      },
+      {
+        accessorKey: "transaction_type",
+        header: ({ column }) => {
           return (
-            <>
-              {status === "approved" && (
-                <Badge
-                  variant="outline"
-                  className="bg-green-50 text-green-700 dark:bg-green-900/20 flex gap-1 items-center"
-                >
-                  <CheckCircle className="h-3 w-3" />
-                  Approved
-                </Badge>
-              )}
-              {status === "pending" && (
-                <Badge
-                  variant="outline"
-                  className="bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 flex gap-1 items-center"
-                >
-                  <Clock className="h-3 w-3" />
-                  Pending
-                </Badge>
-              )}
-              {status === "rejected" && (
-                <Badge
-                  variant="outline"
-                  className="bg-red-50 text-red-700 dark:bg-red-900/20 flex gap-1 items-center"
-                >
-                  <XCircle className="h-3 w-3" />
-                  Rejected
-                </Badge>
-              )}
-            </>
+            <Button
+              variant="ghost"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+              className="p-0 hover:bg-transparent"
+            >
+              Activity Type
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          );
+        },
+        cell: ({ row }) => {
+          const activityType = row.getValue("transaction_type") as string;
+          const activityTypeLabel = getActivityTypeLabel(activityType);
+          return (
+            <Badge
+              variant="outline"
+              className={getActivityTypeBadgeClass(activityType)}
+            >
+              {activityTypeLabel}
+            </Badge>
           );
         },
       },
       {
-        accessorKey: "date",
+        accessorKey: "content",
+        header: "Content",
+        cell: ({ row }) => {
+          const activity = row.original;
+          const content = getContentDescription(activity);
+          return <div className="max-w-xs truncate">{content}</div>;
+        },
+      },
+      {
+        accessorKey: "created_at",
         header: ({ column }) => {
           return (
             <Button
@@ -531,8 +575,8 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
           );
         },
         cell: ({ row }) => {
-          const date = formatDate(row.getValue("date"));
-          const time = formatTime(row.getValue("date"));
+          const date = formatDate(row.getValue("created_at"));
+          const time = formatTime(row.getValue("created_at"));
           return (
             <div>
               <div>{date}</div>
@@ -542,26 +586,14 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
         },
       },
       {
-        accessorKey: "approvedBy",
-        header: "Approved By",
-        cell: ({ row }) => {
-          const approvedBy = row.getValue("approvedBy") as string | null;
-          return <div>{approvedBy || "-"}</div>;
-        },
-      },
-      {
         id: "actions",
         cell: ({ row }) => {
-          const withdraw = row.original;
-
+          const activity = row.original;
           return (
             <div className="flex justify-end">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="h-8 w-8 p-0 shadow-none cursor-pointer"
-                  >
+                  <Button variant="ghost" className="h-8 w-8 p-0">
                     <span className="sr-only">Open menu</span>
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
@@ -569,7 +601,7 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
                 <DropdownMenuContent align="end" className="w-[160px]">
                   <DropdownMenuItem
                     onClick={() => {
-                      setSelectedWithdraw(withdraw);
+                      setSelectedActivity(activity);
                       setDetailsDialogOpen(true);
                     }}
                     className="cursor-pointer"
@@ -583,56 +615,72 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
         },
       },
     ],
-    [formatAmount, formatDate, formatTime, getInitials]
+    [
+      formatDate,
+      formatTime,
+      getInitials,
+      getActivityTypeBadgeClass,
+      getActivityTypeLabel,
+      getContentDescription,
+    ]
   );
 
   // Filter data based on search term and filters
   const filteredData = useMemo(() => {
-    return withdrawData.filter((withdraw) => {
+    return activityPointsData.filter((activity) => {
       // Search term filter
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase();
+        const userName =
+          `${activity.user.first_name} ${activity.user.last_name}`.toLowerCase();
+        const userUid = activity.user.uid.toLowerCase();
+        const activityTypeLabel = getActivityTypeLabel(
+          activity.transaction_type
+        ).toLowerCase();
+        const content = getContentDescription(activity).toLowerCase();
+
         const matchesSearch =
-          withdraw.id.toLowerCase().includes(searchLower) ||
-          withdraw.user.name.toLowerCase().includes(searchLower) ||
-          withdraw.user.uid.toLowerCase().includes(searchLower) ||
-          withdraw.withdrawalMethod.toLowerCase().includes(searchLower) ||
-          withdraw.situation.toLowerCase().includes(searchLower) ||
-          (withdraw.approvedBy &&
-            withdraw.approvedBy.toLowerCase().includes(searchLower));
+          activity.act_id.toLowerCase().includes(searchLower) ||
+          userName.includes(searchLower) ||
+          userUid.includes(searchLower) ||
+          activityTypeLabel.includes(searchLower) ||
+          content.includes(searchLower);
 
         if (!matchesSearch) return false;
       }
 
-      // Status filter
-      if (filters.status !== "all" && withdraw.situation !== filters.status) {
+      // Activity type filter
+      if (
+        filters.activityType !== "all" &&
+        activity.transaction_type !== filters.activityType
+      ) {
         return false;
       }
 
       // Date range filter
       if (filters.dateRange.from) {
-        const withdrawDate = new Date(withdraw.date);
+        const activityDate = new Date(activity.created_at);
         const startOfDay = new Date(filters.dateRange.from);
         startOfDay.setHours(0, 0, 0, 0);
 
-        if (withdrawDate < startOfDay) {
+        if (activityDate < startOfDay) {
           return false;
         }
       }
 
       if (filters.dateRange.to) {
-        const withdrawDate = new Date(withdraw.date);
+        const activityDate = new Date(activity.created_at);
         const endOfDay = new Date(filters.dateRange.to);
         endOfDay.setHours(23, 59, 59, 999);
 
-        if (withdrawDate > endOfDay) {
+        if (activityDate > endOfDay) {
           return false;
         }
       }
 
       return true;
     });
-  }, [searchTerm, filters]);
+  }, [searchTerm, filters, getActivityTypeLabel, getContentDescription]);
 
   const table = useReactTable({
     data: filteredData,
@@ -651,7 +699,9 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
     },
     onPaginationChange: (updater) => {
       if (typeof updater === "function") {
-        setPageIndex((old) => updater({ pageIndex: old, pageSize }).pageIndex);
+        const newState = updater({ pageIndex, pageSize });
+        setPageIndex(newState.pageIndex);
+        setPageSize(newState.pageSize);
       } else if (
         typeof updater === "object" &&
         updater !== null &&
@@ -664,15 +714,16 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
 
   // Reset to first page when filters change
   useEffect(() => {
-    setPageIndex(0);
+    if (table) {
+      table.setPageIndex(0);
+    }
   }, [searchTerm, filters]);
 
-  // Clean up selected withdraw when dialog closes
+  // Clean up selected activity when dialog closes
   useEffect(() => {
     if (!detailsDialogOpen) {
-      // Use a timeout to prevent memory leaks
       const timer = setTimeout(() => {
-        setSelectedWithdraw(null);
+        setSelectedActivity(null);
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -685,18 +736,16 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
@@ -730,11 +779,11 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex flex-wrap items-center justify-between space-y-2 py-4 w-full">
+      <div className="flex flex-wrap items-center justify-between space-y-2 py-4">
         <div className="flex items-center space-x-2">
           <p className="text-sm text-muted-foreground">
             Showing {table.getRowModel().rows.length} of {filteredData.length}{" "}
-            withdrawals
+            activities
           </p>
           <Select
             value={pageSize.toString()}
@@ -743,7 +792,7 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
               setPageIndex(0);
             }}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-8 w-[70px] shadow-none cursor-pointer">
               <SelectValue placeholder={pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
@@ -861,10 +910,10 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
         </div>
       </div>
 
-      {/* Withdraw details dialog */}
-      {selectedWithdraw && (
-        <WithdrawDetailsDialog
-          withdraw={selectedWithdraw}
+      {/* Activity details dialog */}
+      {selectedActivity && (
+        <ActivityPointsDetailsDialog
+          activity={selectedActivity}
           open={detailsDialogOpen}
           onOpenChange={setDetailsDialogOpen}
         />

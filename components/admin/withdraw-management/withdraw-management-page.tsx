@@ -123,7 +123,7 @@ export function WithdrawManagementPage() {
           <div className="relative w-full">
             <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search deposits..."
+              placeholder="Search withdrawals..."
               className="pl-9 shadow-none h-10  border border-border"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

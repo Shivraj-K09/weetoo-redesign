@@ -53,7 +53,7 @@ export function TopUsersTable({ users, isKRW }: TopUsersTableProps) {
           <TableBody>
             {users.map((user, index) => (
               <TableRow
-                key={index}
+                key={user.user || `user-${index}`}
                 className="border-border hover:bg-muted/50 h-16"
               >
                 <TableCell className="font-medium">

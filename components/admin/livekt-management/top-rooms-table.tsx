@@ -53,7 +53,7 @@ export function TopRoomsTable({ rooms, isKRW }: TopRoomsTableProps) {
           <TableBody>
             {rooms.map((room, index) => (
               <TableRow
-                key={index}
+                key={room.room || `room-${index}`}
                 className="border-border hover:bg-muted/50 h-16"
               >
                 <TableCell className="font-medium">

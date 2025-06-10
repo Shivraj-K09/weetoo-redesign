@@ -49,3 +49,9 @@ This is a Next.js 15 project with TypeScript, using modern React features and a 
 - Start production: `pnpm start`
 - Lint: `pnpm lint`
 
+
+- Do Not Write Comments
+- Do Not use HardCoded Colors
+- If you are not sure, stop and ask
+- Use PNPM please
+

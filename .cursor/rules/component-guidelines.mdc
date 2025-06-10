@@ -63,3 +63,8 @@ alwaysApply: false
 - Use proper lazy loading when needed
 - Monitor and optimize bundle size
 
+- Do Not Write Comments
+- Do Not use HardCoded Colors
+- If you are not sure, stop and ask
+- Use PNPM please
+

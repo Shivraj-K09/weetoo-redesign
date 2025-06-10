@@ -1,24 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   type ColumnDef,
   type SortingState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  getFilteredRowModel,
 } from "@tanstack/react-table";
 import {
   ArrowUpDown,
-  MoreHorizontal,
   CheckCircle,
   Clock,
+  MoreHorizontal,
   XCircle,
 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,15 +29,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { WithdrawDetailsDialog } from "./withdraw-details-dialog";
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -44,7 +44,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { DateRange } from "react-day-picker";
+import { WithdrawDetailsDialog } from "./withdraw-details-dialog";
 
 // Sample withdraw data
 const withdrawData = [
@@ -578,7 +587,7 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex flex-wrap items-center justify-between space-y-2 py-4">
+      <div className="flex flex-wrap items-center justify-between space-y-2 py-4 w-full">
         <div className="flex items-center space-x-2">
           <p className="text-sm text-muted-foreground">
             Showing {table.getRowModel().rows.length} of {filteredData.length}{" "}
@@ -601,23 +610,108 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
           </Select>
           <p className="text-sm text-muted-foreground">per page</p>
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+        <div className="flex items-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => table.previousPage()}
+                  aria-disabled={!table.getCanPreviousPage()}
+                  tabIndex={!table.getCanPreviousPage() ? -1 : 0}
+                  href="#"
+                  style={{
+                    pointerEvents: !table.getCanPreviousPage()
+                      ? "none"
+                      : undefined,
+                  }}
+                />
+              </PaginationItem>
+              {(() => {
+                const pageCount = table.getPageCount();
+                const pageIndex = table.getState().pagination.pageIndex;
+                const pageButtons = [];
+                const maxPageButtons = 5;
+                let startPage = Math.max(0, pageIndex - 2);
+                let endPage = Math.min(pageCount - 1, pageIndex + 2);
+                if (pageIndex <= 1) {
+                  endPage = Math.min(pageCount - 1, maxPageButtons - 1);
+                }
+                if (pageIndex >= pageCount - 2) {
+                  startPage = Math.max(0, pageCount - maxPageButtons);
+                }
+                for (let i = startPage; i <= endPage; i++) {
+                  pageButtons.push(
+                    <PaginationItem key={i}>
+                      <PaginationLink
+                        isActive={i === pageIndex}
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          table.setPageIndex(i);
+                        }}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                }
+                if (startPage > 0) {
+                  pageButtons.unshift(
+                    <PaginationItem key="start-ellipsis">
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                  pageButtons.unshift(
+                    <PaginationItem key={0}>
+                      <PaginationLink
+                        isActive={pageIndex === 0}
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          table.setPageIndex(0);
+                        }}
+                      >
+                        1
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                }
+                if (endPage < pageCount - 1) {
+                  pageButtons.push(
+                    <PaginationItem key="end-ellipsis">
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                  pageButtons.push(
+                    <PaginationItem key={pageCount - 1}>
+                      <PaginationLink
+                        isActive={pageIndex === pageCount - 1}
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          table.setPageIndex(pageCount - 1);
+                        }}
+                      >
+                        {pageCount}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                }
+                return pageButtons;
+              })()}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => table.nextPage()}
+                  aria-disabled={!table.getCanNextPage()}
+                  tabIndex={!table.getCanNextPage() ? -1 : 0}
+                  href="#"
+                  style={{
+                    pointerEvents: !table.getCanNextPage() ? "none" : undefined,
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
 

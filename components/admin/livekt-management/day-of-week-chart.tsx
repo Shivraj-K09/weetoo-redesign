@@ -8,17 +8,17 @@ import {
 } from "@/components/ui/card";
 import type { ChartDataPoint } from "@/types";
 import { TrendingUpIcon } from "lucide-react";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
   ChartConfig,
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
-} from "../ui/chart";
+  ChartTooltip,
+  ChartTooltipContent,
+} from "../../ui/chart";
 
-interface UsagePatternChartProps {
+interface DayOfWeekChartProps {
   data: ChartDataPoint[];
 }
 
@@ -33,51 +33,43 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function UsagePatternChart({ data }: UsagePatternChartProps) {
+export function DayOfWeekChart({ data }: DayOfWeekChartProps) {
   return (
     <Card>
       <CardHeader className="border-b border-border">
-        <CardTitle className="font-semibold">LiveKit Usage Patterns</CardTitle>
+        <CardTitle className="font-medium">Usage by Day of Week</CardTitle>
         <CardDescription>
-          Broadcasting and listening time by hour of day
+          Broadcasting vs listening distribution
         </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <LineChart
-            accessibilityLayer
-            data={data}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
+          <BarChart accessibilityLayer data={data}>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="hour"
+              dataKey="day"
               tickLine={false}
+              tickMargin={10}
               axisLine={false}
-              tickMargin={8}
             />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Line
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent indicator="dashed" />}
+            />
+            <Bar
               dataKey="broadcasting"
-              type="monotone"
-              stroke="#f97316"
-              strokeWidth={2}
-              dot={false}
+              fill="#f97316"
+              radius={4}
               name="Broadcasting (min)"
             />
-            <Line
+            <Bar
               dataKey="listening"
-              type="monotone"
-              stroke="#3b82f6"
-              strokeWidth={2}
-              dot={false}
+              fill="#3b82f6"
+              radius={4}
               name="Listening (min)"
             />
             <ChartLegend className="mt-10" content={<ChartLegendContent />} />
-          </LineChart>
+          </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="border-t border-border">

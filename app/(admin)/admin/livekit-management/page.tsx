@@ -1,4 +1,4 @@
-import { LiveKitManagementPage } from "@/components/livekt-management/livekit-management-page";
+import { LiveKitManagementPage } from "@/components/admin/livekt-management/livekit-management-page";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

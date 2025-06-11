@@ -202,7 +202,7 @@ export const NewsList = memo(() => {
   return (
     <section className="space-y-8">
       {/* Header */}
-      <div className="border-b pb-4 mt-2">
+      <div className="border-b pb-4 mt-2 text-center sm:text-left">
         <h2 className="text-3xl font-bold">Latest News</h2>
         <p className="text-gray-600 dark:text-gray-400 mt-0.5">
           Stay updated with the latest cryptocurrency developments

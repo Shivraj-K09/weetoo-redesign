@@ -62,7 +62,7 @@ const PerformanceBar = memo(
     }, [item.performance]);
 
     return (
-      <div className="flex flex-col items-center flex-1 group">
+      <div className="flex flex-col items-center flex-1 group min-w-[60px]">
         {/* Performance value */}
         <div
           className={cn(
@@ -120,7 +120,7 @@ export const RelativePerformanceChart = memo(
 
           {/* Chart */}
           <div className="p-6">
-            <div className="flex items-end justify-between gap-2 h-96">
+            <div className="flex items-end justify-between gap-2 h-96 overflow-x-auto pb-4">
               {PERFORMANCE_DATA.map((item, index) => (
                 <PerformanceBar
                   key={item.symbol}

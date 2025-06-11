@@ -26,7 +26,7 @@ export default function ComprehensiveData() {
   const allInstruments = [...forexData, ...commoditiesData];
 
   return (
-    <div className="container flex flex-col gap-10 mx-auto py-4 pb-10">
+    <div className="container flex flex-col gap-10 mx-auto py-4 pb-10 px-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {" "}
         {/* Updated grid columns and gap */}

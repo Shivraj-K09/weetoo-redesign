@@ -106,16 +106,10 @@ export const PostsList = memo(() => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-2 mb-1">
                   {post.isPinned && (
-                    <Pin
-                      className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0"
-                      aria-label="Pinned"
-                    />
+                    <Pin className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
                   )}
                   {post.isHot && (
-                    <Flame
-                      className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0"
-                      aria-label="Hot"
-                    />
+                    <Flame className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
                   )}
                   <a
                     href="#"
@@ -124,7 +118,7 @@ export const PostsList = memo(() => {
                     {post.title}
                   </a>
                 </div>
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-1">
+                <p className="text-sm text-muted-foreground line-clamp-2 mb-1 truncate max-w-[500px] w-full">
                   {post.excerpt}
                 </p>
               </div>
@@ -149,7 +143,10 @@ export const PostsList = memo(() => {
           return (
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={author.avatar || ""} alt={author.name} />
+                <AvatarImage
+                  src={author.avatar || "/placeholder.svg"}
+                  alt={author.name}
+                />
                 <AvatarFallback className="bg-muted text-muted-foreground text-sm">
                   {author.name
                     .split(" ")
@@ -161,10 +158,7 @@ export const PostsList = memo(() => {
                 <div className="font-medium text-sm flex items-center gap-1">
                   {author.name}
                   {author.verified && (
-                    <CheckCircle
-                      className="w-3.5 h-3.5 text-blue-500"
-                      aria-label="Verified Author"
-                    />
+                    <CheckCircle className="w-3.5 h-3.5 text-blue-500" />
                   )}
                 </div>
                 <div className="text-xs text-muted-foreground">
@@ -279,28 +273,25 @@ export const PostsList = memo(() => {
   const handleLastPage = useCallback(() => table.lastPage(), [table]);
 
   return (
-    <div className="space-y-3 mt-6">
-      <div className="flex items-center justify-between w-full">
-        <h2 className="text-2xl font-semibold">Free Bulletin Board</h2>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <div className="relative flex-1 w-[300px]">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search posts..."
-              value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-              className="pl-10 h-10"
-            />
-          </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <Button className="whitespace-nowrap h-10 w-full sm:w-auto">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Post
-            </Button>
-          </div>
+    <div className="space-y-6">
+      {/* Header and Controls */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="relative flex-1 w-full sm:w-auto sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search posts..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="pl-10 h-10"
+          />
+        </div>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <Button className="whitespace-nowrap h-10 w-full sm:w-auto">
+            <Plus className="w-4 h-4 mr-2" />
+            Create Post
+          </Button>
         </div>
       </div>
-      {/* Header and Controls */}
 
       {/* Posts Table */}
       <div className="bg-background overflow-hidden rounded-xl border shadow-sm">
@@ -367,14 +358,7 @@ export const PostsList = memo(() => {
                   initial="hidden"
                   animate="visible"
                   className={cn(
-                    "border-b last:border-b-0",
-                    row.original.isPinned && ROW_BACKGROUNDS.pinned,
-                    row.original.isHot &&
-                      !row.original.isPinned &&
-                      ROW_BACKGROUNDS.hot,
-                    !row.original.isPinned &&
-                      !row.original.isHot &&
-                      ROW_BACKGROUNDS.default
+                    "border-b last:border-b-0 hover:bg-muted/50 transition-colors"
                   )}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -400,6 +384,7 @@ export const PostsList = memo(() => {
           </TableBody>
         </Table>
       </div>
+
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-8 px-2">
         <div className="flex items-center gap-3">

@@ -116,7 +116,7 @@ export const PostsList = memo(() => {
                     {post.title}
                   </a>
                 </div>
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-1">
+                <p className="text-sm text-muted-foreground line-clamp-2 mb-1 truncate max-w-[500px] w-full">
                   {post.excerpt}
                 </p>
               </div>

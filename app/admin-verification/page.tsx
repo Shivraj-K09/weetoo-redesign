@@ -22,7 +22,7 @@ export default function AdminVerification() {
   }, [otp, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center px-5 md:px-0">
       <Card className="w-[400px]">
         <CardHeader className="space-y-4">
           <div className="flex items-center justify-center">

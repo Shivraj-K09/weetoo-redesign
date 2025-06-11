@@ -553,15 +553,15 @@ export const KorCoinsRankingTable = memo(() => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
         <h2 className="text-2xl font-semibold">Full Rankings</h2>
-        <div className="relative w-80">
+        <div className="relative w-full md:w-80">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search users..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="pl-10"
+            className="pl-10 h-10"
           />
         </div>
       </div>
@@ -665,8 +665,8 @@ export const KorCoinsRankingTable = memo(() => {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between gap-8 px-2">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-4 px-2 md:flex-row md:items-center md:justify-between">
+        <div className="hidden sm:flex items-center gap-3">
           <Label
             htmlFor="rows-per-page-korcoins"
             className="max-sm:sr-only text-sm font-medium"
@@ -693,66 +693,68 @@ export const KorCoinsRankingTable = memo(() => {
           </Select>
         </div>
 
-        <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
-          <span className="font-medium">
-            Showing {table.getRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} users
-          </span>
-        </div>
+        <div className="flex flex-col items-center gap-4 w-full md:flex-row md:justify-end md:w-auto md:items-center">
+          <div className="text-muted-foreground text-sm whitespace-nowrap">
+            <span className="font-medium">
+              Showing {table.getRowModel().rows.length} of{" "}
+              {table.getFilteredRowModel().rows.length} users
+            </span>
+          </div>
 
-        <div>
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="h-9 w-9 disabled:pointer-events-none disabled:opacity-50"
-                  onClick={handleFirstPage}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to first page"
-                >
-                  <ChevronFirstIcon size={16} />
-                </Button>
-              </PaginationItem>
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="h-9 w-9 disabled:pointer-events-none disabled:opacity-50"
-                  onClick={handlePreviousPage}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to previous page"
-                >
-                  <ChevronLeftIcon size={16} />
-                </Button>
-              </PaginationItem>
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="h-9 w-9 disabled:pointer-events-none disabled:opacity-50"
-                  onClick={handleNextPage}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to next page"
-                >
-                  <ChevronRightIcon size={16} />
-                </Button>
-              </PaginationItem>
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="h-9 w-9 disabled:pointer-events-none disabled:opacity-50"
-                  onClick={handleLastPage}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to last page"
-                >
-                  <ChevronLastIcon size={16} />
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+          <div>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="h-9 w-9 disabled:pointer-events-none disabled:opacity-50"
+                    onClick={handleFirstPage}
+                    disabled={!table.getCanPreviousPage()}
+                    aria-label="Go to first page"
+                  >
+                    <ChevronFirstIcon size={16} />
+                  </Button>
+                </PaginationItem>
+                <PaginationItem>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="h-9 w-9 disabled:pointer-events-none disabled:opacity-50"
+                    onClick={handlePreviousPage}
+                    disabled={!table.getCanPreviousPage()}
+                    aria-label="Go to previous page"
+                  >
+                    <ChevronLeftIcon size={16} />
+                  </Button>
+                </PaginationItem>
+                <PaginationItem>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="h-9 w-9 disabled:pointer-events-none disabled:opacity-50"
+                    onClick={handleNextPage}
+                    disabled={!table.getCanNextPage()}
+                    aria-label="Go to next page"
+                  >
+                    <ChevronRightIcon size={16} />
+                  </Button>
+                </PaginationItem>
+                <PaginationItem>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="h-9 w-9 disabled:pointer-events-none disabled:opacity-50"
+                    onClick={handleLastPage}
+                    disabled={!table.getCanNextPage()}
+                    aria-label="Go to last page"
+                  >
+                    <ChevronLastIcon size={16} />
+                  </Button>
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </div>
       </div>
     </div>

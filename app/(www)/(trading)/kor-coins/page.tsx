@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function KorCoinsPage() {
   return (
-    <div className="container mx-auto py-6 pb-12">
+    <div className="container mx-auto px-4 py-6 pb-12">
       {/* Banner */}
       <div className="relative w-full h-64 overflow-hidden rounded-xl border border-border bg-gradient-to-b from-cyan-50/30 to-transparent dark:from-cyan-950/30 dark:to-transparent mb-8">
         <div className="relative">

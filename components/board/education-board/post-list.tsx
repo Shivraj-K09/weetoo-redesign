@@ -272,10 +272,12 @@ export const PostsList = memo(() => {
 
   return (
     <div className="space-y-3 mt-6">
-      <div className="flex items-center justify-between w-full">
-        <h2 className="text-2xl font-semibold">Educational Bulletin Board</h2>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <div className="relative flex-1 w-[300px]">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-2xl font-semibold text-center sm:text-left">
+          Education Bulletin Board
+        </h2>
+        <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:w-auto">
+          <div className="relative w-full sm:w-[300px]">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search posts..."
@@ -284,7 +286,7 @@ export const PostsList = memo(() => {
               className="pl-10 h-10"
             />
           </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex items-center justify-center gap-3 w-full sm:w-auto">
             <Button className="whitespace-nowrap h-10 w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Create Post

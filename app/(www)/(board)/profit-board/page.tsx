@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ProfitBoard() {
   return (
-    <div className="container flex flex-col gap-4 mx-auto py-4 pb-10">
+    <div className="container flex flex-col gap-4 mx-auto py-4 pb-10 px-4">
       <TopPost />
       <PostsList />
     </div>

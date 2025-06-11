@@ -74,12 +74,12 @@ const tableRowVariants = {
 };
 
 // Static configurations
-const ROW_BACKGROUNDS = {
-  pinned:
-    "bg-gradient-to-r from-blue-50/80 to-blue-100/60 dark:from-blue-950/30 dark:to-blue-900/20 border-l-4 border-l-blue-400",
-  hot: "bg-gradient-to-r from-orange-50/80 to-orange-100/60 dark:from-orange-950/30 dark:to-orange-900/20 border-l-4 border-l-orange-400",
-  default: "hover:bg-muted/50 transition-colors",
-} as const;
+// const ROW_BACKGROUNDS = {
+//   pinned:
+//     "bg-gradient-to-r from-blue-50/80 to-blue-100/60 dark:from-blue-950/30 dark:to-blue-900/20 border-l-4 border-l-blue-400",
+//   hot: "bg-gradient-to-r from-orange-50/80 to-orange-100/60 dark:from-orange-950/30 dark:to-orange-900/20 border-l-4 border-l-orange-400",
+//   default: "hover:bg-muted/50 transition-colors",
+// } as const;
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
 
@@ -143,10 +143,7 @@ export const PostsList = memo(() => {
           return (
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
-                <AvatarImage
-                  src={author.avatar || "/placeholder.svg"}
-                  alt={author.name}
-                />
+                <AvatarImage src={author.avatar || ""} alt={author.name} />
                 <AvatarFallback className="bg-muted text-muted-foreground text-sm">
                   {author.name
                     .split(" ")
@@ -275,21 +272,26 @@ export const PostsList = memo(() => {
   return (
     <div className="space-y-6">
       {/* Header and Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="relative flex-1 w-full sm:w-auto sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search posts..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="pl-10 h-10"
-          />
-        </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <Button className="whitespace-nowrap h-10 w-full sm:w-auto">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Post
-          </Button>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-2xl font-semibold text-center sm:text-left">
+          Free Bulletin Board
+        </h2>
+        <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:w-auto">
+          <div className="relative w-full sm:w-[300px]">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search posts..."
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="pl-10 h-10"
+            />
+          </div>
+          <div className="flex items-center justify-center gap-3 w-full sm:w-auto">
+            <Button className="whitespace-nowrap h-10 w-full sm:w-auto">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Post
+            </Button>
+          </div>
         </div>
       </div>
 

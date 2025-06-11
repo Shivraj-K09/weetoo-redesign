@@ -76,7 +76,7 @@ export function TopPost() {
     <div className="flex flex-col gap-3 w-full h-full">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* Large Card (Top-Left) */}
-        <div className="h-[32.76rem] border w-full col-span-2 relative rounded-lg overflow-hidden group">
+        <div className="h-[32.76rem] border w-full md:col-span-2 relative rounded-lg overflow-hidden group">
           <Image
             src="https://images.unsplash.com/photo-1633158829875-e5316a358c6f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Large technology concept"
@@ -127,7 +127,7 @@ export function TopPost() {
         </div>
 
         {/* Small Cards (Right Column) */}
-        <div className="flex flex-col h-full gap-3">
+        <div className="flex flex-col h-full gap-3 md:col-span-1">
           {[postData[1], postData[2]].map((post, index) => (
             <div
               key={index}

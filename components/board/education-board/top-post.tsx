@@ -5,7 +5,7 @@ import Image from "next/image";
 export function TopPost() {
   const postData = [
     {
-      title: "Mastering Technical Analysis: A Beginner’s Guide",
+      title: "Mastering Technical Analysis: A Beginner's Guide",
       excerpt:
         "An essential primer for aspiring traders on chart patterns, indicators, and strategies to read the market with confidence.",
       author: {
@@ -19,7 +19,7 @@ export function TopPost() {
       excerpt:
         "Learn how to manage capital, set stop-loss orders, and use position sizing to protect your portfolio from big losses.",
       author: {
-        name: "Michael O’Donnell",
+        name: "Michael O'Donnell",
         avatar: "",
       },
       stats: { views: 8400, likes: 540, comments: 72 },
@@ -76,7 +76,7 @@ export function TopPost() {
     <div className="flex flex-col gap-3 w-full h-full">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* Large Card (Top-Left) */}
-        <div className="h-[32.76rem] border w-full col-span-2 relative rounded-lg overflow-hidden group">
+        <div className="h-[32.76rem] border w-full md:col-span-2 relative rounded-lg overflow-hidden group">
           <Image
             src="https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Large technology concept"
@@ -127,7 +127,7 @@ export function TopPost() {
         </div>
 
         {/* Small Cards (Right Column) */}
-        <div className="flex flex-col h-full gap-3">
+        <div className="flex flex-col h-full gap-3 md:col-span-1">
           {[postData[1], postData[2]].map((post, index) => (
             <div
               key={index}

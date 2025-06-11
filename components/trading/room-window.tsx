@@ -46,17 +46,30 @@ export function TradingRoomWindow({
       };
     }
 
-    const width = 1200;
-    const height = 800;
-    const centerX = Math.max(0, (window.innerWidth - width) / 2);
-    const centerY = Math.max(0, (window.innerHeight - height) / 2);
+    // Get screen dimensions
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    // Calculate responsive dimensions
+    let width = Math.min(1200, screenWidth - 32); // 16px padding on each side
+    let height = Math.min(800, screenHeight - 32);
+
+    // For mobile devices, use full width and height
+    if (screenWidth < 768) {
+      width = screenWidth;
+      height = screenHeight;
+    }
+
+    // Center the window
+    const centerX = Math.max(0, (screenWidth - width) / 2);
+    const centerY = Math.max(0, (screenHeight - height) / 2);
 
     return {
       x: centerX,
       y: centerY,
       width,
       height,
-      isMaximized: false,
+      isMaximized: screenWidth < 768, // Auto maximize on mobile
     };
   }, []);
 
@@ -280,7 +293,8 @@ export function TradingRoomWindow({
               ref={windowRef}
               className={cn(
                 "absolute bg-background border border-border shadow-2xl overflow-hidden",
-                windowState.isMaximized ? "rounded-none" : "rounded-lg"
+                windowState.isMaximized ? "rounded-none" : "rounded-lg",
+                "sm:rounded-lg" // Keep rounded corners on larger screens
               )}
               style={{
                 left: windowState.x,
@@ -298,14 +312,14 @@ export function TradingRoomWindow({
                 opacity: 0,
               }}
               transition={{
-                duration: 0.15, // Match opening animation duration
+                duration: 0.15,
                 scale: { duration: 0.2, ease: "easeInOut" },
               }}
               layout
               layoutId="trading-window"
             >
-              {/* Resize Handles */}
-              {!windowState.isMaximized && (
+              {/* Resize Handles - Only show on desktop */}
+              {!windowState.isMaximized && window.innerWidth >= 768 && (
                 <>
                   {/* Top */}
                   <div
@@ -354,8 +368,11 @@ export function TradingRoomWindow({
                 ref={titleBarRef}
                 className={cn(
                   "flex items-center justify-between h-12 px-4 bg-muted/30 border-b border-border select-none",
-                  !windowState.isMaximized && "cursor-move",
-                  windowState.isMaximized ? "rounded-none" : "rounded-t-lg"
+                  !windowState.isMaximized &&
+                    window.innerWidth >= 768 &&
+                    "cursor-move",
+                  windowState.isMaximized ? "rounded-none" : "rounded-t-lg",
+                  "sm:rounded-t-lg" // Keep rounded corners on larger screens
                 )}
                 onMouseDown={handleTitleBarMouseDown}
                 onDoubleClick={handleTitleBarDoubleClick}
@@ -365,25 +382,29 @@ export function TradingRoomWindow({
                   <div className="w-6 h-6 bg-gradient-to-br from-[#549BCC] via-[#63b3e4] to-[#7cc3f0] rounded-md flex items-center justify-center">
                     <span className="text-white text-xs font-bold">W</span>
                   </div>
-                  <span className="font-medium text-sm">{roomName}</span>
+                  <span className="font-medium text-sm truncate max-w-[200px] sm:max-w-none">
+                    {roomName}
+                  </span>
                 </div>
 
                 {/* Window Controls */}
                 <div className="flex items-center pointer-events-auto">
-                  {/* Maximize/Restore */}
-                  <button
-                    onClick={handleMaximize}
-                    className="w-8 h-8 flex items-center justify-center hover:bg-muted transition-colors rounded"
-                    aria-label={
-                      windowState.isMaximized ? "Restore" : "Maximize"
-                    }
-                  >
-                    {windowState.isMaximized ? (
-                      <Minimize2 className="h-3 w-3" />
-                    ) : (
-                      <Maximize2 className="h-3 w-3" />
-                    )}
-                  </button>
+                  {/* Maximize/Restore - Only show on desktop */}
+                  {window.innerWidth >= 768 && (
+                    <button
+                      onClick={handleMaximize}
+                      className="w-8 h-8 flex items-center justify-center hover:bg-muted transition-colors rounded"
+                      aria-label={
+                        windowState.isMaximized ? "Restore" : "Maximize"
+                      }
+                    >
+                      {windowState.isMaximized ? (
+                        <Minimize2 className="h-3 w-3" />
+                      ) : (
+                        <Maximize2 className="h-3 w-3" />
+                      )}
+                    </button>
+                  )}
 
                   {/* Close */}
                   <button
@@ -397,35 +418,36 @@ export function TradingRoomWindow({
               </div>
 
               {/* Window Content */}
-              <div
-                className="h-[calc(100%-3rem)] bg-background"
-                style={{ overflow: "hidden" }}
-              >
+              <div className="h-[calc(100%-3rem)] bg-background overflow-auto">
                 <div className="h-full flex items-center justify-center bg-gradient-to-br from-background via-muted/10 to-background">
-                  <div className="text-center space-y-6 max-w-md mx-auto p-8">
+                  <div className="text-center space-y-6 max-w-md mx-auto p-4 sm:p-8">
                     {/* Room Icon */}
                     <div className="relative mx-auto">
-                      <div className="w-20 h-20 bg-gradient-to-br from-[#549BCC] via-[#63b3e4] to-[#7cc3f0] rounded-xl flex items-center justify-center shadow-lg">
-                        <span className="text-white text-2xl font-bold">W</span>
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#549BCC] via-[#63b3e4] to-[#7cc3f0] rounded-xl flex items-center justify-center shadow-lg">
+                        <span className="text-white text-xl sm:text-2xl font-bold">
+                          W
+                        </span>
                       </div>
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
-                        <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                      <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
+                        <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full"></div>
                       </div>
                     </div>
 
                     {/* Room Info */}
                     <div className="space-y-3">
-                      <h1 className="text-2xl font-bold">{roomName}</h1>
-                      <p className="text-muted-foreground">
+                      <h1 className="text-xl sm:text-2xl font-bold">
+                        {roomName}
+                      </h1>
+                      <p className="text-sm sm:text-base text-muted-foreground">
                         Welcome to your trading room
                       </p>
-                      <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center justify-center gap-4 text-xs sm:text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse"></div>
                           <span>Connected</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full"></div>
                           <span>Live data</span>
                         </div>
                       </div>

@@ -497,7 +497,7 @@ export function TradingRoomsList() {
             </div>
           );
         },
-        size: 220,
+        size: 260,
         filterFn: multiColumnFilterFn,
         enableHiding: false,
       },
@@ -614,13 +614,13 @@ export function TradingRoomsList() {
             </div>
           );
         },
-        size: 100,
+        size: 140,
       },
       {
         id: "actions",
         header: () => <span className="sr-only">Actions</span>,
         cell: ({ row }) => (
-          <div className="flex justify-end">
+          <div className="flex justify-end pr-4">
             <Button
               size="sm"
               className="px-4 h-9 font-medium cursor-pointer"
@@ -633,7 +633,7 @@ export function TradingRoomsList() {
             </Button>
           </div>
         ),
-        size: 80,
+        size: 120,
         enableHiding: false,
       },
     ],
@@ -739,15 +739,15 @@ export function TradingRoomsList() {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3 flex-1">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
           {/* Filter by name or symbol */}
-          <div className="relative flex-1 w-full">
+          <div className="relative flex-1 w-full sm:w-auto">
             <Input
               id={`${id}-input`}
               ref={inputRef}
               className={cn(
-                "peer w-full ps-9",
+                "peer w-full sm:w-[300px] ps-9",
                 Boolean(table.getColumn("name")?.getFilterValue()) && "pe-9"
               )}
               value={
@@ -782,7 +782,10 @@ export function TradingRoomsList() {
           {/* Filter by type */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-36 cursor-pointer">
+              <Button
+                variant="outline"
+                className="w-full sm:w-36 cursor-pointer"
+              >
                 <FilterIcon
                   className="-ms-1 opacity-60"
                   size={16}
@@ -830,7 +833,10 @@ export function TradingRoomsList() {
           {/* Filter by access */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-36 cursor-pointer">
+              <Button
+                variant="outline"
+                className="w-full sm:w-36 cursor-pointer"
+              >
                 <FilterIcon
                   className="-ms-1 opacity-60"
                   size={16}
@@ -875,7 +881,10 @@ export function TradingRoomsList() {
           {/* Toggle columns visibility */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-32 cursor-pointer">
+              <Button
+                variant="outline"
+                className="w-full sm:w-32 cursor-pointer"
+              >
                 <Columns3Icon
                   className="-ms-1 opacity-60"
                   size={16}
@@ -908,15 +917,15 @@ export function TradingRoomsList() {
           </DropdownMenu>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full sm:w-auto mt-3 sm:mt-0">
           {/* Create room button */}
           <CreateRoom />
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-background overflow-hidden rounded-md border">
-        <Table className="table-fixed">
+      <div className="bg-background overflow-x-auto rounded-md border">
+        <Table className="table-fixed min-w-[800px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
@@ -1007,7 +1016,7 @@ export function TradingRoomsList() {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between gap-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-8">
         {/* Results per page */}
         <div className="flex items-center gap-3">
           <Label htmlFor={id} className="max-sm:sr-only">

@@ -1,9 +1,13 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
+import * as React from "react";
 
-import { cn } from "@/lib/utils";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,6 +17,8 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 
 const community: { title: string; href: string; description: string }[] = [
   {
@@ -67,13 +73,147 @@ const exchange: { title: string; href: string; description: string }[] = [
 ];
 
 export function Menu() {
-  return (
+  // const pathname = usePathname();
+  const [openSections, setOpenSections] = React.useState<
+    Record<string, boolean>
+  >({
+    trading: false,
+    community: false,
+    information: false,
+    exchange: false,
+  });
+
+  const toggleSection = (section: string) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  const renderMobileMenu = () => (
+    <div className="flex flex-col space-y-4">
+      {/* Trading Section */}
+      <Collapsible
+        open={openSections.trading}
+        onOpenChange={() => toggleSection("trading")}
+      >
+        <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium">
+          Trading
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 transition-transform duration-200",
+              openSections.trading ? "transform rotate-180" : ""
+            )}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pl-4 space-y-2">
+          <Link href="/trading" className="block py-2 text-sm">
+            Start Trading
+          </Link>
+          <Link href="/ranking" className="block py-2 text-sm">
+            Trader Rankings
+          </Link>
+          <Link href="/kor-coins" className="block py-2 text-sm">
+            Kor Coins Rankings
+          </Link>
+        </CollapsibleContent>
+      </Collapsible>
+
+      {/* Community Section */}
+      <Collapsible
+        open={openSections.community}
+        onOpenChange={() => toggleSection("community")}
+      >
+        <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium">
+          Community
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 transition-transform duration-200",
+              openSections.community ? "transform rotate-180" : ""
+            )}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pl-4 space-y-2">
+          {community.map((item) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className="block py-2 text-sm"
+            >
+              {item.title}
+            </Link>
+          ))}
+        </CollapsibleContent>
+      </Collapsible>
+
+      {/* Investment Competition */}
+      <Link href="/investment-competition" className="py-2 text-sm font-medium">
+        Investment Competition
+      </Link>
+
+      {/* Information Section */}
+      <Collapsible
+        open={openSections.information}
+        onOpenChange={() => toggleSection("information")}
+      >
+        <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium">
+          Information
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 transition-transform duration-200",
+              openSections.information ? "transform rotate-180" : ""
+            )}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pl-4 space-y-2">
+          {information.map((item) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className="block py-2 text-sm"
+            >
+              {item.title}
+            </Link>
+          ))}
+        </CollapsibleContent>
+      </Collapsible>
+
+      {/* Exchange Section */}
+      <Collapsible
+        open={openSections.exchange}
+        onOpenChange={() => toggleSection("exchange")}
+      >
+        <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium">
+          Exchange
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 transition-transform duration-200",
+              openSections.exchange ? "transform rotate-180" : ""
+            )}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pl-4 space-y-2">
+          {exchange.map((item) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className="block py-2 text-sm"
+            >
+              {item.title}
+            </Link>
+          ))}
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
+
+  const renderDesktopMenu = () => (
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger>Trading</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
               <ListItem href="/trading" title="Start Trading">
                 Begin live trading with real-time market data and advanced tools
               </ListItem>
@@ -86,22 +226,20 @@ export function Menu() {
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
+
         <NavigationMenuItem>
           <NavigationMenuTrigger>Community</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-              {community.map((community) => (
-                <ListItem
-                  key={community.title}
-                  title={community.title}
-                  href={community.href}
-                >
-                  {community.description}
+            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              {community.map((item) => (
+                <ListItem key={item.title} title={item.title} href={item.href}>
+                  {item.description}
                 </ListItem>
               ))}
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
+
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
             <Link
@@ -116,14 +254,10 @@ export function Menu() {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Information</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-              {information.map((information) => (
-                <ListItem
-                  key={information.title}
-                  title={information.title}
-                  href={information.href}
-                >
-                  {information.description}
+            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              {information.map((item) => (
+                <ListItem key={item.title} title={item.title} href={item.href}>
+                  {item.description}
                 </ListItem>
               ))}
             </ul>
@@ -133,14 +267,10 @@ export function Menu() {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Exchange</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-              {exchange.map((exchange) => (
-                <ListItem
-                  key={exchange.title}
-                  title={exchange.title}
-                  href={exchange.href}
-                >
-                  {exchange.description}
+            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              {exchange.map((item) => (
+                <ListItem key={item.title} title={item.title} href={item.href}>
+                  {item.description}
                 </ListItem>
               ))}
             </ul>
@@ -148,6 +278,13 @@ export function Menu() {
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
+  );
+
+  return (
+    <>
+      <div className="hidden md:block">{renderDesktopMenu()}</div>
+      <div className="md:hidden">{renderMobileMenu()}</div>
+    </>
   );
 }
 

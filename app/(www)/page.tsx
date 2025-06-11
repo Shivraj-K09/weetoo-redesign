@@ -11,12 +11,12 @@ export default function Home() {
   return (
     <div className="h-full">
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 dark:from-black dark:via-gray-900 dark:to-black">
+      <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 dark:from-black dark:via-gray-900 dark:to-black">
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           {/* Floating Abstract Shapes */}
           <motion.div
-            className="absolute top-20 left-20 w-32 h-32 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-xl"
+            className="absolute top-20 left-20 w-16 sm:w-24 md:w-32 h-16 sm:h-24 md:h-32 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-xl"
             animate={{
               y: [0, -20, 0],
               x: [0, 10, 0],
@@ -29,7 +29,7 @@ export default function Home() {
             }}
           />
           <motion.div
-            className="absolute top-40 right-32 w-24 h-24 rounded-lg bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-lg rotate-45"
+            className="absolute top-40 right-8 sm:right-16 md:right-32 w-12 sm:w-16 md:w-24 h-12 sm:h-16 md:h-24 rounded-lg bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-lg rotate-45"
             animate={{
               y: [0, 15, 0],
               x: [0, -8, 0],
@@ -43,7 +43,7 @@ export default function Home() {
             }}
           />
           <motion.div
-            className="absolute bottom-32 left-40 w-20 h-20 rounded-full bg-gradient-to-r from-blue-400/15 to-purple-400/15 blur-lg"
+            className="absolute bottom-32 left-8 sm:left-20 md:left-40 w-10 sm:w-14 md:w-20 h-10 sm:h-14 md:h-20 rounded-full bg-gradient-to-r from-blue-400/15 to-purple-400/15 blur-lg"
             animate={{
               y: [0, -25, 0],
               scale: [1, 1.2, 1],
@@ -56,7 +56,7 @@ export default function Home() {
             }}
           />
           <motion.div
-            className="absolute bottom-20 right-20 w-16 h-16 rounded-lg bg-gradient-to-r from-purple-400/10 to-blue-400/10 blur-md"
+            className="absolute bottom-20 right-8 sm:right-12 md:right-20 w-8 sm:w-12 md:w-16 h-8 sm:h-12 md:h-16 rounded-lg bg-gradient-to-r from-purple-400/10 to-blue-400/10 blur-md"
             animate={{
               y: [0, 20, 0],
               x: [0, -12, 0],
@@ -151,7 +151,7 @@ export default function Home() {
               </motion.div>
 
               <motion.h1
-                className="text-6xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
@@ -169,7 +169,7 @@ export default function Home() {
               </motion.h1>
 
               <motion.p
-                className="text-xl text-gray-700 dark:text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed"
+                className="text-lg sm:text-xl text-gray-700 dark:text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed px-4 sm:px-0"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
@@ -180,7 +180,7 @@ export default function Home() {
               </motion.p>
 
               <motion.div
-                className="flex gap-4 justify-center"
+                className="flex flex-col sm:flex-row gap-4 justify-center px-4 sm:px-0"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
@@ -216,7 +216,7 @@ export default function Home() {
       </section>
 
       {/* Rankings Section */}
-      <section className="py-24 relative overflow-hidden bg-gradient-to-b from-blue-50 to-blue-100 dark:from-black dark:to-gray-900">
+      <section className="py-12 sm:py-16 md:py-24 relative overflow-hidden bg-gradient-to-b from-blue-50 to-blue-100 dark:from-black dark:to-gray-900">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.05),transparent_50%)]"></div>
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -229,10 +229,10 @@ export default function Home() {
             <Badge className="mb-4 bg-green-100 text-green-700 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20 px-4 py-1.5 text-sm">
               Top Performers
             </Badge>
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Community Leaderboards
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4 sm:px-0">
               See who&apos;s leading the pack in different categories and get
               inspired to climb the ranks.
             </p>
@@ -756,7 +756,7 @@ export default function Home() {
       </section>
 
       {/* Boards Section */}
-      <section className="py-32 relative bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-900 dark:to-black">
+      <section className="py-16 sm:py-24 md:py-32 relative bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-900 dark:to-black">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.05),transparent_50%)]"></div>
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -769,15 +769,15 @@ export default function Home() {
             <Badge className="mb-4 bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 px-4 py-1.5 text-sm">
               Community Boards
             </Badge>
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Trading Community
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4 sm:px-0">
               Join our vibrant community of traders and share your insights.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Free Board */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -929,7 +929,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-32 relative bg-gradient-to-b from-blue-50 to-blue-100 dark:from-black dark:to-gray-900">
+      <section className="py-16 sm:py-24 md:py-32 relative bg-gradient-to-b from-blue-50 to-blue-100 dark:from-black dark:to-gray-900">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.05),transparent_50%)]"></div>
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -942,10 +942,10 @@ export default function Home() {
             <Badge className="mb-4 bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 px-4 py-1.5 text-sm">
               Start Your Journey
             </Badge>
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
               Ready to Master Trading?
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto px-4 sm:px-0">
               Join thousands of traders who are already learning and earning
               through our simulation platform.
             </p>

@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { DownloadIcon, SearchIcon, XIcon } from "lucide-react";
+import { SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { WithdrawTable } from "./withdraw-table";

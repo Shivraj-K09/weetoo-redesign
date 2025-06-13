@@ -60,7 +60,7 @@ export function LiveKitManagementPage() {
     <div className="bg-background">
       <div className="container mx-auto space-y-5 mt-5">
         {/* Header */}
-        <div className="flex items-center justify-between pb-6 border-b border-border">
+        <div className="flex flex-col sm:flex-row items-center justify-between pb-6 border-b border-border gap-2 lg:gap-0">
           <div className="space-y-1">
             <h1 className="text-3xl font-semibold">LiveKit Management</h1>
             <p className="text-muted-foreground">
@@ -68,20 +68,21 @@ export function LiveKitManagementPage() {
             </p>
           </div>
           <div className="flex items-center gap-4">
-            {/* Currency Toggle - FIXED LOGIC */}
-            <div className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg border border-border">
-              <span className="text-sm font-medium">
-                {isKRW ? "KRW (₩)" : "USD ($)"}
-              </span>
-              <Switch
-                checked={isKRW}
-                onCheckedChange={setIsKRW}
-                className="data-[state=checked]:bg-primary dark:data-[state=checked]:bg-primary"
-              />
+            <div className="flex flex-col lg:flex-row w-full items-center gap-2 lg:gap-4">
+              {/* Currency Toggle - FIXED LOGIC */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg border border-border w-full justify-center">
+                <span className="text-sm font-medium">
+                  {isKRW ? "KRW (₩)" : "USD ($)"}
+                </span>
+                <Switch
+                  checked={isKRW}
+                  onCheckedChange={setIsKRW}
+                  className="data-[state=checked]:bg-primary dark:data-[state=checked]:bg-primary"
+                />
+              </div>
+              {/* Date Range Picker */}
+              <DateRangePicker date={date} setDate={setDate} />
             </div>
-
-            {/* Date Range Picker */}
-            <DateRangePicker date={date} setDate={setDate} />
           </div>
         </div>
 

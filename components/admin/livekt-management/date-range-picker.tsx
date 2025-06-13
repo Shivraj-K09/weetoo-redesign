@@ -1,5 +1,4 @@
 "use client";
-import { CalendarIcon, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -7,8 +6,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
 interface DateRangePickerProps {
@@ -18,7 +18,7 @@ interface DateRangePickerProps {
 
 export function DateRangePicker({ date, setDate }: DateRangePickerProps) {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-4 w-full sm:w-fit">
       {/* Date Range Picker */}
       <Popover>
         <PopoverTrigger asChild>
@@ -58,7 +58,7 @@ export function DateRangePicker({ date, setDate }: DateRangePickerProps) {
       </Popover>
 
       {/* Quick Select */}
-      <Popover>
+      {/* <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" className="flex items-center gap-2">
             <span>Quick Select</span>
@@ -131,7 +131,7 @@ export function DateRangePicker({ date, setDate }: DateRangePickerProps) {
             </div>
           </div>
         </PopoverContent>
-      </Popover>
+      </Popover> */}
     </div>
   );
 }

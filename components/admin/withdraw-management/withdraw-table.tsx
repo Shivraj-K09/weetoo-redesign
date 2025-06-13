@@ -680,14 +680,14 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="whitespace-nowrap">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -708,7 +708,7 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="whitespace-nowrap">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -730,8 +730,9 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex flex-wrap items-center justify-between space-y-2 py-4 w-full">
-        <div className="flex items-center space-x-2">
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+        <div className="flex items-center space-x-2 w-full sm:w-auto">
           <p className="text-sm text-muted-foreground">
             Showing {table.getRowModel().rows.length} of {filteredData.length}{" "}
             withdrawals
@@ -756,109 +757,54 @@ export function WithdrawTable({ searchTerm, filters }: WithdrawTableProps) {
           </Select>
           <p className="text-sm text-muted-foreground">per page</p>
         </div>
-        <div className="flex items-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => table.previousPage()}
-                  aria-disabled={!table.getCanPreviousPage()}
-                  tabIndex={!table.getCanPreviousPage() ? -1 : 0}
-                  href="#"
-                  style={{
-                    pointerEvents: !table.getCanPreviousPage()
-                      ? "none"
-                      : undefined,
-                  }}
-                />
-              </PaginationItem>
-              {(() => {
-                const pageCount = table.getPageCount();
-                const pageIndex = table.getState().pagination.pageIndex;
-                const pageButtons = [];
-                const maxPageButtons = 5;
-                let startPage = Math.max(0, pageIndex - 2);
-                let endPage = Math.min(pageCount - 1, pageIndex + 2);
-                if (pageIndex <= 1) {
-                  endPage = Math.min(pageCount - 1, maxPageButtons - 1);
-                }
-                if (pageIndex >= pageCount - 2) {
-                  startPage = Math.max(0, pageCount - maxPageButtons);
-                }
-                for (let i = startPage; i <= endPage; i++) {
-                  pageButtons.push(
-                    <PaginationItem key={i}>
+
+        <Pagination className="w-full sm:w-auto">
+          <PaginationContent className="flex-wrap">
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => table.previousPage()}
+                aria-disabled={!table.getCanPreviousPage()}
+                tabIndex={!table.getCanPreviousPage() ? -1 : 0}
+                href="#"
+                style={{
+                  pointerEvents: !table.getCanPreviousPage()
+                    ? "none"
+                    : undefined,
+                }}
+              />
+            </PaginationItem>
+            {table.getPageCount() > 0 && (
+              <>
+                {Array.from({ length: table.getPageCount() }, (_, i) => i).map(
+                  (pageIndex) => (
+                    <PaginationItem key={pageIndex}>
                       <PaginationLink
-                        isActive={i === pageIndex}
                         href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          table.setPageIndex(i);
-                        }}
+                        onClick={() => table.setPageIndex(pageIndex)}
+                        isActive={
+                          table.getState().pagination.pageIndex === pageIndex
+                        }
                       >
-                        {i + 1}
+                        {pageIndex + 1}
                       </PaginationLink>
                     </PaginationItem>
-                  );
-                }
-                if (startPage > 0) {
-                  pageButtons.unshift(
-                    <PaginationItem key="start-ellipsis">
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  );
-                  pageButtons.unshift(
-                    <PaginationItem key={0}>
-                      <PaginationLink
-                        isActive={pageIndex === 0}
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          table.setPageIndex(0);
-                        }}
-                      >
-                        1
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                }
-                if (endPage < pageCount - 1) {
-                  pageButtons.push(
-                    <PaginationItem key="end-ellipsis">
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  );
-                  pageButtons.push(
-                    <PaginationItem key={pageCount - 1}>
-                      <PaginationLink
-                        isActive={pageIndex === pageCount - 1}
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          table.setPageIndex(pageCount - 1);
-                        }}
-                      >
-                        {pageCount}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                }
-                return pageButtons;
-              })()}
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => table.nextPage()}
-                  aria-disabled={!table.getCanNextPage()}
-                  tabIndex={!table.getCanNextPage() ? -1 : 0}
-                  href="#"
-                  style={{
-                    pointerEvents: !table.getCanNextPage() ? "none" : undefined,
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+                  )
+                )}
+              </>
+            )}
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => table.nextPage()}
+                aria-disabled={!table.getCanNextPage()}
+                tabIndex={!table.getCanNextPage() ? -1 : 0}
+                href="#"
+                style={{
+                  pointerEvents: !table.getCanNextPage() ? "none" : undefined,
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
 
       {/* Withdraw details dialog */}

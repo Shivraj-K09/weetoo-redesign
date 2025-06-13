@@ -1,25 +1,25 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import {
+  ArrowUpRight,
+  Calendar,
   CheckCircle,
   Clock,
-  XCircle,
-  Calendar,
-  User,
   FileText,
-  ArrowUpRight,
+  User,
+  XCircle,
 } from "lucide-react";
 import type { Withdraw } from "./withdraw-table";
 
@@ -140,20 +140,20 @@ export function WithdrawDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col p-8">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-8">
         <DialogHeader className="sticky top-0 z-10 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex flex-col sm:flex-row sm:items-center gap-2">
             Withdrawal Details
             {getStatusBadge(withdraw.situation)}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             Transaction ID: <span className="font-mono">{withdraw.id}</span>
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4 flex-1 overflow-y-auto">
           {/* User Information */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <Avatar className="h-12 w-12">
               <AvatarImage
                 src={withdraw.user.avatar}
@@ -209,33 +209,33 @@ export function WithdrawDetailsDialog({
           <div>
             <h4 className="text-sm font-semibold mb-3">Withdrawal Details</h4>
 
-            <div className="bg-muted/50 p-4 rounded-md">
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-muted/50 p-3 sm:p-4 rounded-md">
+              <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                 <span className="text-sm font-medium">
                   Transaction Reference
                 </span>
-                <span className="text-sm font-mono">
+                <span className="text-sm font-mono break-all">
                   {additionalWithdrawData.transactionReference}
                 </span>
               </div>
 
               {additionalWithdrawData.bankDetails && (
                 <>
-                  <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                     <span className="text-sm font-medium">Bank Name</span>
-                    <span className="text-sm">
+                    <span className="text-sm break-all">
                       {additionalWithdrawData.bankDetails.bankName}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                     <span className="text-sm font-medium">Account Number</span>
-                    <span className="text-sm font-mono">
+                    <span className="text-sm font-mono break-all">
                       {additionalWithdrawData.bankDetails.accountNumber}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2">
                     <span className="text-sm font-medium">Account Holder</span>
-                    <span className="text-sm">
+                    <span className="text-sm break-all">
                       {additionalWithdrawData.bankDetails.accountHolder}
                     </span>
                   </div>
@@ -244,23 +244,23 @@ export function WithdrawDetailsDialog({
 
               {additionalWithdrawData.mobileWalletDetails && (
                 <>
-                  <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                     <span className="text-sm font-medium">
                       Mobile Wallet Provider
                     </span>
-                    <span className="text-sm">
+                    <span className="text-sm break-all">
                       {additionalWithdrawData.mobileWalletDetails.provider}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                     <span className="text-sm font-medium">Phone Number</span>
-                    <span className="text-sm font-mono">
+                    <span className="text-sm font-mono break-all">
                       {additionalWithdrawData.mobileWalletDetails.phoneNumber}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2">
                     <span className="text-sm font-medium">Wallet ID</span>
-                    <span className="text-sm font-mono">
+                    <span className="text-sm font-mono break-all">
                       {additionalWithdrawData.mobileWalletDetails.walletId}
                     </span>
                   </div>
@@ -324,32 +324,37 @@ export function WithdrawDetailsDialog({
           )}
         </div>
 
-        <DialogFooter className="sticky bottom-0 z-10 bg-background pt-4 border-t mt-auto">
-          {withdraw.situation === "pending" && (
-            <>
-              <Button
-                variant="outline"
-                className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 shadow-none h-10 cursor-pointer"
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Approve
-              </Button>
-              <Button
-                variant="outline"
-                className="bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800 shadow-none h-10 cursor-pointer"
-              >
-                <XCircle className="mr-2 h-4 w-4" />
-                Reject
-              </Button>
-            </>
-          )}
+        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-4">
           <Button
-            className="shadow-none h-10 cursor-pointer"
             variant="outline"
             onClick={() => onOpenChange(false)}
+            className="w-full sm:w-auto"
           >
             Close
           </Button>
+          {withdraw.situation === "pending" && (
+            <>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  // Handle reject
+                  onOpenChange(false);
+                }}
+                className="w-full sm:w-auto"
+              >
+                Reject Withdrawal
+              </Button>
+              <Button
+                onClick={() => {
+                  // Handle approve
+                  onOpenChange(false);
+                }}
+                className="w-full sm:w-auto"
+              >
+                Approve Withdrawal
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

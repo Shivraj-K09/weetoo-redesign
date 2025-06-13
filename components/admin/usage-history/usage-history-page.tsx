@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { UsageHistoryTable } from "./usage-history-table";
-import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 import { DownloadIcon, SearchIcon, XIcon } from "lucide-react";
-import { Input } from "../../ui/input";
+import { useState } from "react";
+import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "../../date-range-picker";
+import { Badge } from "../../ui/badge";
+import { Button } from "../../ui/button";
+import { Input } from "../../ui/input";
 import {
   Select,
   SelectContent,
@@ -13,9 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
-import { Button } from "../../ui/button";
-import { Badge } from "../../ui/badge";
-import { format } from "date-fns";
+import { UsageHistoryTable } from "./usage-history-table";
 
 export function UsageHistoryPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,7 +66,7 @@ export function UsageHistoryPage() {
 
   return (
     <>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="relative w-full">
           <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -76,41 +76,47 @@ export function UsageHistoryPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <DateRangePicker
-          date={filters.dateRange}
-          onDateChange={handleDateRangeChange}
-        />
-        <Select
-          value={filters.usageType}
-          onValueChange={(value) =>
-            handleFilterChange("usageType", value as FilterValue)
-          }
-        >
-          <SelectTrigger className="w-[230px] h-10 shadow-none cursor-pointer">
-            <SelectValue placeholder="Usage Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All types</SelectItem>
-            <SelectItem value="purchase">Purchase</SelectItem>
-            <SelectItem value="donation">Donation</SelectItem>
-            <SelectItem value="subscription">Subscription</SelectItem>
-            <SelectItem value="premium">Premium Content</SelectItem>
-            <SelectItem value="service">Service Fee</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button
-          variant="outline"
-          size="default"
-          onClick={clearFilters}
-          disabled={activeFilterCount === 0}
-          className="h-10 px-4 font-normal shadow-none cursor-pointer"
-        >
-          Clear Filters
-        </Button>
-        <Button variant="outline" className="shadow-none cursor-pointer h-10">
-          <DownloadIcon className="h-4 w-4" />
-          <span className="sr-only">Export</span>
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <DateRangePicker
+            date={filters.dateRange}
+            onDateChange={handleDateRangeChange}
+          />
+          <Select
+            value={filters.usageType}
+            onValueChange={(value) =>
+              handleFilterChange("usageType", value as FilterValue)
+            }
+          >
+            <SelectTrigger className="w-full sm:w-[230px] h-10 shadow-none cursor-pointer">
+              <SelectValue placeholder="Usage Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All types</SelectItem>
+              <SelectItem value="purchase">Purchase</SelectItem>
+              <SelectItem value="donation">Donation</SelectItem>
+              <SelectItem value="subscription">Subscription</SelectItem>
+              <SelectItem value="premium">Premium Content</SelectItem>
+              <SelectItem value="service">Service Fee</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="flex gap-3">
+            <Button
+              size="default"
+              onClick={clearFilters}
+              disabled={activeFilterCount === 0}
+              className="h-10 px-4 font-normal shadow-none cursor-pointer"
+            >
+              Clear Filters
+            </Button>
+            <Button
+              variant="outline"
+              className="shadow-none cursor-pointer h-10"
+            >
+              <DownloadIcon className="h-4 w-4" />
+              <span className="sr-only">Export</span>
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Active filters display */}

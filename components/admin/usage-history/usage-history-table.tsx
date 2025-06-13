@@ -1,26 +1,27 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   type ColumnDef,
   type SortingState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  getFilteredRowModel,
 } from "@tanstack/react-table";
 import {
   ArrowUpDown,
-  MoreHorizontal,
-  ShoppingBag,
-  Gift,
-  Repeat,
-  Star,
   DollarSign,
+  Gift,
+  MoreHorizontal,
+  Repeat,
+  ShoppingBag,
+  Star,
 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,24 +31,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type { DateRange } from "react-day-picker";
-import { UsageDetailsDialog } from "./usage-details-dialog";
-import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -56,6 +39,23 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import type { DateRange } from "react-day-picker";
+import { UsageDetailsDialog } from "./usage-details-dialog";
 
 // Sample usage history data
 const usageHistoryData = [
@@ -638,14 +638,14 @@ export function UsageHistoryTable({
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="whitespace-nowrap">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -666,7 +666,7 @@ export function UsageHistoryTable({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="whitespace-nowrap">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -688,8 +688,8 @@ export function UsageHistoryTable({
           </TableBody>
         </Table>
       </div>
-      <div className="flex flex-wrap items-center justify-between space-y-2 py-4">
-        <div className="flex items-center space-x-2">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+        <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">
             Showing {table.getRowModel().rows.length} of {filteredData.length}{" "}
             usage records
@@ -716,7 +716,7 @@ export function UsageHistoryTable({
         </div>
         <div className="flex items-center">
           <Pagination>
-            <PaginationContent>
+            <PaginationContent className="flex-wrap">
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => table.previousPage()}

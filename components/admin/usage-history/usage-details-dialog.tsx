@@ -1,28 +1,24 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
-  ShoppingBag,
+  DollarSign,
   Gift,
   Repeat,
+  ShoppingBag,
   Star,
-  DollarSign,
-  CreditCard,
-  Clock,
-  FileText,
-  CheckCircle,
 } from "lucide-react";
 import { UsageHistory } from "./usage-history-table";
 
@@ -44,6 +40,15 @@ export function UsageDetailsDialog({
       year: "numeric",
       month: "long",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  };
+
+  // Format time
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-US", {
       hour: "2-digit",
       minute: "2-digit",
     }).format(date);
@@ -163,9 +168,9 @@ export function UsageDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="sticky top-0 z-10 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             Usage Details
             <Badge
               variant="outline"
@@ -184,15 +189,15 @@ export function UsageDetailsDialog({
 
         <div className="space-y-6 py-4 flex-1 overflow-y-auto">
           {/* User Information */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <Avatar className="h-12 w-12">
               <AvatarImage src={usage.user.avatar} alt={usage.user.name} />
               <AvatarFallback>{getInitials(usage.user.name)}</AvatarFallback>
             </Avatar>
-            <div>
-              <h3 className="text-lg font-medium">{usage.user.name}</h3>
-              <p className="text-sm text-muted-foreground font-mono">
-                {usage.user.uid}
+            <div className="space-y-1">
+              <h3 className="font-medium">{usage.user.name}</h3>
+              <p className="text-sm text-muted-foreground">
+                User ID: {usage.user.uid}
               </p>
             </div>
           </div>
@@ -200,83 +205,36 @@ export function UsageDetailsDialog({
           <Separator />
 
           {/* Transaction Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-start gap-2">
-              <CreditCard className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Amount Used</p>
-                <p className="text-lg">{formatAmount(usage.amount)} KOR</p>
+          <div className="space-y-4">
+            <h3 className="font-medium">Transaction Details</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>Date & Time</span>
+                </div>
+                <p className="font-medium">
+                  {formatDate(usage.date)} at {formatTime(usage.date)}
+                </p>
               </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Date & Time</p>
-                <p>{formatDate(usage.date)}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              {getUsageTypeIcon(usage.usageType)}
-              <div>
-                <p className="text-sm font-medium">Usage Type</p>
-                <p>{usage.usageTypeLabel}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Items/Donations</p>
-                <p>{usage.items}</p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <DollarSign className="h-4 w-4" />
+                  <span>Amount</span>
+                </div>
+                <p className="font-medium">{formatAmount(usage.amount)} KOR</p>
               </div>
             </div>
           </div>
 
           <Separator />
 
-          {/* Transaction Details */}
-          <div>
-            <h4 className="text-sm font-semibold mb-3">Transaction Details</h4>
-            <div className="bg-muted/50 p-4 rounded-md">
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                <span className="text-sm font-medium">Transaction ID</span>
-                <span className="text-sm font-mono">
-                  {additionalUsageData.transactionId}
-                </span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                <span className="text-sm font-medium">Payment Method</span>
-                <span className="text-sm">
-                  {additionalUsageData.paymentMethod}
-                </span>
-              </div>
-              <div className="flex justify-between py-2">
-                <span className="text-sm font-medium">Receipt</span>
-                <a
-                  href={additionalUsageData.receiptUrl}
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  View Receipt
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Item Details */}
-          <div>
-            <h4 className="text-sm font-semibold mb-3">Item Details</h4>
-            <div className="space-y-3">
+          {/* Items/Donations */}
+          <div className="space-y-4">
+            <h3 className="font-medium">Items/Donations</h3>
+            <div className="space-y-4">
               {additionalUsageData.relatedItems.map((item, index) => (
-                <div key={index} className="bg-muted/50 p-4 rounded-md">
-                  <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                    <span className="text-sm font-medium">Name</span>
-                    <span className="text-sm">{item.name}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                    <span className="text-sm font-medium">Price</span>
-                    <span className="text-sm">
-                      {formatAmount(item.price)} KOR
-                    </span>
-                  </div>
+                <div key={index} className="rounded-lg border p-4 space-y-3">
                   <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                     <span className="text-sm font-medium">Type</span>
                     <span className="text-sm">{item.type}</span>
@@ -343,46 +301,13 @@ export function UsageDetailsDialog({
               ))}
             </div>
           </div>
-
-          {/* Transaction Timeline */}
-          <div>
-            <h4 className="text-sm font-semibold mb-3">Transaction Timeline</h4>
-            <div className="space-y-3">
-              {additionalUsageData.timeline.map((event, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <div className="mt-0.5">
-                    {event.action === "Transaction Initiated" && (
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    {event.action === "Payment Processed" && (
-                      <CreditCard className="h-4 w-4 text-blue-500" />
-                    )}
-                    {event.action === "Transaction Completed" && (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <p className="text-sm font-medium">{event.action}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(event.date)}
-                      </p>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      By: {event.by}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
-        <DialogFooter className="sticky bottom-0 z-10 bg-background pt-4 border-t mt-auto">
+        <DialogFooter className="mt-4">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="shadow-none cursor-pointer h-10"
+            className="w-full sm:w-auto"
           >
             Close
           </Button>

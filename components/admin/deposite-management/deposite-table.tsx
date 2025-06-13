@@ -1,24 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   type ColumnDef,
   type SortingState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  getFilteredRowModel,
 } from "@tanstack/react-table";
 import {
   ArrowUpDown,
-  MoreHorizontal,
   CheckCircle,
   Clock,
+  MoreHorizontal,
   XCircle,
 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -35,16 +43,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DepositDetailsDialog } from "./deposite-detail-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { DateRange } from "react-day-picker";
+import { DepositDetailsDialog } from "./deposite-detail-dialog";
 
 // Sample deposit data
 const depositData = [
@@ -551,14 +551,14 @@ export function DepositTable({ searchTerm, filters }: DepositTableProps) {
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="whitespace-nowrap">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -579,7 +579,7 @@ export function DepositTable({ searchTerm, filters }: DepositTableProps) {
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="whitespace-nowrap">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -601,8 +601,8 @@ export function DepositTable({ searchTerm, filters }: DepositTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex flex-wrap items-center justify-between space-y-2 py-4">
-        <div className="flex items-center space-x-2">
+      <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 py-4">
+        <div className="flex items-center gap-4">
           <p className="text-sm text-muted-foreground">
             Showing {table.getRowModel().rows.length} of {filteredData.length}{" "}
             deposits
@@ -623,7 +623,7 @@ export function DepositTable({ searchTerm, filters }: DepositTableProps) {
             </SelectContent>
           </Select>
         </div>
-        <div className="space-x-2">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"

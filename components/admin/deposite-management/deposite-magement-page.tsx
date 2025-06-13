@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { DownloadIcon, SearchIcon, XIcon } from "lucide-react";
+import { SearchIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { DepositTable } from "./deposite-table";
@@ -70,18 +70,20 @@ export function DepositManagementPage() {
 
   return (
     <div className="bg-background">
-      <div className="space-y-6 mt-5 container mx-auto">
+      <div className="space-y-6 mt-5 container mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="flex items-center justify-between pb-6 border-b border-border">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-semibold">Deposite Management</h1>
-            <p className="text-muted-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-border">
+          <div className="space-y-1 mb-4 sm:mb-0">
+            <h1 className="text-2xl sm:text-3xl font-semibold">
+              Deposite Management
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               View and manage KOR_Coin deposit transactions
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Total Deposits"
             value="17,000"
@@ -119,28 +121,29 @@ export function DepositManagementPage() {
           />
         </div>
 
-        <div className="flex items-center gap-3 w-full justify-between">
-          <div className="relative w-full">
-            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full justify-between">
+          <div className="relative w-full md:flex-1 md:max-w-none">
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search deposits..."
-              className="pl-9 shadow-none h-10  border border-border"
+              className="pl-9 shadow-none h-10 border border-border w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col md:flex-row flex-1 gap-3 md:gap-3 w-full md:w-auto">
             <DateRangePicker
               date={filters.dateRange}
               onDateChange={handleDateRangeChange}
+              className="w-full md:w-auto"
             />
 
             <Select
               value={filters.status}
               onValueChange={(value) => handleFilterChange("status", value)}
             >
-              <SelectTrigger className="shadow-none h-10 cursor-pointer w-[200px]">
+              <SelectTrigger className="shadow-none h-10 cursor-pointer w-full md:w-[200px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -157,7 +160,7 @@ export function DepositManagementPage() {
                 handleFilterChange("paymentMethod", value)
               }
             >
-              <SelectTrigger className="shadow-none h-10 cursor-pointer w-[200px]">
+              <SelectTrigger className="shadow-none h-10 cursor-pointer w-full md:w-[200px]">
                 <SelectValue placeholder="Payment Method" />
               </SelectTrigger>
               <SelectContent>
@@ -174,7 +177,7 @@ export function DepositManagementPage() {
                 handleFilterChange("amountRange", value)
               }
             >
-              <SelectTrigger className="shadow-none h-10 cursor-pointer w-[200px]">
+              <SelectTrigger className="shadow-none h-10 cursor-pointer w-full md:w-[200px]">
                 <SelectValue placeholder="Amount Range" />
               </SelectTrigger>
               <SelectContent>
@@ -193,24 +196,14 @@ export function DepositManagementPage() {
             <Button
               variant="outline"
               size="default"
+              className="shadow-none cursor-pointer h-10 w-full md:w-auto"
               onClick={clearFilters}
-              disabled={activeFilterCount === 0}
-              className="h-10 px-4 font-normal shadow-none cursor-pointer"
             >
               Clear Filters
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="shadow-none h-10 cursor-pointer"
-            >
-              <DownloadIcon className="h-4 w-4" />
-              <span className="sr-only">Export</span>
             </Button>
           </div>
         </div>
 
-        {/* Active filters display */}
         {activeFilterCount > 0 && (
           <div className="flex flex-wrap gap-2">
             {filters.status !== "all" && (
@@ -224,7 +217,7 @@ export function DepositManagementPage() {
             )}
             {filters.paymentMethod !== "all" && (
               <Badge variant="secondary" className="text-xs">
-                Payment: {filters.paymentMethod}
+                Method: {filters.paymentMethod}
                 <XIcon
                   className="h-3 w-3 ml-1 cursor-pointer"
                   onClick={() => handleFilterChange("paymentMethod", "all")}
@@ -233,8 +226,7 @@ export function DepositManagementPage() {
             )}
             {filters.amountRange !== "all" && (
               <Badge variant="secondary" className="text-xs">
-                Amount:{" "}
-                {filters.amountRange.replace("-", " - ").replace("+", "+")}
+                Amount: {filters.amountRange}
                 <XIcon
                   className="h-3 w-3 ml-1 cursor-pointer"
                   onClick={() => handleFilterChange("amountRange", "all")}

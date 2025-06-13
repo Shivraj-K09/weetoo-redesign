@@ -1,25 +1,25 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import {
+  Calendar,
   CheckCircle,
   Clock,
-  XCircle,
-  Calendar,
   CreditCard,
-  User,
   FileText,
+  User,
+  XCircle,
 } from "lucide-react";
 import type { Deposit } from "./deposite-table";
 
@@ -145,13 +145,13 @@ export function DepositDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col p-8">
-        <DialogHeader className="sticky top-0 z-10  pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-8">
+        <DialogHeader className="sticky top-0 z-10 pb-4 border-b">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
             Deposit Details
             {getStatusBadge(deposit.situation)}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             Transaction ID: <span className="font-mono">{deposit.id}</span>
           </DialogDescription>
         </DialogHeader>
@@ -159,13 +159,15 @@ export function DepositDetailsDialog({
         <div className="space-y-6 py-4 flex-1 overflow-y-auto">
           {/* User Information */}
           <div className="flex items-center gap-4">
-            <Avatar className="h-12 w-12">
+            <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
               <AvatarImage src={deposit.user.avatar} alt={deposit.user.name} />
               <AvatarFallback>{getInitials(deposit.user.name)}</AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="text-lg font-medium">{deposit.user.name}</h3>
-              <p className="text-sm text-muted-foreground font-mono">
+              <h3 className="text-base sm:text-lg font-medium">
+                {deposit.user.name}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground font-mono">
                 {deposit.user.uid}
               </p>
             </div>
@@ -174,33 +176,46 @@ export function DepositDetailsDialog({
           <Separator />
 
           {/* Transaction Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-start gap-2">
-              <CreditCard className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Amount</p>
-                <p className="text-lg">{formatAmount(deposit.amount)} KOR</p>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>Date</span>
+                </div>
+                <p className="text-sm sm:text-base font-medium">
+                  {formatDate(deposit.date)}
+                </p>
               </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Date & Time</p>
-                <p>{formatDate(deposit.date)}</p>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <CreditCard className="h-4 w-4" />
+                  <span>Amount</span>
+                </div>
+                <p className="text-sm sm:text-base font-medium">
+                  {formatAmount(deposit.amount)} KOR
+                </p>
               </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Payment Method</p>
-                <p>{deposit.paymentMethod}</p>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <FileText className="h-4 w-4" />
+                  <span>Payment Method</span>
+                </div>
+                <p className="text-sm sm:text-base font-medium">
+                  {deposit.paymentMethod}
+                </p>
               </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Approved By</p>
-                <p>{deposit.approvedBy || "Pending Approval"}</p>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <User className="h-4 w-4" />
+                  <span>Approved By</span>
+                </div>
+                <p className="text-sm sm:text-base font-medium">
+                  {deposit.approvedBy || "Pending"}
+                </p>
               </div>
             </div>
           </div>
@@ -214,36 +229,36 @@ export function DepositDetailsDialog({
             {deposit.paymentMethod === "Credit Card" &&
               additionalDepositData.cardDetails && (
                 <div className="mb-4">
-                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-6 text-white shadow-lg w-full h-[250px] relative overflow-hidden">
+                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-4 sm:p-6 text-white shadow-lg w-full h-[200px] sm:h-[250px] relative overflow-hidden">
                     {/* Card Brand Logo */}
                     <div className="absolute top-4 right-4">
-                      <div className="text-white font-bold text-xl italic">
+                      <div className="text-white font-bold text-lg sm:text-xl italic">
                         VISA
                       </div>
                     </div>
 
                     {/* Chip */}
-                    <div className="w-12 h-9 bg-yellow-300 rounded-md mb-6 flex items-center justify-center">
-                      <div className="w-10 h-7 border-2 border-yellow-600 rounded-sm"></div>
+                    <div className="w-10 h-8 sm:w-12 sm:h-9 bg-yellow-300 rounded-md mb-4 sm:mb-6 flex items-center justify-center">
+                      <div className="w-8 h-6 sm:w-10 sm:h-7 border-2 border-yellow-600 rounded-sm"></div>
                     </div>
 
                     {/* Card Number */}
-                    <div className="text-xl font-mono tracking-wider mb-8">
+                    <div className="text-lg sm:text-xl font-mono tracking-wider mb-6 sm:mb-8">
                       * * * * * * * * * * * *{" "}
                       {additionalDepositData.cardDetails.lastFourDigits}
                     </div>
 
                     {/* Card Holder & Expiry - Bottom row */}
-                    <div className="flex justify-between items-end absolute bottom-6 left-6 right-6 w-[calc(100%-3rem)]">
+                    <div className="flex justify-between items-end">
                       <div>
                         <div className="text-xs mb-1">Card Holder</div>
-                        <div className="font-medium uppercase tracking-wider">
+                        <div className="text-sm sm:text-base font-medium uppercase tracking-wider">
                           {additionalDepositData.cardDetails.cardHolder}
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="text-xs mb-1">Expires</div>
-                        <div className="font-medium">
+                        <div className="text-sm sm:text-base font-medium">
                           {additionalDepositData.cardDetails.expiryMonth}/
                           {additionalDepositData.cardDetails.expiryYear}
                         </div>
@@ -253,7 +268,7 @@ export function DepositDetailsDialog({
                 </div>
               )}
 
-            <div className="bg-muted/50 p-4 rounded-md">
+            <div className="space-y-2">
               <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                 <span className="text-sm font-medium">
                   Transaction Reference
@@ -326,7 +341,7 @@ export function DepositDetailsDialog({
                     )}
                   </div>
                   <div className="flex-1">
-                    <div className="flex justify-between">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
                       <p className="text-sm font-medium capitalize">
                         {event.status === "created"
                           ? "Deposit Initiated"
@@ -361,27 +376,33 @@ export function DepositDetailsDialog({
         </div>
 
         <DialogFooter className="sticky bottom-0 z-10 bg-background pt-4 border-t mt-auto">
-          {deposit.situation === "pending" && (
-            <>
-              <Button
-                variant="outline"
-                className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Approve
-              </Button>
-              <Button
-                variant="outline"
-                className="bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800"
-              >
-                <XCircle className="mr-2 h-4 w-4" />
-                Reject
-              </Button>
-            </>
-          )}
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            {deposit.situation === "pending" && (
+              <>
+                <Button
+                  variant="outline"
+                  className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 w-full sm:w-auto"
+                >
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Approve
+                </Button>
+                <Button
+                  variant="outline"
+                  className="bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800 w-full sm:w-auto"
+                >
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Reject
+                </Button>
+              </>
+            )}
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="w-full sm:w-auto"
+            >
+              Close
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

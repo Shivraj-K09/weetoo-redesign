@@ -1,25 +1,25 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import {
+  Award,
   Calendar,
   FileText,
-  Award,
-  MessageSquare,
-  ThumbsUp,
-  Share2,
   Gift,
+  MessageSquare,
+  Share2,
+  ThumbsUp,
 } from "lucide-react";
 import type { ActivityPoints } from "./activity-points-table";
 
@@ -143,9 +143,9 @@ export function ActivityPointsDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-6">
         <DialogHeader className="sticky top-0 z-10 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex flex-col sm:flex-row sm:items-center gap-2">
             Activity Points Details
             <Badge
               variant="outline"
@@ -161,7 +161,7 @@ export function ActivityPointsDetailsDialog({
 
         <div className="space-y-6 py-4 flex-1 overflow-y-auto">
           {/* User Information */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <Avatar className="h-12 w-12">
               <AvatarImage
                 src={activity.user.avatar_url || ""}
@@ -180,7 +180,7 @@ export function ActivityPointsDetailsDialog({
           <Separator />
 
           {/* Activity Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex items-start gap-2">
               <Award className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
@@ -222,15 +222,17 @@ export function ActivityPointsDetailsDialog({
           <div>
             <h4 className="text-sm font-semibold mb-3">Transaction Details</h4>
             <div className="bg-muted/50 p-4 rounded-md">
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                 <span className="text-sm font-medium">Transaction ID</span>
-                <span className="text-sm font-mono">{activity.act_id}</span>
+                <span className="text-sm font-mono break-all">
+                  {activity.act_id}
+                </span>
               </div>
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                 <span className="text-sm font-medium">Transaction Type</span>
                 <span className="text-sm">{activity.transaction_type}</span>
               </div>
-              <div className="flex justify-between py-2">
+              <div className="flex flex-col sm:flex-row sm:justify-between py-2">
                 <span className="text-sm font-medium">Created At</span>
                 <span className="text-sm">
                   {formatDate(activity.created_at)}
@@ -244,7 +246,7 @@ export function ActivityPointsDetailsDialog({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="shadow-none h-10 cursor-pointer"
+            className="shadow-none h-10 cursor-pointer w-full sm:w-auto"
           >
             Close
           </Button>

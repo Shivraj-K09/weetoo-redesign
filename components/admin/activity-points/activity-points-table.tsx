@@ -25,7 +25,6 @@ import {
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -732,54 +731,91 @@ export function ActivityPointsTable({
   return (
     <>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className={`
+                        ${header.id === "content" ? "hidden md:table-cell" : ""}
+                        ${
+                          header.id === "exp_earned"
+                            ? "hidden lg:table-cell"
+                            : ""
+                        }
+                        ${
+                          header.id === "coins_earned"
+                            ? "hidden lg:table-cell"
+                            : ""
+                        }
+                      `}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        className={`
+                          ${
+                            cell.column.id === "content"
+                              ? "hidden md:table-cell"
+                              : ""
+                          }
+                          ${
+                            cell.column.id === "exp_earned"
+                              ? "hidden lg:table-cell"
+                              : ""
+                          }
+                          ${
+                            cell.column.id === "coins_earned"
+                              ? "hidden lg:table-cell"
+                              : ""
+                          }
+                        `}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-      <div className="flex flex-wrap items-center justify-between space-y-2 py-4">
+
+      <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 py-4">
         <div className="flex items-center space-x-2">
           <p className="text-sm text-muted-foreground">
             Showing {table.getRowModel().rows.length} of {filteredData.length}{" "}
@@ -805,7 +841,8 @@ export function ActivityPointsTable({
           </Select>
           <p className="text-sm text-muted-foreground">per page</p>
         </div>
-        <div className="flex items-center">
+
+        <div className="flex items-center space-x-2">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
@@ -846,48 +883,6 @@ export function ActivityPointsTable({
                         }}
                       >
                         {i + 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                }
-                if (startPage > 0) {
-                  pageButtons.unshift(
-                    <PaginationItem key="start-ellipsis">
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  );
-                  pageButtons.unshift(
-                    <PaginationItem key={0}>
-                      <PaginationLink
-                        isActive={pageIndex === 0}
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          table.setPageIndex(0);
-                        }}
-                      >
-                        1
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                }
-                if (endPage < pageCount - 1) {
-                  pageButtons.push(
-                    <PaginationItem key="end-ellipsis">
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  );
-                  pageButtons.push(
-                    <PaginationItem key={pageCount - 1}>
-                      <PaginationLink
-                        isActive={pageIndex === pageCount - 1}
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          table.setPageIndex(pageCount - 1);
-                        }}
-                      >
-                        {pageCount}
                       </PaginationLink>
                     </PaginationItem>
                   );

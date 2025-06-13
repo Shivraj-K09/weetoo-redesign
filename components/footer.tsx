@@ -84,7 +84,7 @@ export function Footer() {
                 <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
               </Link>
               <Link
-                href="/community"
+                href="#"
                 className="group flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
               >
                 <span className="text-sm text-muted-foreground group-hover:text-foreground">

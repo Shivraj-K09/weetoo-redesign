@@ -52,7 +52,7 @@ export function AdminHeader() {
       {/* 1st Header */}
       <header className="w-full">
         <div className="h-13.5 flex justify-between w-full items-center gap-2 md:gap-4 px-6">
-          <Link href="/admin" className="flex items-center group">
+          <Link href="/admin/overview" className="flex items-center group">
             <span className="text-2xl font-semibold transition-colors duration-300 group-hover:text-primary">
               Weetoo
             </span>

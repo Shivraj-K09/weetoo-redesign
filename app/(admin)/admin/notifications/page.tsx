@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function Notifications() {
   return (
-    <div className="font-sans h-full">
+    <div className="font-sans h-full scrollbar-none outline-hidden">
       <NotificationPage />
     </div>
   );

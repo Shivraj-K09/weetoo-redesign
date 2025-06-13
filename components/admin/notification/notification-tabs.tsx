@@ -9,8 +9,10 @@ import {
   LaptopIcon,
   Settings,
   Users,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -381,6 +383,58 @@ interface NotificationProps {
 
 export function NotificationTabs({ searchTerm }: NotificationProps) {
   const [activeTab, setActiveTab] = useState("all");
+  const tabsListRef = useRef<HTMLDivElement>(null);
+  const [showLeftChevron, setShowLeftChevron] = useState(false);
+  const [showRightChevron, setShowRightChevron] = useState(false);
+
+  useEffect(() => {
+    const checkScroll = () => {
+      if (tabsListRef.current) {
+        const { scrollWidth, clientWidth, scrollLeft } = tabsListRef.current;
+        console.log(
+          "scrollWidth:",
+          scrollWidth,
+          "clientWidth:",
+          clientWidth,
+          "scrollLeft:",
+          scrollLeft
+        );
+        setShowLeftChevron(scrollLeft > 0);
+        setShowRightChevron(scrollLeft + clientWidth < scrollWidth);
+      }
+    };
+
+    // Initial check and on resize
+    // Defer checkScroll to ensure DOM is fully rendered
+    const timeoutId = setTimeout(checkScroll, 0);
+
+    window.addEventListener("resize", checkScroll);
+    // Re-check when tabs content might change (e.g., search term changes)
+    tabsListRef.current?.addEventListener("scroll", checkScroll);
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", checkScroll);
+      tabsListRef.current?.removeEventListener("scroll", checkScroll);
+    };
+  }, [searchTerm]);
+
+  const scrollTabs = (direction: "left" | "right") => {
+    if (tabsListRef.current) {
+      const scrollAmount = tabsListRef.current.clientWidth / 2; // Scroll half the visible width
+      if (direction === "left") {
+        tabsListRef.current.scrollBy({
+          left: -scrollAmount,
+          behavior: "smooth",
+        });
+      } else {
+        tabsListRef.current.scrollBy({
+          left: scrollAmount,
+          behavior: "smooth",
+        });
+      }
+    }
+  };
 
   // Filter notifications based on search
   const filteredNotifications = (
@@ -415,206 +469,239 @@ export function NotificationTabs({ searchTerm }: NotificationProps) {
       defaultValue="all"
       value={activeTab}
       onValueChange={setActiveTab}
-      className="w-full"
+      className="w-full h-full"
     >
-      <div className="rounded-lg">
-        <TabsList className="h-auto rounded-none border-b bg-transparent p-0 w-full justify-start">
-          <TabsTrigger
-            value="all"
-            className="data-[state=active]:after:bg-primary relative rounded-none py-3 -mb-0.5 px-4 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none flex items-center gap-2 cursor-pointer"
+      <div className="rounded-lg h-full flex flex-col">
+        <div className="relative flex items-center w-full">
+          {showLeftChevron && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => scrollTabs("left")}
+              className="absolute left-0 z-10 bg-background/80 hover:bg-background"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+          )}
+          <div
+            className="overflow-x-auto overflow-y-hidden flex-1"
+            ref={tabsListRef}
           >
-            <Bell className="h-4 w-4" />
-            <span>All</span>
-            {unreadCounts.all > 0 && (
-              <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs">
-                {unreadCounts.all}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger
-            value="korCoin"
-            className="data-[state=active]:after:bg-primary relative rounded-none py-3 -mb-0.5 px-4 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none flex items-center gap-2 cursor-pointer"
-          >
-            <Coins className="h-4 w-4" />
-            <span>KOR_Coin</span>
-            {unreadCounts.korCoin > 0 && (
-              <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs">
-                {unreadCounts.korCoin}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger
-            value="user"
-            className="data-[state=active]:after:bg-primary relative rounded-none py-3 -mb-0.5 px-4 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none flex items-center gap-2 cursor-pointer"
-          >
-            <Users className="h-4 w-4" />
-            <span>Users</span>
-            {unreadCounts.user > 0 && (
-              <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs">
-                {unreadCounts.user}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger
-            value="report"
-            className="data-[state=active]:after:bg-primary relative rounded-none py-3 -mb-0.5 px-4 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none flex items-center gap-2 cursor-pointer"
-          >
-            <BarChart2 className="h-4 w-4" />
-            <span>Reports</span>
-            {unreadCounts.report > 0 && (
-              <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs">
-                {unreadCounts.report}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger
-            value="system"
-            className="data-[state=active]:after:bg-primary relative rounded-none py-3 -mb-0.5 px-4 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none flex items-center gap-2 cursor-pointer"
-          >
-            <LaptopIcon className="h-4 w-4" />
-            <span>System</span>
-            {unreadCounts.system > 0 && (
-              <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs">
-                {unreadCounts.system}
-              </span>
-            )}
-          </TabsTrigger>
-        </TabsList>
+            <TabsList className="h-auto rounded-none border-b bg-transparent p-0 justify-start whitespace-nowrap w-full flex-grow-0 flex-shrink-0">
+              <TabsTrigger
+                value="all"
+                className="data-[state=active]:after:bg-primary relative rounded-none py-3 -mb-0.5 px-4 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none flex items-center gap-2 cursor-pointer"
+              >
+                <Bell className="h-4 w-4" />
+                <span>All</span>
+                {unreadCounts.all > 0 && (
+                  <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs">
+                    {unreadCounts.all}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger
+                value="korCoin"
+                className="data-[state=active]:after:bg-primary relative rounded-none py-3 -mb-0.5 px-4 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none flex items-center gap-2 cursor-pointer"
+              >
+                <Coins className="h-4 w-4" />
+                <span>KOR_Coin</span>
+                {unreadCounts.korCoin > 0 && (
+                  <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs">
+                    {unreadCounts.korCoin}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger
+                value="user"
+                className="data-[state=active]:after:bg-primary relative rounded-none py-3 -mb-0.5 px-4 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none flex items-center gap-2 cursor-pointer"
+              >
+                <Users className="h-4 w-4" />
+                <span>Users</span>
+                {unreadCounts.user > 0 && (
+                  <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs">
+                    {unreadCounts.user}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger
+                value="report"
+                className="data-[state=active]:after:bg-primary relative rounded-none py-3 -mb-0.5 px-4 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none flex items-center gap-2 cursor-pointer"
+              >
+                <BarChart2 className="h-4 w-4" />
+                <span>Reports</span>
+                {unreadCounts.report > 0 && (
+                  <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs">
+                    {unreadCounts.report}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger
+                value="system"
+                className="data-[state=active]:after:bg-primary relative rounded-none py-3 -mb-0.5 px-4 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none flex items-center gap-2 cursor-pointer"
+              >
+                <LaptopIcon className="h-4 w-4" />
+                <span>System</span>
+                {unreadCounts.system > 0 && (
+                  <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs">
+                    {unreadCounts.system}
+                  </span>
+                )}
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          {showRightChevron && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => scrollTabs("right")}
+              className="absolute right-0 z-10 bg-background/80 hover:bg-background"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
 
-        {Object.keys(filteredNotifications).map((category) => (
-          <TabsContent
-            key={category}
-            value={category}
-            className="p-0 m-0 overflow-y-auto h-[47rem] custom-scrollbar"
-          >
-            {filteredNotifications[
-              category as keyof typeof filteredNotifications
-            ].length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Bell className="h-12 w-12 text-muted-foreground/50 mb-4" />
-                <h2 className="text-lg font-medium mb-1">No notifications</h2>
-                <p className="text-sm text-muted-foreground">
-                  {searchTerm
-                    ? "No notifications match your search criteria"
-                    : "You're all caught up!"}
-                </p>
-              </div>
-            ) : (
-              <div>
-                {filteredNotifications[
-                  category as keyof typeof filteredNotifications
-                ].map((notification: Notification) => (
-                  <div
-                    key={notification.id}
-                    className="border-b last:border-b-0"
-                  >
-                    <div className="px-6 py-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3">
-                          {notification.status === "unread" && (
-                            <div className="mt-1.5">
-                              <div className="h-2 w-2 rounded-full bg-primary"></div>
-                            </div>
-                          )}
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <div className="text-sm font-medium">
-                                {notification.title}
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {Object.keys(filteredNotifications).map((category) => (
+            <TabsContent key={category} value={category} className="p-0 m-0">
+              {filteredNotifications[
+                category as keyof typeof filteredNotifications
+              ].length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center h-full">
+                  <Bell className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                  <h2 className="text-lg font-medium mb-1">No notifications</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {searchTerm
+                      ? "No notifications match your search criteria"
+                      : "You're all caught up!"}
+                  </p>
+                </div>
+              ) : (
+                <div className="h-full">
+                  {filteredNotifications[
+                    category as keyof typeof filteredNotifications
+                  ].map((notification: Notification) => (
+                    <div
+                      key={notification.id}
+                      className="border-b last:border-b-0"
+                    >
+                      <div className="px-3 py-3 sm:px-4 sm:py-3 md:px-6 md:py-4">
+                        <div className="flex flex-wrap flex-col sm:flex-row items-start sm:items-center justify-between gap-3 w-full">
+                          <div className="flex items-start gap-3 flex-1 flex-shrink">
+                            {notification.status === "unread" && (
+                              <div className="mt-1.5">
+                                <div className="h-2 w-2 rounded-full bg-primary"></div>
                               </div>
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <span>•</span>
-                                <div className="flex items-center gap-1">
-                                  {getCategoryIcon(notification.category)}
-                                  <span className="capitalize">
-                                    {notification.category}
-                                  </span>
+                            )}
+                            <div className="flex-1 min-w-0 max-w-full">
+                              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-1">
+                                <div className="text-sm font-medium leading-tight sm:leading-normal break-words">
+                                  {notification.title}
                                 </div>
-                              </div>
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              {notification.description}
-                            </p>
-
-                            {isKorCoinNotification(notification) &&
-                              notification.type && (
-                                <div className="mt-2 text-xs text-muted-foreground">
-                                  <div className="flex items-center gap-2">
-                                    <span className="inline-block px-2 py-0.5 bg-muted rounded-md capitalize">
-                                      {notification.type}
-                                    </span>
-                                    <span>•</span>
-                                    <span>User: {notification.user}</span>
-                                    <span>•</span>
-                                    <span>
-                                      Amount:{" "}
-                                      {formatAmount(notification.amount || 0)}{" "}
-                                      KOR
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <span>•</span>
+                                  <div className="flex items-center gap-1">
+                                    {getCategoryIcon(notification.category)}
+                                    <span className="capitalize">
+                                      {notification.category}
                                     </span>
                                   </div>
                                 </div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <div className="text-xs text-muted-foreground">
-                            {formatDate(notification.date)}
-                          </div>
+                              </div>
+                              <p className="text-sm text-muted-foreground break-words">
+                                {notification.description}
+                              </p>
 
-                          {(!notification.category ||
-                            notification.category !== "korCoin" ||
-                            !isKorCoinNotification(notification) ||
-                            !notification.requiresApproval) && (
-                            <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 shadow-none cursor-pointer"
-                              >
-                                <ExternalLink className="h-3.5 w-3.5" />
-                                <span className="sr-only">View</span>
-                              </Button>
-                              {notification.status === "unread" && (
+                              {isKorCoinNotification(notification) &&
+                                notification.type && (
+                                  <div className="mt-2 text-xs text-muted-foreground">
+                                    <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-x-0 gap-y-1.5 sm:gap-x-2 sm:gap-y-0 w-full min-w-0 max-w-full">
+                                      <span className="px-2 py-0.5 bg-muted rounded-md capitalize break-words min-w-0 max-w-full block sm:inline">
+                                        {notification.type}
+                                      </span>
+                                      <span className="hidden sm:inline">
+                                        •
+                                      </span>
+                                      <span className="break-words min-w-0 max-w-full block sm:inline">
+                                        User: {notification.user}
+                                      </span>
+                                      <span className="hidden sm:inline">
+                                        •
+                                      </span>
+                                      <span className="break-words min-w-0 max-w-full block sm:inline">
+                                        Amount:{" "}
+                                        {formatAmount(notification.amount || 0)}{" "}
+                                        KOR
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col sm:items-end items-start gap-2 sm:mt-0 min-w-0 flex-shrink">
+                            <div className="text-xs text-muted-foreground">
+                              {formatDate(notification.date)}
+                            </div>
+
+                            {(!notification.category ||
+                              notification.category !== "korCoin" ||
+                              !isKorCoinNotification(notification) ||
+                              !notification.requiresApproval) && (
+                              <div className="flex gap-1 flex-wrap justify-end min-w-0 flex-shrink">
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-7 w-7"
+                                  className="h-7 w-7 shadow-none cursor-pointer flex-shrink-0"
                                 >
-                                  <CheckCircle className="h-3.5 w-3.5" />
-                                  <span className="sr-only">Mark as read</span>
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                  <span className="sr-only">View</span>
                                 </Button>
-                              )}
-                            </div>
-                          )}
-
-                          {isKorCoinNotification(notification) &&
-                            notification.requiresApproval &&
-                            !notification.approved && (
-                              <div className="flex gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 px-3 text-xs shadow-none cursor-pointer"
-                                >
-                                  Approve
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 px-3 text-xs shadow-none cursor-pointer"
-                                >
-                                  Reject
-                                </Button>
+                                {notification.status === "unread" && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 flex-shrink-0"
+                                  >
+                                    <CheckCircle className="h-3.5 w-3.5" />
+                                    <span className="sr-only">
+                                      Mark as read
+                                    </span>
+                                  </Button>
+                                )}
                               </div>
                             )}
+
+                            {isKorCoinNotification(notification) &&
+                              notification.requiresApproval &&
+                              !notification.approved && (
+                                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto justify-end min-w-0 flex-shrink">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 px-3 text-xs shadow-none cursor-pointer w-full sm:w-auto"
+                                  >
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 px-3 text-xs shadow-none cursor-pointer w-full sm:w-auto"
+                                  >
+                                    Reject
+                                  </Button>
+                                </div>
+                              )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        ))}
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          ))}
+        </div>
       </div>
     </Tabs>
   );

@@ -10,8 +10,8 @@ export function NotificationPage() {
   const totalCount = 100; // This should ideally come from your data source
 
   return (
-    <div className="flex flex-col gap-3 h-full container mx-auto">
-      <div className="flex items-center justify-between w-full">
+    <div className="flex flex-col gap-3 h-full container mx-auto ">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-3 sm:gap-0">
         <div className="flex items-center gap-2">
           <BellIcon className="size-4" />
           <span className="text-sm font-medium">
@@ -19,7 +19,7 @@ export function NotificationPage() {
           </span>
         </div>
 
-        <div className="max-w-[300px] w-full">
+        <div className="max-w-full sm:max-w-[300px] w-full">
           <Input
             placeholder="Search Notifications"
             className="w-full h-10"
@@ -29,7 +29,7 @@ export function NotificationPage() {
         </div>
       </div>
 
-      <div className="border w-full h-full rounded-lg">
+      <div className="border w-full lg:h-full h-fit rounded-lg">
         <NotificationTabs searchTerm={searchTerm} />
       </div>
     </div>

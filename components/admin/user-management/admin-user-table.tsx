@@ -37,7 +37,7 @@ export function AdminUserTable() {
       <div className="">
         {/* Header */}
         <div className="mb-1">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
             <div className="flex items-center space-x-3">
               <Badge variant="outline" className="px-3 py-1.5">
                 Total: {filteredUsers.length}
@@ -47,7 +47,7 @@ export function AdminUserTable() {
                 {filteredUsers.filter((u) => u.status === "active").length}
               </Badge>
             </div>
-            <div className="relative max-w-sm w-full">
+            <div className="relative w-full sm:max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search users..."

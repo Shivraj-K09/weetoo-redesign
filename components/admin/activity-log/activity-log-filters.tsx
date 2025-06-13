@@ -99,7 +99,7 @@ export function ActivityLogFilters({
     filters.selectedActions.length > 0;
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3">
       {/* Date Range Filter */}
       <Popover>
         <PopoverTrigger asChild>

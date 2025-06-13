@@ -494,13 +494,15 @@ export function ActivityLogTable({
 
   return (
     <>
-      <div className="rounded-lg border bg-card">
-        <Table>
+      <div className="overflow-x-auto rounded-md border">
+        <Table className="min-w-full divide-y divide-border">
           <TableHeader>
             <TableRow className="border-b">
               <TableHead className="font-medium">Admin</TableHead>
               <TableHead className="font-medium">Action</TableHead>
-              <TableHead className="font-medium">Target</TableHead>
+              <TableHead className="font-medium hidden md:table-cell">
+                Target
+              </TableHead>
               <TableHead className="font-medium">Time</TableHead>
               <TableHead className="text-right font-medium">Actions</TableHead>
             </TableRow>
@@ -541,7 +543,7 @@ export function ActivityLogTable({
                       {getActionBadge(activity.action)}
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 max-w-[250px]">
+                  <TableCell className="py-4 max-w-[250px] hidden md:table-cell">
                     <span className="truncate block">{activity.target}</span>
                   </TableCell>
                   <TableCell className="py-4">
@@ -591,7 +593,7 @@ export function ActivityLogTable({
       {/* Details Dialog - keeping the same as before */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
         {selectedActivity && (
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-md p-4 sm:p-6 md:p-8">
             <DialogHeader>
               <DialogTitle>Activity Details</DialogTitle>
               <DialogDescription>

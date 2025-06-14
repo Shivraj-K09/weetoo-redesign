@@ -645,7 +645,7 @@ export function PostManagementTable({
                   0,
                   currentPageIndex - Math.floor(maxVisiblePages / 2)
                 );
-                let endPage = Math.min(
+                const endPage = Math.min(
                   pageCount - 1,
                   startPage + maxVisiblePages - 1
                 );

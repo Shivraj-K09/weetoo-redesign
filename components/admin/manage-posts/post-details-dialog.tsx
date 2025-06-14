@@ -59,20 +59,20 @@ export const PostDetailsDialog = memo(function PostDetailsDialog({
   onApprove,
   onReject,
 }: PostDetailsDialogProps) {
-  const [isApproving, setIsApproving] = useState(false);
+  const [, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [rejectConfirmOpen, setRejectConfirmOpen] = useState(false);
 
-  const handleApprove = async () => {
-    if (!onApprove) return;
-    setIsApproving(true);
-    try {
-      await onApprove(post.id);
-      onOpenChange(false);
-    } finally {
-      setIsApproving(false);
-    }
-  };
+  // const handleApprove = async () => {
+  //   if (!onApprove) return;
+  //   setIsApproving(true);
+  //   try {
+  //     await onApprove(post.id);
+  //     onOpenChange(false);
+  //   } finally {
+  //     setIsApproving(false);
+  //   }
+  // };
 
   const handleRejectConfirm = async () => {
     if (!onReject) return;

@@ -533,13 +533,13 @@ export function PostManagementTable({
   return (
     <>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
+        <div className="relative w-full overflow-auto">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="whitespace-nowrap">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -547,52 +547,52 @@ export function PostManagementTable({
                             header.getContext()
                           )}
                     </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  Loading posts...
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    Loading posts...
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="whitespace-nowrap">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-      <div className="flex flex-wrap items-center justify-between space-y-2 py-4">
-        <div className="flex items-center space-x-2">
+      <div className="flex flex-col sm:flex-row flex-wrap items-center justify-between gap-4 py-4">
+        <div className="flex flex-wrap items-center gap-2">
           <p className="text-sm text-muted-foreground">
             Showing {table.getRowModel().rows.length} of {filteredData.length}{" "}
             posts
@@ -618,8 +618,8 @@ export function PostManagementTable({
           </Select>
           <p className="text-sm text-muted-foreground">per page</p>
         </div>
-        <div className="flex items-center">
-          <Pagination className="w-auto">
+        <div className="flex items-center space-x-2">
+          <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
@@ -635,30 +635,24 @@ export function PostManagementTable({
                 />
               </PaginationItem>
               {(() => {
-                const pageCount = table.getPageCount();
                 const currentPageIndex = table.getState().pagination.pageIndex;
+                const pageCount = table.getPageCount();
+                const maxVisiblePages = 5;
                 const pageButtons = [];
-                const maxPageButtons = 5; // Adjust as needed
 
+                // Calculate start and end page numbers
                 let startPage = Math.max(
                   0,
-                  currentPageIndex - Math.floor((maxPageButtons - 1) / 2)
+                  currentPageIndex - Math.floor(maxVisiblePages / 2)
                 );
                 let endPage = Math.min(
                   pageCount - 1,
-                  currentPageIndex + Math.ceil((maxPageButtons - 1) / 2)
+                  startPage + maxVisiblePages - 1
                 );
 
-                // Adjust start/end to ensure maxPageButtons are shown
-                if (endPage - startPage + 1 < maxPageButtons) {
-                  if (currentPageIndex < Math.floor(maxPageButtons / 2)) {
-                    endPage = Math.min(pageCount - 1, maxPageButtons - 1);
-                  } else if (
-                    currentPageIndex >
-                    pageCount - 1 - Math.floor(maxPageButtons / 2)
-                  ) {
-                    startPage = Math.max(0, pageCount - maxPageButtons);
-                  }
+                // Adjust start page if we're near the end
+                if (endPage - startPage + 1 < maxVisiblePages) {
+                  startPage = Math.max(0, endPage - maxVisiblePages + 1);
                 }
 
                 // Add first page and ellipsis if needed
@@ -686,11 +680,12 @@ export function PostManagementTable({
                   }
                 }
 
+                // Add page numbers
                 for (let i = startPage; i <= endPage; i++) {
                   pageButtons.push(
                     <PaginationItem key={i}>
                       <PaginationLink
-                        isActive={i === currentPageIndex}
+                        isActive={currentPageIndex === i}
                         href="#"
                         onClick={(e) => {
                           e.preventDefault();

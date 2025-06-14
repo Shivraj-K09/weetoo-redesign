@@ -1,27 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { format } from "date-fns";
-import { Pencil, Trash2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +10,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -39,6 +28,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { format } from "date-fns";
+import { ChevronLeft, ChevronRight, Eye, Pencil, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { EditNoteDialog } from "./edit-note-dialog";
 
@@ -193,16 +193,18 @@ export function AdminNotesTable({
 
   return (
     <>
-      <div className="rounded-md border bg-card">
+      <div className="rounded-md border bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-muted/50">
-              <TableHead className="w-[300px]">Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Created By</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead>Updated At</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="w-[300px] min-w-[200px]">Title</TableHead>
+              <TableHead className="min-w-[100px]">Category</TableHead>
+              <TableHead className="min-w-[150px]">Created By</TableHead>
+              <TableHead className="min-w-[150px]">Created At</TableHead>
+              <TableHead className="min-w-[150px]">Updated At</TableHead>
+              <TableHead className="text-right min-w-[100px]">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -223,7 +225,7 @@ export function AdminNotesTable({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-8 w-8 shrink-0"
                         onClick={() => {
                           setSelectedNote(note);
                           setIsViewDialogOpen(true);
@@ -231,7 +233,7 @@ export function AdminNotesTable({
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <span className="cursor-pointer hover:text-primary transition-colors">
+                      <span className="cursor-pointer hover:text-primary transition-colors line-clamp-1">
                         {note.title}
                       </span>
                     </div>
@@ -243,7 +245,7 @@ export function AdminNotesTable({
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Avatar className="h-6 w-6">
+                      <Avatar className="h-6 w-6 shrink-0">
                         <AvatarImage src={note.createdBy.avatar} />
                         <AvatarFallback>
                           {note.createdBy.name
@@ -252,13 +254,15 @@ export function AdminNotesTable({
                             .join("")}
                         </AvatarFallback>
                       </Avatar>
-                      <span>{note.createdBy.name}</span>
+                      <span className="line-clamp-1">
+                        {note.createdBy.name}
+                      </span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="whitespace-nowrap">
                     {format(note.createdAt, "MMM d, yyyy HH:mm")}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="whitespace-nowrap">
                     {format(note.updatedAt, "MMM d, yyyy HH:mm")}
                   </TableCell>
                   <TableCell className="text-right">
@@ -267,7 +271,7 @@ export function AdminNotesTable({
                         variant="ghost"
                         size="icon"
                         onClick={() => handleEdit(note)}
-                        className="h-8 w-8"
+                        className="h-8 w-8 shrink-0"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -275,7 +279,7 @@ export function AdminNotesTable({
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(note)}
-                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        className="h-8 w-8 shrink-0 text-destructive hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -288,9 +292,11 @@ export function AdminNotesTable({
         </Table>
 
         {/* Pagination and Items Per Page */}
-        <div className="flex items-center justify-between px-4 py-3 border-t">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Rows per page</span>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <span className="text-sm text-muted-foreground whitespace-nowrap">
+              Rows per page
+            </span>
             <Select
               value={itemsPerPage.toString()}
               onValueChange={handleItemsPerPageChange}
@@ -306,8 +312,9 @@ export function AdminNotesTable({
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="text-sm text-muted-foreground">
+
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <div className="text-sm text-muted-foreground whitespace-nowrap">
               Page {currentPage} of {totalPages}
             </div>
             <div className="flex items-center gap-2">
@@ -321,56 +328,57 @@ export function AdminNotesTable({
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               {/* Pagination numbers */}
-              {(() => {
-                const pagesToShow: (number | string)[] = [];
-                const startRange = Math.max(1, currentPage - 1);
-                const endRange = Math.min(totalPages, currentPage + 3);
+              <div className="hidden sm:flex items-center gap-2">
+                {(() => {
+                  const pagesToShow: (number | string)[] = [];
+                  const startRange = Math.max(1, currentPage - 1);
+                  const endRange = Math.min(totalPages, currentPage + 3);
 
-                // Add page 1 and ellipsis if necessary
-                if (startRange > 1) {
-                  pagesToShow.push(1);
-                  if (startRange > 2) {
-                    pagesToShow.push("...");
+                  if (startRange > 1) {
+                    pagesToShow.push(1);
+                    if (startRange > 2) {
+                      pagesToShow.push("...");
+                    }
                   }
-                }
 
-                // Add pages within the calculated range
-                for (let i = startRange; i <= endRange; i++) {
-                  pagesToShow.push(i);
-                }
-
-                // Add ellipsis and last page if necessary
-                if (endRange < totalPages) {
-                  if (endRange < totalPages - 1) {
-                    pagesToShow.push("...");
+                  for (let i = startRange; i <= endRange; i++) {
+                    pagesToShow.push(i);
                   }
-                  pagesToShow.push(totalPages);
-                }
 
-                return (
-                  <>
-                    {pagesToShow.map((page, index) =>
-                      page === "..." ? (
-                        <span key={`ellipsis-${index}`} className="px-2">
-                          ...
-                        </span>
-                      ) : (
-                        <Button
-                          key={page}
-                          variant={
-                            currentPage === Number(page) ? "default" : "outline"
-                          }
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => handlePageChange(Number(page))}
-                        >
-                          {page}
-                        </Button>
-                      )
-                    )}
-                  </>
-                );
-              })()}
+                  if (endRange < totalPages) {
+                    if (endRange < totalPages - 1) {
+                      pagesToShow.push("...");
+                    }
+                    pagesToShow.push(totalPages);
+                  }
+
+                  return (
+                    <>
+                      {pagesToShow.map((page, index) =>
+                        page === "..." ? (
+                          <span key={`ellipsis-${index}`} className="px-2">
+                            ...
+                          </span>
+                        ) : (
+                          <Button
+                            key={page}
+                            variant={
+                              currentPage === Number(page)
+                                ? "default"
+                                : "outline"
+                            }
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handlePageChange(Number(page))}
+                          >
+                            {page}
+                          </Button>
+                        )
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
               <Button
                 variant="outline"
                 size="icon"

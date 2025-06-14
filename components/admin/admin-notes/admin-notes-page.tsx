@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Plus, Search } from "lucide-react";
+import { useState } from "react";
 import { AdminNotesTable } from "./admin-notes-table";
 import { CreateNoteDialog } from "./create-note-dialog";
 
@@ -41,21 +41,26 @@ export function AdminNotesPage() {
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="flex items-center justify-between pb-6 border-b border-border mt-5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-border mt-5 gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight">Admin Notes</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+            Admin Notes
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Create and manage important notes and comments for the admin team
           </p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <Button
+          onClick={() => setIsCreateDialogOpen(true)}
+          className="w-full sm:w-auto"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Create Note
         </Button>
       </div>
 
       {/* Filters Section */}
-      <div className="flex flex-col sm:flex-row items-center gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input

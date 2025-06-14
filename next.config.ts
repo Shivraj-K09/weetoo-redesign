@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     viewTransition: true,
   },
   images: {
-    domains: ["source.unsplash.com", "images.unsplash.com"],
+    domains: ["source.unsplash.com", "images.unsplash.com", "picsum.photos"],
   },
 };
 

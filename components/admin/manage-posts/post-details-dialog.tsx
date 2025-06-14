@@ -1,13 +1,5 @@
 "use client";
 
-import { useState, memo } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,12 +10,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Eye, CheckCircle, XCircle } from "lucide-react";
-import { formatDistanceToNow, format } from "date-fns";
-import { ImageCarousel } from "@/components/post/image-carousel";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { format, formatDistanceToNow } from "date-fns";
+import { Calendar, Eye, ImageIcon } from "lucide-react";
+import Image from "next/image";
+import { memo, useState } from "react";
 
 interface Post {
   id: string;
@@ -46,8 +47,8 @@ interface PostDetailsDialogProps {
   post: Post;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onApprove?: (postId: string) => Promise<void>;
-  onReject?: (postId: string) => Promise<void>;
+  onApprove: (postId: string) => Promise<void>;
+  onReject: (postId: string) => Promise<void>;
 }
 
 // Use memo to prevent unnecessary re-renders
@@ -86,8 +87,9 @@ export const PostDetailsDialog = memo(function PostDetailsDialog({
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return format(date, "PPP");
+    return format(date, "PP");
   };
 
   const getInitials = (name: string) => {
@@ -103,102 +105,148 @@ export const PostDetailsDialog = memo(function PostDetailsDialog({
     ? `${post.user.first_name || ""} ${post.user.last_name || ""}`.trim()
     : "Anonymous";
 
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "secondary";
+      case "approved":
+        return "default";
+      case "hidden":
+        return "destructive";
+      case "rejected":
+        return "destructive";
+      default:
+        return "secondary";
+    }
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="!max-w-4xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
-          {/* Fixed Header */}
-          <DialogHeader className="sticky top-0 z-10 bg-background px-6 py-4 border-b">
-            <DialogTitle className="text-xl">Post Details</DialogTitle>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Post Details</DialogTitle>
+            <DialogDescription>View and manage post details</DialogDescription>
           </DialogHeader>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto px-6 py-4">
-            <div className="space-y-6">
-              <div className="flex flex-wrap gap-2">
-                <Badge
-                  variant="secondary"
-                  className="bg-blue-100 text-blue-700 rounded-md"
-                >
-                  {post.category}
+          <div className="space-y-6">
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                variant="secondary"
+                className="bg-blue-100 text-blue-700 rounded-md"
+              >
+                {post.category}
+              </Badge>
+              {post.tags?.map((tag, index) => (
+                <Badge key={index} variant="outline" className="rounded-md">
+                  {tag}
                 </Badge>
-                {post.tags?.map((tag, index) => (
-                  <Badge key={index} variant="outline" className="rounded-md">
-                    {tag}
-                  </Badge>
-                ))}
+              ))}
+            </div>
+
+            <h2 className="text-xl sm:text-2xl font-bold break-words">
+              {post.title}
+            </h2>
+
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={post.user?.avatar_url || ""}
+                    alt={authorName}
+                  />
+                  <AvatarFallback>{getInitials(authorName)}</AvatarFallback>
+                </Avatar>
+                <span className="break-words">{authorName}</span>
+              </div>
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-1" />
+                <span title={formatDate(post.created_at)}>
+                  {formatDistanceToNow(new Date(post.created_at), {
+                    addSuffix: true,
+                  })}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <Eye className="h-4 w-4 mr-1" />
+                <span>{post.view_count} views</span>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                {post.featured_images && post.featured_images.length > 0 ? (
+                  <Image
+                    src={post.featured_images[0]}
+                    alt={post.title}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-muted">
+                    <ImageIcon className="h-10 w-10 text-muted-foreground" />
+                  </div>
+                )}
               </div>
 
-              <h2 className="text-2xl font-bold">{post.title}</h2>
-
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={post.user?.avatar_url || ""}
-                      alt={authorName}
-                    />
-                    <AvatarFallback>{getInitials(authorName)}</AvatarFallback>
-                  </Avatar>
-                  <span>{authorName}</span>
-                </div>
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  <span title={formatDate(post.created_at)}>
-                    {formatDistanceToNow(new Date(post.created_at), {
-                      addSuffix: true,
-                    })}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <Eye className="h-4 w-4 mr-1" />
-                  <span>{post.view_count || 0} views</span>
-                </div>
+              <div className="prose prose-sm max-w-none dark:prose-invert">
+                <p className="whitespace-pre-wrap break-words">
+                  {post.content}
+                </p>
               </div>
+            </div>
 
-              {post.featured_images?.length > 0 && (
-                <div className="my-4">
-                  <ImageCarousel images={post.featured_images} />
-                </div>
-              )}
-
-              <div
-                className="prose prose-sm sm:prose-base max-w-none post-content"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                variant={getStatusVariant(post.status)}
+                className="capitalize"
+              >
+                {post.status}
+              </Badge>
             </div>
           </div>
 
-          {/* Fixed Footer */}
-          <DialogFooter className="sticky bottom-0 z-10 bg-background px-6 py-4 border-t flex-col sm:flex-row gap-2">
+          <DialogFooter className="flex flex-wrap gap-2 sm:gap-0">
             {post.status === "pending" && (
               <>
                 <Button
                   variant="outline"
-                  onClick={() => setRejectConfirmOpen(true)}
-                  disabled={isRejecting || isApproving}
-                  className="w-full sm:w-auto bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700"
+                  onClick={() => onReject(post.id)}
+                  className="w-full sm:w-auto"
                 >
-                  <XCircle className="mr-2 h-4 w-4" />
-                  {isRejecting ? "Rejecting..." : "Reject Post"}
+                  Reject
                 </Button>
                 <Button
-                  onClick={handleApprove}
-                  disabled={isRejecting || isApproving}
-                  className="w-full sm:w-auto bg-green-600 text-white hover:bg-green-700"
+                  onClick={() => onApprove(post.id)}
+                  className="w-full sm:w-auto"
                 >
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  {isApproving ? "Approving..." : "Approve Post"}
+                  Approve
                 </Button>
               </>
             )}
-            {post.status !== "pending" && (
+            {post.status === "approved" && (
               <Button
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={() => onReject(post.id)}
                 className="w-full sm:w-auto"
               >
-                Close
+                Hide Post
+              </Button>
+            )}
+            {post.status === "hidden" && (
+              <Button
+                onClick={() => onApprove(post.id)}
+                className="w-full sm:w-auto"
+              >
+                Show Post
+              </Button>
+            )}
+            {post.status === "rejected" && (
+              <Button
+                onClick={() => onApprove(post.id)}
+                className="w-full sm:w-auto"
+              >
+                Approve
               </Button>
             )}
           </DialogFooter>

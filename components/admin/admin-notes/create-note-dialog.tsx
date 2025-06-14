@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
 import { toast } from "sonner";
 
 interface Note {
@@ -95,7 +95,7 @@ export function CreateNoteDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">Create New Note</DialogTitle>
           <DialogDescription>
@@ -137,23 +137,23 @@ export function CreateNoteDialog({
                 id="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Enter the note content"
-                className="min-h-[200px] resize-none"
+                placeholder="Enter note content"
+                className="min-h-[200px] resize-y"
                 required
               />
             </div>
           </div>
-          <DialogFooter className="gap-3">
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
             <Button
               type="button"
               variant="outline"
-              onClick={handleClose}
-              disabled={isSubmitting}
+              onClick={() => onOpenChange(false)}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create Note"}
+            <Button type="submit" className="w-full sm:w-auto">
+              Create Note
             </Button>
           </DialogFooter>
         </form>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, memo } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { memo, useState } from "react";
 
 interface Post {
   id: string;
@@ -30,46 +30,57 @@ interface Post {
 }
 
 interface DeletePostDialogProps {
+  post: Post;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  post: Post;
   onDelete: () => Promise<void>;
 }
 
-export const DeletePostDialog = memo(
-  ({ open, onOpenChange, post, onDelete }: DeletePostDialogProps) => {
-    const [isDeleting, setIsDeleting] = useState(false);
+export const DeletePostDialog = memo(function DeletePostDialog({
+  post,
+  open,
+  onOpenChange,
+  onDelete,
+}: DeletePostDialogProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleDelete = async () => {
+  const handleDelete = async () => {
+    try {
       setIsDeleting(true);
-      try {
-        await onDelete();
-      } finally {
-        setIsDeleting(false);
-        onOpenChange(false);
-      }
-    };
+      await onDelete();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
-    return (
-      <AlertDialog open={open} onOpenChange={onOpenChange}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              post &quot;{post.title}&quot; from our servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction disabled={isDeleting} onClick={handleDelete}>
-              {isDeleting ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    );
-  }
-);
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent className="sm:max-w-[425px]">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Post</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this post? This action cannot be
+            undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+          <AlertDialogCancel className="w-full sm:w-auto">
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="w-full sm:w-auto bg-red-600 text-white hover:bg-red-700"
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+});
 
 DeletePostDialog.displayName = "DeletePostDialog";

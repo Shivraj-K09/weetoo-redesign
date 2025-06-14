@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
 import { DateRangePicker } from "@/components/date-range-picker";
-import { PostManagementTable } from "./post-management-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,9 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Download, Search, X } from "lucide-react";
-import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
+import { Download, Search, X } from "lucide-react";
+import { useState } from "react";
+import type { DateRange } from "react-day-picker";
+import { PostManagementTable } from "./post-management-table";
 
 interface FiltersState {
   category: string;
@@ -328,62 +328,67 @@ export function ManagePostsPage() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search posts..."
-            className="pl-9 shadow-none h-10"
+            className="pl-9 shadow-none h-10 w-full"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <DateRangePicker
-          date={filters.dateRange}
-          onDateChange={handleDateRangeChange}
-        />
-        <Select
-          value={filters.category}
-          onValueChange={(value) => handleFilterChange("category", value)}
-        >
-          <SelectTrigger className="w-[150px] h-10 shadow-none cursor-pointer">
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All categories</SelectItem>
-            <SelectItem value="cryptocurrency">Cryptocurrency</SelectItem>
-            <SelectItem value="trading">Trading</SelectItem>
-            <SelectItem value="investment">Investment</SelectItem>
-            <SelectItem value="technology">Technology</SelectItem>
-            <SelectItem value="news">News</SelectItem>
-            <SelectItem value="analysis">Analysis</SelectItem>
-            <SelectItem value="tutorial">Tutorial</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select
-          value={filters.status}
-          onValueChange={(value) => handleFilterChange("status", value)}
-        >
-          <SelectTrigger className="w-[150px] h-10 shadow-none cursor-pointer">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="hidden">Hidden</SelectItem>
-            <SelectItem value="deleted">Deleted</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button
-          variant="outline"
-          size="default"
-          onClick={clearFilters}
-          disabled={activeFilterCount === 0}
-          className="h-10 px-4 font-normal shadow-none cursor-pointer"
-        >
-          Clear Filters
-        </Button>
-        <Button variant="outline" className="h-10 cursor-pointer shadow-none">
-          <Download className="h-4 w-4" />
-          <span className="sr-only">Export</span>
-        </Button>
+        <div className="flex flex-wrap gap-3 w-full md:w-auto">
+          <DateRangePicker
+            date={filters.dateRange}
+            onDateChange={handleDateRangeChange}
+          />
+          <Select
+            value={filters.category}
+            onValueChange={(value) => handleFilterChange("category", value)}
+          >
+            <SelectTrigger className="w-full md:w-[150px] h-10 shadow-none cursor-pointer">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              <SelectItem value="cryptocurrency">Cryptocurrency</SelectItem>
+              <SelectItem value="trading">Trading</SelectItem>
+              <SelectItem value="investment">Investment</SelectItem>
+              <SelectItem value="technology">Technology</SelectItem>
+              <SelectItem value="news">News</SelectItem>
+              <SelectItem value="analysis">Analysis</SelectItem>
+              <SelectItem value="tutorial">Tutorial</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={filters.status}
+            onValueChange={(value) => handleFilterChange("status", value)}
+          >
+            <SelectTrigger className="w-full md:w-[150px] h-10 shadow-none cursor-pointer">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="hidden">Hidden</SelectItem>
+              <SelectItem value="deleted">Deleted</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            size="default"
+            onClick={clearFilters}
+            disabled={activeFilterCount === 0}
+            className="h-10 px-4 font-normal shadow-none cursor-pointer w-full md:w-auto"
+          >
+            Clear Filters
+          </Button>
+          <Button
+            variant="outline"
+            className="h-10 cursor-pointer shadow-none w-full md:w-auto"
+          >
+            <Download className="h-4 w-4" />
+            <span className="sr-only">Export</span>
+          </Button>
+        </div>
       </div>
 
       {/* Active filters display */}

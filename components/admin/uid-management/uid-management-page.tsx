@@ -5,6 +5,7 @@ import { UidManagementTable } from "./uid-management-table";
 import { Download, Search } from "lucide-react";
 import { useState } from "react";
 
+import { DateRangePicker } from "@/components/date-range-picker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,6 @@ import {
 import { format } from "date-fns";
 import { X } from "lucide-react";
 import type { DateRange } from "react-day-picker";
-import { DateRangePicker } from "@/components/date-range-picker";
 
 type Situation = "all" | "verified" | "pending" | "rejected" | "suspended";
 type Exchange = "all" | "Binance" | "Coinbase" | "Kraken" | "Upbit" | "Bithumb";
@@ -84,27 +84,27 @@ export function UidManagementPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between pb-6 border-b border-border mt-5">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold">UID Management</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-semibold">UID Management</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             View and manage user identification numbers for exchange
             verification
           </p>
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3">
-        <div className="w-full">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+        <div className="w-full md:w-auto">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search UIDs..."
-              className="pl-9 h-10 shadow-none"
+              className="pl-9 h-10 shadow-none w-full md:w-[300px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 md:gap-3 w-full md:w-auto">
           <DateRangePicker
             date={filters.dateRange}
             onDateChange={handleDateRangeChange}
@@ -115,7 +115,7 @@ export function UidManagementPage() {
               handleFilterChange("situation", value as Situation)
             }
           >
-            <SelectTrigger className="w-[150px] shadow-none h-10 cursor-pointer">
+            <SelectTrigger className="w-full md:w-[150px] shadow-none h-10 cursor-pointer">
               <SelectValue placeholder="Situation" />
             </SelectTrigger>
             <SelectContent>
@@ -132,7 +132,7 @@ export function UidManagementPage() {
               handleFilterChange("exchange", value as Exchange)
             }
           >
-            <SelectTrigger className="w-[150px] shadow-none h-10 cursor-pointer">
+            <SelectTrigger className="w-full md:w-[150px] shadow-none h-10 cursor-pointer">
               <SelectValue placeholder="Exchange" />
             </SelectTrigger>
             <SelectContent>

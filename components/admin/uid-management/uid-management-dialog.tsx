@@ -1,27 +1,27 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import {
-  Calendar,
+  AlertTriangle,
   Building,
+  Calendar,
   CheckCircle,
   Clock,
-  XCircle,
-  AlertTriangle,
   FileText,
-  Shield,
   Fingerprint,
+  Shield,
+  XCircle,
 } from "lucide-react";
 import type { UidData } from "./uid-management-table";
 
@@ -156,28 +156,30 @@ export function UidDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col p-4 sm:p-6">
         <DialogHeader className="sticky top-0 z-10 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
             UID Details
             {getSituationBadge(uidData.situation)}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             User Identification:{" "}
             <span className="font-mono">{uidData.uid}</span>
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4 flex-1 overflow-y-auto">
+        <div className="space-y-4 sm:space-y-6 py-4 flex-1 overflow-y-auto">
           {/* User Information */}
-          <div className="flex items-center gap-4">
-            <Avatar className="h-12 w-12">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
               <AvatarImage src={uidData.user.avatar} alt={uidData.user.name} />
               <AvatarFallback>{getInitials(uidData.user.name)}</AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="text-lg font-medium">{uidData.user.name}</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-base sm:text-lg font-medium">
+                {uidData.user.name}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Nickname: {uidData.nickname}
               </p>
             </div>
@@ -186,33 +188,37 @@ export function UidDetailsDialog({
           <Separator />
 
           {/* UID Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex items-start gap-2">
               <Fingerprint className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium">UID</p>
-                <p className="font-mono">{uidData.uid}</p>
+                <p className="text-sm font-mono">{uidData.uid}</p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <Building className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium">Exchange</p>
-                <p>{uidData.exchange}</p>
+                <p className="text-sm">{uidData.exchange}</p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium">Registration Date</p>
-                <p>{formatDate(uidData.registrationDate)}</p>
+                <p className="text-sm">
+                  {formatDate(uidData.registrationDate)}
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <Shield className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium">Approved By</p>
-                <p>{uidData.approvedBy || "Pending Approval"}</p>
+                <p className="text-sm">
+                  {uidData.approvedBy || "Pending Approval"}
+                </p>
               </div>
             </div>
           </div>
@@ -222,14 +228,14 @@ export function UidDetailsDialog({
           {/* Verification Details */}
           <div>
             <h4 className="text-sm font-semibold mb-3">Verification Details</h4>
-            <div className="bg-muted/50 p-4 rounded-md">
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-muted/50 p-3 sm:p-4 rounded-md">
+              <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                 <span className="text-sm font-medium">ID Type</span>
                 <span className="text-sm">
                   {additionalUidData.verificationDetails.idType}
                 </span>
               </div>
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                 <span className="text-sm font-medium">ID Number</span>
                 <span className="text-sm font-mono">
                   {additionalUidData.verificationDetails.idNumber}
@@ -238,7 +244,7 @@ export function UidDetailsDialog({
 
               {uidData.situation === "verified" &&
                 additionalUidData.verificationDetails.verificationDate && (
-                  <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                     <span className="text-sm font-medium">
                       Verification Date
                     </span>
@@ -252,7 +258,7 @@ export function UidDetailsDialog({
 
               {uidData.situation === "rejected" &&
                 additionalUidData.verificationDetails.rejectionReason && (
-                  <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                     <span className="text-sm font-medium">
                       Rejection Reason
                     </span>
@@ -264,7 +270,7 @@ export function UidDetailsDialog({
 
               {uidData.situation === "suspended" &&
                 additionalUidData.verificationDetails.suspensionReason && (
-                  <div className="flex justify-between py-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2">
                     <span className="text-sm font-medium">
                       Suspension Reason
                     </span>
@@ -279,26 +285,26 @@ export function UidDetailsDialog({
           {/* Exchange Details */}
           <div>
             <h4 className="text-sm font-semibold mb-3">Exchange Details</h4>
-            <div className="bg-muted/50 p-4 rounded-md">
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-muted/50 p-3 sm:p-4 rounded-md">
+              <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                 <span className="text-sm font-medium">Exchange ID</span>
                 <span className="text-sm font-mono">
                   {additionalUidData.exchangeDetails.exchangeId}
                 </span>
               </div>
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                 <span className="text-sm font-medium">API Key</span>
                 <span className="text-sm font-mono">
                   {additionalUidData.exchangeDetails.apiKey}
                 </span>
               </div>
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                 <span className="text-sm font-medium">Account Level</span>
                 <span className="text-sm">
                   {additionalUidData.exchangeDetails.accountLevel}
                 </span>
               </div>
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                 <span className="text-sm font-medium">Trading Enabled</span>
                 <span className="text-sm">
                   {additionalUidData.exchangeDetails.tradingEnabled
@@ -306,7 +312,7 @@ export function UidDetailsDialog({
                     : "No"}
                 </span>
               </div>
-              <div className="flex justify-between py-2">
+              <div className="flex flex-col sm:flex-row sm:justify-between py-2">
                 <span className="text-sm font-medium">Withdrawal Enabled</span>
                 <span className="text-sm">
                   {additionalUidData.exchangeDetails.withdrawalEnabled
@@ -341,7 +347,7 @@ export function UidDetailsDialog({
                     )}
                   </div>
                   <div className="flex-1">
-                    <div className="flex justify-between">
+                    <div className="flex flex-col sm:flex-row sm:justify-between">
                       <p className="text-sm font-medium">{activity.action}</p>
                       <p className="text-xs text-muted-foreground">
                         {formatDate(activity.date)}
@@ -357,26 +363,30 @@ export function UidDetailsDialog({
           </div>
         </div>
 
-        <DialogFooter className="sticky bottom-0 z-10 bg-background pt-4 border-t mt-auto">
+        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t">
           {uidData.situation === "pending" && (
             <>
               <Button
                 variant="outline"
-                className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
+                className="w-full sm:w-auto bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
               >
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Approve
               </Button>
               <Button
                 variant="outline"
-                className="bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800"
+                className="w-full sm:w-auto bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800"
               >
                 <XCircle className="mr-2 h-4 w-4" />
                 Reject
               </Button>
             </>
           )}
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="w-full sm:w-auto"
+          >
             Close
           </Button>
         </DialogFooter>

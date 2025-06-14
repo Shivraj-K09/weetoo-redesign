@@ -1,7 +1,15 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -9,15 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { MoreVertical, Shield, User, Clock } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Clock, MoreVertical, Shield, User } from "lucide-react";
 
 interface AdminCardProps {
   admin: {
@@ -58,10 +58,10 @@ const getStatusColor = (status: string) => {
 export function AdminCard({ admin, onRoleChange, onDelete }: AdminCardProps) {
   return (
     <Card className="overflow-hidden group hover:shadow-lg transition-all duration-300">
-      <CardContent className="p-4 relative">
+      <CardContent className="p-3 sm:p-4 relative">
         <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-14 w-14 border-2 border-background shadow-md">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <Avatar className="h-12 w-12 sm:h-14 sm:w-14 border-2 border-background shadow-md">
               <AvatarImage src={admin.avatar} alt={admin.name} />
               <AvatarFallback className="bg-primary/10 text-primary">
                 {admin.name
@@ -71,8 +71,12 @@ export function AdminCard({ admin, onRoleChange, onDelete }: AdminCardProps) {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="font-semibold text-lg">{admin.name}</h3>
-              <p className="text-sm text-muted-foreground">{admin.email}</p>
+              <h3 className="font-semibold text-base sm:text-lg">
+                {admin.name}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground break-all">
+                {admin.email}
+              </p>
             </div>
           </div>
           <DropdownMenu>
@@ -96,42 +100,50 @@ export function AdminCard({ admin, onRoleChange, onDelete }: AdminCardProps) {
           </DropdownMenu>
         </div>
 
-        <div className="mt-4 space-y-3">
+        <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Shield className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Role</span>
+              <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                Role
+              </span>
             </div>
-            <Badge className={getRoleColor(admin.role)}>
+            <Badge className={`text-xs sm:text-sm ${getRoleColor(admin.role)}`}>
               {admin.role === "super_admin" ? "Super Admin" : "Admin"}
             </Badge>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Status</span>
+              <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                Status
+              </span>
             </div>
-            <Badge className={getStatusColor(admin.status)}>
+            <Badge
+              className={`text-xs sm:text-sm ${getStatusColor(admin.status)}`}
+            >
               {admin.status.charAt(0).toUpperCase() + admin.status.slice(1)}
             </Badge>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Last Active</span>
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                Last Active
+              </span>
             </div>
-            <span className="text-sm">
+            <span className="text-xs sm:text-sm">
               {new Date(admin.lastActive).toLocaleDateString()}
             </span>
           </div>
         </div>
 
-        <div className="mt-4 pt-3 border-t">
+        <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t">
           <Select
             defaultValue={admin.role}
             onValueChange={(value) => onRoleChange(admin.id, value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="text-xs sm:text-sm">
               <SelectValue placeholder="Change Role" />
             </SelectTrigger>
             <SelectContent>

@@ -50,31 +50,37 @@ export function AddAdminDialog({ onAddAdmin }: AddAdminDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
-          <UserPlus className="h-4 w-4" />
-          Add New Admin
+        <Button className="w-full sm:w-auto">
+          <UserPlus className="h-4 w-4 mr-2" />
+          Add Admin
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px] w-[95vw]">
         <DialogHeader>
           <DialogTitle>Add New Admin</DialogTitle>
           <DialogDescription>
-            Add a new administrator to the platform.
+            Add a new admin user to the platform. They will receive an email
+            with login instructions.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name" className="text-sm">
+              Name
+            </Label>
             <Input
               id="name"
               value={newAdmin.name}
               onChange={(e) =>
                 setNewAdmin({ ...newAdmin, name: e.target.value })
               }
+              className="text-sm"
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-sm">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
@@ -82,17 +88,20 @@ export function AddAdminDialog({ onAddAdmin }: AddAdminDialogProps) {
               onChange={(e) =>
                 setNewAdmin({ ...newAdmin, email: e.target.value })
               }
+              className="text-sm"
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role" className="text-sm">
+              Role
+            </Label>
             <Select
               value={newAdmin.role}
               onValueChange={(value: "super_admin" | "admin") =>
                 setNewAdmin({ ...newAdmin, role: value })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
@@ -102,11 +111,17 @@ export function AddAdminDialog({ onAddAdmin }: AddAdminDialogProps) {
             </Select>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setIsOpen(false)}
+            className="w-full sm:w-auto"
+          >
             Cancel
           </Button>
-          <Button onClick={handleAddAdmin}>Add Admin</Button>
+          <Button onClick={handleAddAdmin} className="w-full sm:w-auto">
+            Add Admin
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -59,7 +59,7 @@ export const PostDetailsDialog = memo(function PostDetailsDialog({
   onApprove,
   onReject,
 }: PostDetailsDialogProps) {
-  const [, setIsApproving] = useState(false);
+  // const [, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
   const [rejectConfirmOpen, setRejectConfirmOpen] = useState(false);
 

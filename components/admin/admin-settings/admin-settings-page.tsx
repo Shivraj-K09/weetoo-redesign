@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { AdminCard } from "./admin-card";
 import { AddAdminDialog } from "./add-admin-dialog";
+import { AdminCard } from "./admin-card";
 import { DeleteAdminDialog } from "./delete-admin-dialog";
 
 export interface Admin {
@@ -88,18 +88,20 @@ export function AdminSettingsPage() {
   };
 
   return (
-    <div className="container mx-auto space-y-5">
-      <div className="flex items-center justify-between pb-6 border-b border-border mt-5">
+    <div className="container mx-auto space-y-5 px-4 sm:px-6 pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-border mt-5 gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold">Admin Settings</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-semibold">Admin Settings</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Manage admin roles and permissions across the platform.
           </p>
         </div>
-        <AddAdminDialog onAddAdmin={handleAddAdmin} />
+        <div className="w-full sm:w-auto">
+          <AddAdminDialog onAddAdmin={handleAddAdmin} />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {admins.map((admin) => (
           <AdminCard
             key={admin.id}

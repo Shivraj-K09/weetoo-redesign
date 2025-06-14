@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useState } from "react";
 
 import { DateRangePicker } from "@/components/date-range-picker";
@@ -87,7 +87,7 @@ export function ExchangeUIDPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between w-full gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-3">
         <div className="w-full">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -99,7 +99,7 @@ export function ExchangeUIDPage() {
             />
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
           <DateRangePicker
             date={filters.dateRange}
             onDateChange={handleDateRangeChange}
@@ -110,7 +110,7 @@ export function ExchangeUIDPage() {
               handleFilterChange("situation", value as Situation)
             }
           >
-            <SelectTrigger className="w-[150px] h-10 shadow-none cursor-pointer">
+            <SelectTrigger className="w-full sm:w-[150px] h-10 shadow-none cursor-pointer">
               <SelectValue placeholder="Situation" />
             </SelectTrigger>
             <SelectContent>
@@ -127,7 +127,7 @@ export function ExchangeUIDPage() {
               handleFilterChange("exchange", value as Exchange)
             }
           >
-            <SelectTrigger className="w-[150px] h-10 shadow-none cursor-pointer">
+            <SelectTrigger className="w-full sm:w-[150px] h-10 shadow-none cursor-pointer">
               <SelectValue placeholder="Exchange" />
             </SelectTrigger>
             <SelectContent>
@@ -141,25 +141,15 @@ export function ExchangeUIDPage() {
           </Select>
           <Button
             variant="outline"
-            size="default"
+            size="sm"
+            className="w-full sm:w-auto h-10 shadow-none"
             onClick={clearFilters}
-            disabled={activeFilterCount === 0}
-            className="h-10 px-4 font-normal shadow-none cursor-pointer"
           >
-            Clear Filters
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="shadow-none h-10 cursor-pointer"
-          >
-            <Download className="h-4 w-4" />
-            <span className="sr-only">Export</span>
+            Clear filters
           </Button>
         </div>
       </div>
 
-      {/* Active filters display */}
       {activeFilterCount > 0 && (
         <div className="flex flex-wrap gap-2">
           {filters.situation !== "all" && (

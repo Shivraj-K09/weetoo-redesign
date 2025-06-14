@@ -9,17 +9,17 @@ export const metadata: Metadata = {
 
 export default function ExchangeUID() {
   return (
-    <div className="container mx-auto space-y-5">
-      <div className="flex items-center justify-between pb-6 border-b border-border mt-5">
+    <div className="container mx-auto px-4 sm:px-6 space-y-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-border mt-5">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold">Exchange UID</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-semibold">Exchange UID</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             View and manage exchange user identification numbers
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
         <StatCard
           title="Total UIDs"
           value="10,000"

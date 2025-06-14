@@ -1,26 +1,26 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   type ColumnDef,
   type SortingState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  getFilteredRowModel,
 } from "@tanstack/react-table";
 import {
+  AlertTriangle,
   ArrowUpDown,
-  MoreHorizontal,
   CheckCircle,
   Clock,
-  XCircle,
-  AlertTriangle,
   Eye,
   EyeOff,
+  MoreHorizontal,
+  XCircle,
 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,14 +30,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -46,19 +47,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { DateRange } from "react-day-picker";
 import { ExchangeUidDetailsDialog } from "./exchange-uid-dialog";
 import { ExchangeUidEditDialog } from "./exchange-uid-edit-dialog";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
 const exchangeUidData = [
   {
@@ -660,13 +659,13 @@ export function ExchangeUidTable({
       </div>
 
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
+        <div className="relative w-full overflow-auto">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="whitespace-nowrap">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -674,43 +673,53 @@ export function ExchangeUidTable({
                             header.getContext()
                           )}
                     </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className="cursor-pointer hover:bg-muted/50 sm:cursor-default sm:hover:bg-transparent"
+                    onClick={(e) => {
+                      // Only open dialog on mobile screens
+                      if (window.innerWidth < 640) {
+                        // 640px is the 'sm' breakpoint in Tailwind
+                        setSelectedUid(row.original);
+                        setDetailsDialogOpen(true);
+                      }
+                    }}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="whitespace-nowrap">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-      <div className="flex flex-wrap items-center justify-between space-y-2 py-4 w-full">
-        <div className="flex items-center space-x-2">
+
+      <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 py-4 w-full">
+        <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
           <p className="text-sm text-muted-foreground">
             Showing {table.getRowModel().rows.length} of {filteredData.length}{" "}
             exchange UIDs
@@ -735,7 +744,8 @@ export function ExchangeUidTable({
           </Select>
           <p className="text-sm text-muted-foreground">per page</p>
         </div>
-        <div className="flex items-center">
+
+        <div className="flex items-center space-x-2">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
@@ -751,79 +761,22 @@ export function ExchangeUidTable({
                   }}
                 />
               </PaginationItem>
-              {(() => {
-                const pageCount = table.getPageCount();
-                const pageIndex = table.getState().pagination.pageIndex;
-                const pageButtons = [];
-                const maxPageButtons = 5;
-                let startPage = Math.max(0, pageIndex - 2);
-                let endPage = Math.min(pageCount - 1, pageIndex + 2);
-                if (pageIndex <= 1) {
-                  endPage = Math.min(pageCount - 1, maxPageButtons - 1);
-                }
-                if (pageIndex >= pageCount - 2) {
-                  startPage = Math.max(0, pageCount - maxPageButtons);
-                }
-                for (let i = startPage; i <= endPage; i++) {
-                  pageButtons.push(
-                    <PaginationItem key={i}>
-                      <PaginationLink
-                        isActive={i === pageIndex}
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          table.setPageIndex(i);
-                        }}
-                      >
-                        {i + 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                }
-                if (startPage > 0) {
-                  pageButtons.unshift(
-                    <PaginationItem key="start-ellipsis">
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  );
-                  pageButtons.unshift(
-                    <PaginationItem key={0}>
-                      <PaginationLink
-                        isActive={pageIndex === 0}
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          table.setPageIndex(0);
-                        }}
-                      >
-                        1
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                }
-                if (endPage < pageCount - 1) {
-                  pageButtons.push(
-                    <PaginationItem key="end-ellipsis">
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  );
-                  pageButtons.push(
-                    <PaginationItem key={pageCount - 1}>
-                      <PaginationLink
-                        isActive={pageIndex === pageCount - 1}
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          table.setPageIndex(pageCount - 1);
-                        }}
-                      >
-                        {pageCount}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                }
-                return pageButtons;
-              })()}
+              {Array.from(
+                { length: table.getPageCount() },
+                (_, i) => i + 1
+              ).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    href="#"
+                    onClick={() => table.setPageIndex(page - 1)}
+                    isActive={
+                      page - 1 === table.getState().pagination.pageIndex
+                    }
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
               <PaginationItem>
                 <PaginationNext
                   onClick={() => table.nextPage()}

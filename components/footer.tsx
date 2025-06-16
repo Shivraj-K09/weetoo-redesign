@@ -11,7 +11,7 @@ export function Footer() {
   return (
     <footer className="w-full bg-gradient-to-b from-background to-background/95 border-t border-border/50">
       {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
+      <div className="container mx-auto px-4 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12">
           {/* Company Info - Spans 5 columns */}
           <div className="lg:col-span-5 space-y-8">
@@ -29,7 +29,7 @@ export function Footer() {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors md:w-[410px] w-full">
                 <ShieldAlert className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-sm font-medium text-foreground">
@@ -38,7 +38,7 @@ export function Footer() {
                   <p className="text-sm text-muted-foreground">Koh Hak-jin</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors md:w-[410px] w-full">
                 <Building2 className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-sm font-medium text-foreground">

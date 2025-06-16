@@ -11,6 +11,8 @@ import {
   SendIcon,
   Users,
   ChevronUp,
+  Star,
+  Coins,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -22,20 +24,39 @@ import { ChatMessage } from "./chat-message";
 import { mockMessages, mockOnlineUsers } from "./mock-data";
 
 export function FloatingChat() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isOpen, setIsOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedState = localStorage.getItem("chatState");
+      return savedState ? JSON.parse(savedState).isOpen : false;
+    }
+    return false;
+  });
+  const [isMinimized, setIsMinimized] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedState = localStorage.getItem("chatState");
+      return savedState ? JSON.parse(savedState).isMinimized : false;
+    }
+    return false;
+  });
   const [showUsersList, setShowUsersList] = useState(false);
   const [messages, setMessages] = useState(mockMessages);
   const [newMessage, setNewMessage] = useState("");
   const [unreadCount, setUnreadCount] = useState(2);
   const chatRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  // Handle click outside to close the chat
-  useOnClickOutside(chatRef as React.RefObject<HTMLElement>, () => {
-    if (isOpen && !isMinimized) {
-      setIsMinimized(true);
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "chatState",
+        JSON.stringify({
+          isOpen,
+          isMinimized,
+        })
+      );
     }
-  });
+  }, [isOpen, isMinimized]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -160,7 +181,7 @@ export function FloatingChat() {
               opacity: 1,
               y: 0,
               scale: 1,
-              height: isMinimized ? "auto" : "500px",
+              height: isMinimized ? "auto" : "650px",
               width: isMinimized ? "300px" : "380px",
             }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -213,8 +234,37 @@ export function FloatingChat() {
 
             {!isMinimized && (
               <>
+                {/* Profile Section */}
+                <div className="bg-gradient-to-r from-[#549BCC]/5 to-[#63b3e4]/5 border-b border-border p-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-12 w-12 ring-2 ring-[#549BCC]/20">
+                      <AvatarImage src="" alt="User" />
+                      <AvatarFallback className="bg-gradient-to-br from-[#549BCC] to-[#63b3e4] text-white">
+                        U
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">User Name</h4>
+                      <div className="flex items-center gap-4 mt-1">
+                        <div className="flex items-center gap-1">
+                          <Star className="h-4 w-4 text-yellow-500" />
+                          <span className="text-xs text-muted-foreground">
+                            1,234 XP
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Coins className="h-4 w-4 text-amber-500" />
+                          <span className="text-xs text-muted-foreground">
+                            567 KOR
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Chat Body with Messages */}
-                <div className="relative flex-1 h-[calc(100%-110px)]">
+                <div className="relative flex-1 h-[calc(100%-210px)]">
                   <div className="absolute inset-0 overflow-y-auto p-3 space-y-3 scrollbar-thin">
                     {messages.map((message) => (
                       <ChatMessage key={message.id} message={message} />
@@ -224,23 +274,23 @@ export function FloatingChat() {
                 </div>
 
                 {/* Chat Input */}
-                <div className="p-3 border-t border-border bg-background/80 backdrop-blur-sm">
+                <div className="p-4 border-t border-border bg-background/80 backdrop-blur-sm">
                   <form
                     onSubmit={handleSendMessage}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-3"
                   >
                     <Input
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Type a message..."
-                      className="flex-1 h-9 text-sm"
+                      className="flex-1 h-12 text-sm rounded-md px-4"
                     />
                     <Button
                       type="submit"
                       size="sm"
-                      className="h-9 px-3 bg-[#549BCC] hover:bg-[#63b3e4]"
+                      className="h-12 w-12 rounded-md bg-[#549BCC] hover:bg-[#63b3e4] flex items-center justify-center"
                     >
-                      <SendIcon className="h-4 w-4" />
+                      <SendIcon className="h-5 w-5" />
                     </Button>
                   </form>
                 </div>

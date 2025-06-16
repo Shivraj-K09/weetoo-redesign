@@ -2,24 +2,23 @@
 
 import type React from "react";
 
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import {
-  MessageSquare,
-  X,
-  MinusIcon,
-  SendIcon,
-  Users,
-  ChevronUp,
-  Star,
-  Coins,
-} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useOnClickOutside } from "@/hooks/use-click-outside";
+import {
+  ChevronUp,
+  Coins,
+  MessageSquare,
+  MinusIcon,
+  SendIcon,
+  Star,
+  Users,
+  X,
+} from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { ChatMessage } from "./chat-message";
 import { mockMessages, mockOnlineUsers } from "./mock-data";
 

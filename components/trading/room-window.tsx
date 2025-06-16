@@ -2,10 +2,10 @@
 
 import type React from "react";
 
-import { useState, useRef, useEffect, useMemo } from "react";
-import { X, Maximize2, Minimize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "motion/react";
+import { Maximize2, Minimize2, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface TradingRoomWindowProps {
   roomName: string;
@@ -419,41 +419,7 @@ export function TradingRoomWindow({
 
               {/* Window Content */}
               <div className="h-[calc(100%-3rem)] bg-background overflow-auto">
-                <div className="h-full flex items-center justify-center bg-gradient-to-br from-background via-muted/10 to-background">
-                  <div className="text-center space-y-6 max-w-md mx-auto p-4 sm:p-8">
-                    {/* Room Icon */}
-                    <div className="relative mx-auto">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#549BCC] via-[#63b3e4] to-[#7cc3f0] rounded-xl flex items-center justify-center shadow-lg">
-                        <span className="text-white text-xl sm:text-2xl font-bold">
-                          W
-                        </span>
-                      </div>
-                      <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
-                        <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full"></div>
-                      </div>
-                    </div>
-
-                    {/* Room Info */}
-                    <div className="space-y-3">
-                      <h1 className="text-xl sm:text-2xl font-bold">
-                        {roomName}
-                      </h1>
-                      <p className="text-sm sm:text-base text-muted-foreground">
-                        Welcome to your trading room
-                      </p>
-                      <div className="flex items-center justify-center gap-4 text-xs sm:text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse"></div>
-                          <span>Connected</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full"></div>
-                          <span>Live data</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                {/* Content removed */}
               </div>
             </motion.div>
           </>

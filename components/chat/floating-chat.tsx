@@ -146,7 +146,7 @@ export function FloatingChat() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="fixed bottom-6 right-6 z-50"
+            className="fixed bottom-6 left-6 z-50"
           >
             <div className="flex items-center gap-2">
               <Button
@@ -186,7 +186,7 @@ export function FloatingChat() {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              "fixed bottom-6 right-6 z-50 bg-background rounded-lg shadow-xl border border-border overflow-hidden",
+              "fixed bottom-6 left-6 z-50 bg-background rounded-lg shadow-xl border border-border overflow-hidden",
               isMinimized ? "shadow-md" : "shadow-xl"
             )}
           >

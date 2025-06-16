@@ -138,7 +138,7 @@ export default function Home() {
 
         {/* Content */}
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto">
+          <div className="container mx-auto">
             <div className="text-center mb-12">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -209,6 +209,164 @@ export default function Home() {
                     Learn More
                   </Button>
                 </motion.div>
+              </motion.div>
+
+              {/* Trading Rooms Marquee */}
+              <motion.div
+                className="mt-6 w-full flex justify-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
+              >
+                <div className="w-full max-w-5xl">
+                  <div className="relative rounded-2xl shadow-lg px-2 py-2 overflow-hidden">
+                    <div className="absolute left-6 top-4 z-10">
+                      <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+                        Live Rooms
+                      </Badge>
+                    </div>
+                    <div
+                      className="marquee-track flex items-center gap-6 pl-36"
+                      style={{ height: "200px" }}
+                    >
+                      <div className="marquee-inner flex items-center gap-6">
+                        {(() => {
+                          const rooms = [
+                            {
+                              name: "BTC Strategy Discussion",
+                              creator: { name: "Alex Thompson" },
+                              symbol: "BTCUSDT",
+                              category: "Chat",
+                              isPublic: true,
+                              participants: 24,
+                            },
+                            {
+                              name: "ETH Technical Analysis",
+                              creator: { name: "Sarah Kim" },
+                              symbol: "ETHUSDT",
+                              category: "Voice",
+                              isPublic: true,
+                              participants: 18,
+                            },
+                            {
+                              name: "Futures Trading Strategies",
+                              creator: { name: "Emma Wilson" },
+                              symbol: "BTCUSDT",
+                              category: "Chat",
+                              isPublic: true,
+                              participants: 15,
+                            },
+                            {
+                              name: "Day Trading Strategies",
+                              creator: { name: "William Taylor" },
+                              symbol: "BNBUSDT",
+                              category: "Voice",
+                              isPublic: true,
+                              participants: 19,
+                            },
+                            {
+                              name: "VIP BTC Room",
+                              creator: { name: "David Lee" },
+                              symbol: "BTCUSDT",
+                              category: "Voice",
+                              isPublic: false,
+                              participants: 9,
+                            },
+                            {
+                              name: "ETH Swing Group",
+                              creator: { name: "Olivia Brown" },
+                              symbol: "ETHUSDT",
+                              category: "Chat",
+                              isPublic: true,
+                              participants: 27,
+                            },
+                            {
+                              name: "BNB Quick Trades",
+                              creator: { name: "Sophia Garcia" },
+                              symbol: "BNBUSDT",
+                              category: "Chat",
+                              isPublic: false,
+                              participants: 12,
+                            },
+                            {
+                              name: "BTCUSDT Morning Brief",
+                              creator: { name: "Grace Hall" },
+                              symbol: "BTCUSDT",
+                              category: "Chat",
+                              isPublic: true,
+                              participants: 21,
+                            },
+                            {
+                              name: "ETHUSDT Pro Signals",
+                              creator: { name: "Ethan Wright" },
+                              symbol: "ETHUSDT",
+                              category: "Chat",
+                              isPublic: false,
+                              participants: 14,
+                            },
+                            {
+                              name: "BNBUSDT Insights",
+                              creator: { name: "Nina Patel" },
+                              symbol: "BNBUSDT",
+                              category: "Voice",
+                              isPublic: true,
+                              participants: 17,
+                            },
+                          ];
+                          const allRooms = [...rooms, ...rooms];
+                          return allRooms.map((room, idx) => (
+                            <motion.div
+                              key={idx}
+                              whileHover={{
+                                scale: 1.035,
+                                boxShadow: "0 6px 28px 0 rgba(0,0,0,0.15)",
+                              }}
+                              whileTap={{ scale: 0.97 }}
+                              className="flex flex-col justify-between min-w-[320px] max-w-[320px] h-[190px] rounded-2xl border border-gray-300/20 dark:border-gray-700/40 bg-gradient-to-b from-gray-900/60 to-gray-800/80 dark:from-gray-900/80 dark:to-gray-900/60 shadow-lg relative overflow-hidden p-6 transition-all duration-200"
+                            >
+                              <div className="flex items-center justify-between w-full mb-3">
+                                <span className="text-sm font-bold px-3 py-1.5 rounded-full bg-red-500 text-white">
+                                  LIVE
+                                </span>
+                                <span className="text-sm font-semibold px-3 py-1.5 rounded-full bg-gray-800/80 text-gray-100 dark:bg-gray-700/80 dark:text-gray-200">
+                                  {room.participants} participants
+                                </span>
+                              </div>
+                              <div className="flex flex-col flex-1 justify-start items-start text-left">
+                                <div className="text-xl font-bold text-white leading-tight mb-1 truncate w-full">
+                                  {room.name}
+                                </div>
+                                <div className="text-sm text-gray-400 mb-3 truncate w-full">
+                                  by {room.creator.name}
+                                </div>
+                                <div className="flex flex-wrap gap-2 mt-auto pt-2 border-t border-gray-700/30">
+                                  <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-600/20 text-blue-400 tracking-wide">
+                                    {room.symbol}
+                                  </span>
+                                  <span className="text-xs font-medium px-3 py-1 rounded-full bg-purple-600/20 text-purple-300 tracking-wide">
+                                    {room.category}
+                                  </span>
+                                  <span
+                                    className={`text-xs font-medium px-3 py-1 rounded-full ${
+                                      room.isPublic
+                                        ? "bg-green-600/20 text-green-300"
+                                        : "bg-yellow-600/20 text-yellow-200"
+                                    } tracking-wide`}
+                                  >
+                                    {room.isPublic ? "Public" : "Private"}
+                                  </span>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ));
+                        })()}
+                      </div>
+                    </div>
+                    {/* Marquee animation overlay for fade effect */}
+                    <div className="pointer-events-none absolute top-0 left-0 w-[70%] h-full bg-gradient-to-r from-blue-50/0 to-transparent dark:from-black/0 z-20" />
+                    <div className="pointer-events-none absolute top-0 right-0 w-[70%] h-full bg-gradient-to-l from-blue-50/0 to-transparent dark:from-black/0 z-20" />
+                  </div>
+                </div>
               </motion.div>
             </div>
           </div>

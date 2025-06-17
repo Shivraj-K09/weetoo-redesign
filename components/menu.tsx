@@ -56,7 +56,7 @@ const information: { title: string; href: string; description: string }[] = [
   },
 ];
 
-const exchange: { title: string; href: string; description: string }[] = [
+const broker: { title: string; href: string; description: string }[] = [
   {
     title: "Coin Futures Exchange Comparison",
     href: "/coin-futures",
@@ -80,7 +80,7 @@ export function Menu() {
     trading: false,
     community: false,
     information: false,
-    exchange: false,
+    broker: false,
   });
 
   const toggleSection = (section: string) => {
@@ -184,16 +184,16 @@ export function Menu() {
         onOpenChange={() => toggleSection("exchange")}
       >
         <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium">
-          Exchange
+          Broker
           <ChevronDown
             className={cn(
               "h-4 w-4 transition-transform duration-200",
-              openSections.exchange ? "transform rotate-180" : ""
+              openSections.broker ? "transform rotate-180" : ""
             )}
           />
         </CollapsibleTrigger>
         <CollapsibleContent className="pl-4 space-y-2">
-          {exchange.map((item) => (
+          {broker.map((item) => (
             <Link
               key={item.title}
               href={item.href}
@@ -265,10 +265,10 @@ export function Menu() {
         </NavigationMenuItem>
 
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Exchange</NavigationMenuTrigger>
+          <NavigationMenuTrigger>Broker</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-              {exchange.map((item) => (
+              {broker.map((item) => (
                 <ListItem key={item.title} title={item.title} href={item.href}>
                   {item.description}
                 </ListItem>

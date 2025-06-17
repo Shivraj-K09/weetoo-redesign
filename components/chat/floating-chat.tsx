@@ -21,8 +21,12 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { ChatMessage } from "./chat-message";
 import { mockMessages, mockOnlineUsers } from "./mock-data";
+import { useRoomStore } from "@/lib/store/room-store";
 
 export function FloatingChat() {
+  const isRoomOpen = useRoomStore(
+    (state: { isRoomOpen: boolean }) => state.isRoomOpen
+  );
   const [isOpen, setIsOpen] = useState(() => {
     if (typeof window !== "undefined") {
       const savedState = localStorage.getItem("chatState");
@@ -141,7 +145,7 @@ export function FloatingChat() {
     <>
       {/* Chat Button */}
       <AnimatePresence>
-        {!isOpen && (
+        {!isOpen && !isRoomOpen && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -172,7 +176,7 @@ export function FloatingChat() {
 
       {/* Chat Window */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && !isRoomOpen && (
           <motion.div
             ref={chatRef}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}

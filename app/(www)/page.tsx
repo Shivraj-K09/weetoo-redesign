@@ -1,5 +1,7 @@
 "use client";
 
+import HeroBadge from "@/components/hero-badge";
+import { Icons } from "@/components/icons";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -141,7 +143,7 @@ export default function Home() {
           <div className="">
             <div className="text-center mb-12">
               <div className="container mx-auto">
-                <motion.div
+                {/* <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
@@ -149,7 +151,14 @@ export default function Home() {
                   <Badge className="mb-6 bg-primary/10 text-primary border border-primary/20 px-6 py-2 text-sm">
                     Next Generation Trading Platform
                   </Badge>
-                </motion.div>
+                </motion.div> */}
+
+                <HeroBadge
+                  href="/trading"
+                  text="Next Generation Trading Platform"
+                  icon={<Icons.logo className="h-4 w-4" />}
+                  endIcon={<Icons.chevronRight className="h-4 w-4" />}
+                />
 
                 <motion.h1
                   className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"

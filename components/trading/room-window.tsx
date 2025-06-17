@@ -2,10 +2,12 @@
 
 import type React from "react";
 
+import { useRoomStore } from "@/lib/store/room-store";
 import { cn } from "@/lib/utils";
-import { Maximize2, Minimize2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import RoomWindowContent from "./room-window-content";
 
 interface TradingRoomWindowProps {
   roomName: string;
@@ -26,6 +28,9 @@ export function TradingRoomWindow({
   isOpen,
   onClose,
 }: TradingRoomWindowProps) {
+  const setIsRoomOpen = useRoomStore(
+    (state: { setIsRoomOpen: (isOpen: boolean) => void }) => state.setIsRoomOpen
+  );
   const windowRef = useRef<HTMLDivElement>(null);
   const titleBarRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -86,11 +91,18 @@ export function TradingRoomWindow({
     windowPositionRef.current = { x: windowState.x, y: windowState.y };
   }, [windowState.x, windowState.y]);
 
-  // Reset closing state when window is closed
+  // Handle opening and closing of the window
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      setIsRoomOpen(true);
+      // Automatically maximize when the room opens, if not already maximized
+      if (!windowState.isMaximized) {
+        handleMaximize();
+      }
+    } else {
+      setIsRoomOpen(false);
     }
-  }, [isOpen]);
+  }, [isOpen, setIsRoomOpen, windowState.isMaximized]);
 
   // Hide scrollbars when window is open
   useEffect(() => {
@@ -268,10 +280,6 @@ export function TradingRoomWindow({
     onClose();
   };
 
-  const handleTitleBarDoubleClick = () => {
-    handleMaximize();
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -367,7 +375,7 @@ export function TradingRoomWindow({
               <div
                 ref={titleBarRef}
                 className={cn(
-                  "flex items-center justify-between h-12 px-4 bg-muted/30 border-b border-border select-none",
+                  "flex items-center justify-between h-14 px-4 bg-muted/30 select-none",
                   !windowState.isMaximized &&
                     window.innerWidth >= 768 &&
                     "cursor-move",
@@ -375,7 +383,6 @@ export function TradingRoomWindow({
                   "sm:rounded-t-lg" // Keep rounded corners on larger screens
                 )}
                 onMouseDown={handleTitleBarMouseDown}
-                onDoubleClick={handleTitleBarDoubleClick}
               >
                 {/* Window Title */}
                 <div className="flex items-center gap-3 pointer-events-none">
@@ -389,27 +396,10 @@ export function TradingRoomWindow({
 
                 {/* Window Controls */}
                 <div className="flex items-center pointer-events-auto">
-                  {/* Maximize/Restore - Only show on desktop */}
-                  {window.innerWidth >= 768 && (
-                    <button
-                      onClick={handleMaximize}
-                      className="w-8 h-8 flex items-center justify-center hover:bg-muted transition-colors rounded"
-                      aria-label={
-                        windowState.isMaximized ? "Restore" : "Maximize"
-                      }
-                    >
-                      {windowState.isMaximized ? (
-                        <Minimize2 className="h-3 w-3" />
-                      ) : (
-                        <Maximize2 className="h-3 w-3" />
-                      )}
-                    </button>
-                  )}
-
                   {/* Close */}
                   <button
                     onClick={handleClose}
-                    className="w-8 h-8 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors rounded"
+                    className="w-8 h-8 cursor-pointer flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors rounded"
                     aria-label="Close"
                   >
                     <X className="h-3 w-3" />
@@ -417,10 +407,7 @@ export function TradingRoomWindow({
                 </div>
               </div>
 
-              {/* Window Content */}
-              <div className="h-[calc(100%-3rem)] bg-background overflow-auto">
-                {/* Content removed */}
-              </div>
+              <RoomWindowContent />
             </motion.div>
           </>
         )}

@@ -6,11 +6,16 @@ import { TradingForm } from "./trading-form";
 import { ParticipantsList } from "./participants-list";
 import { Chat } from "./chat";
 import { TradeHistoryTabs } from "./trade-history-tabs";
+import { Separator } from "../ui/separator";
 
 export default function RoomWindowContent() {
   return (
     <div className="h-[calc(100%-3rem)] bg-background flex flex-col gap-2 px-3 py-3">
-      <div className="border h-[80px] w-full"></div>
+      <div className="border h-[80px] w-full flex">
+        <div className="w-full flex-[2]">1</div>
+        <Separator className="h-full" orientation="vertical" />
+        <div className="w-full flex-1">2</div>
+      </div>
       <div className="grid grid-cols-6 gap-2 h-full w-full">
         <div className="col-span-5  w-full h-full gap-5">
           <div className="flex flex-col gap-2 w-full h-full">

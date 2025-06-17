@@ -190,7 +190,7 @@ export function FloatingChat() {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              "fixed bottom-6 left-6 z-50 bg-background rounded-lg shadow-xl border border-border overflow-hidden",
+              "fixed bottom-6 left-6 z-50 bg-background rounded-lg shadow-xl border border-border overflow-hidden flex flex-col",
               isMinimized ? "shadow-md" : "shadow-xl"
             )}
           >
@@ -238,7 +238,7 @@ export function FloatingChat() {
             {!isMinimized && (
               <>
                 {/* Profile Section */}
-                <div className="bg-gradient-to-r from-[#549BCC]/5 to-[#63b3e4]/5 border-b border-border p-4">
+                <div className="bg-gradient-to-r from-[#549BCC]/5 to-[#63b3e4]/5 border-b border-border p-3">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12 ring-2 ring-[#549BCC]/20">
                       <AvatarImage src="" alt="User" />
@@ -264,10 +264,27 @@ export function FloatingChat() {
                       </div>
                     </div>
                   </div>
+                  {/* Experience Level - Redesigned for minimal and clean look */}
+                  <div className="w-full flex flex-col gap-y-1 mt-2">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Level 0</span>
+                      <span>Level 1</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+                      <div
+                        className="bg-red-500 h-1.5 rounded-full"
+                        style={{ width: `4%` }}
+                      ></div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>4% Complete</span>
+                      <span className="text-red-500">450 EXP</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Chat Body with Messages */}
-                <div className="relative flex-1 h-[calc(100%-210px)]">
+                <div className="relative flex-1">
                   <div className="absolute inset-0 overflow-y-auto p-3 space-y-3 scrollbar-thin">
                     {messages.map((message) => (
                       <ChatMessage key={message.id} message={message} />

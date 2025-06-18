@@ -7,14 +7,20 @@ import { ParticipantsList } from "./participants-list";
 import { Chat } from "./chat";
 import { TradeHistoryTabs } from "./trade-history-tabs";
 import { Separator } from "../ui/separator";
+import { MarketOverview } from "./market-overview";
+import { TradingOverview } from "./trading-overview";
 
 export default function RoomWindowContent() {
   return (
     <div className="h-[calc(100%-3rem)] bg-background flex flex-col gap-2 px-3 py-3">
       <div className="border h-[80px] w-full flex">
-        <div className="w-full flex-[2]">1</div>
+        <div className="w-full flex-[2]">
+          <MarketOverview />
+        </div>
         <Separator className="h-full" orientation="vertical" />
-        <div className="w-full flex-1">2</div>
+        <div className="w-full flex-1">
+          <TradingOverview />
+        </div>
       </div>
       <div className="grid grid-cols-6 gap-2 h-full w-full">
         <div className="col-span-5  w-full h-full gap-5">

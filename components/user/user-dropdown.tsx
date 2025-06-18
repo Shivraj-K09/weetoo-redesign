@@ -12,6 +12,7 @@ import {
 import {
   BellIcon,
   HelpCircleIcon,
+  InboxIcon,
   LogOutIcon,
   SettingsIcon,
   ShieldIcon,
@@ -72,6 +73,13 @@ export function UserDropdown() {
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
                 <UserIcon className="w-4 h-4 mr-3 text-muted-foreground" />
                 Profile
+              </DropdownMenuItem>
+            </Link>
+
+            <Link href="/inbox">
+              <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+                <InboxIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+                Inbox
               </DropdownMenuItem>
             </Link>
 

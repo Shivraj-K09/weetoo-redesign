@@ -4,13 +4,14 @@ import type React from "react";
 
 import { useRoomStore } from "@/lib/store/room-store";
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import RoomWindowContent from "./room-window-content";
+import { WindowTitleBar } from "./window-title-bar";
 
 interface TradingRoomWindowProps {
   roomName: string;
+  isPublic: boolean;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -25,6 +26,7 @@ interface WindowState {
 
 export function TradingRoomWindow({
   roomName,
+  isPublic,
   isOpen,
   onClose,
 }: TradingRoomWindowProps) {
@@ -32,7 +34,7 @@ export function TradingRoomWindow({
     (state: { setIsRoomOpen: (isOpen: boolean) => void }) => state.setIsRoomOpen
   );
   const windowRef = useRef<HTMLDivElement>(null);
-  const titleBarRef = useRef<HTMLDivElement>(null);
+  // const titleBarRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeDirection, setResizeDirection] = useState("");
@@ -372,40 +374,17 @@ export function TradingRoomWindow({
               )}
 
               {/* Title Bar */}
-              <div
-                ref={titleBarRef}
-                className={cn(
-                  "flex items-center justify-between h-14 px-4 bg-muted/30 select-none",
-                  !windowState.isMaximized &&
-                    window.innerWidth >= 768 &&
-                    "cursor-move",
-                  windowState.isMaximized ? "rounded-none" : "rounded-t-lg",
-                  "sm:rounded-t-lg" // Keep rounded corners on larger screens
-                )}
-                onMouseDown={handleTitleBarMouseDown}
-              >
-                {/* Window Title */}
-                <div className="flex items-center gap-3 pointer-events-none">
-                  <div className="w-6 h-6 bg-gradient-to-br from-[#549BCC] via-[#63b3e4] to-[#7cc3f0] rounded-md flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">W</span>
-                  </div>
-                  <span className="font-medium text-sm truncate max-w-[200px] sm:max-w-none">
-                    {roomName}
-                  </span>
-                </div>
-
-                {/* Window Controls */}
-                <div className="flex items-center pointer-events-auto">
-                  {/* Close */}
-                  <button
-                    onClick={handleClose}
-                    className="w-8 h-8 cursor-pointer flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors rounded"
-                    aria-label="Close"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              </div>
+              <WindowTitleBar
+                roomName={roomName}
+                isPublic={isPublic}
+                isMaximized={windowState.isMaximized}
+                onClose={handleClose}
+                onTitleBarMouseDown={handleTitleBarMouseDown}
+                onCloseRoom={() => {
+                  setIsRoomOpen(false);
+                  onClose();
+                }}
+              />
 
               <RoomWindowContent />
             </motion.div>

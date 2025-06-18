@@ -14,7 +14,7 @@ export default function RoomWindowContent() {
   return (
     <div className="h-[calc(100%-3rem)] bg-background flex flex-col gap-2 px-3 py-3">
       <div className="border h-[80px] w-full flex">
-        <div className="w-full flex-[2]">
+        <div className="w-full flex-[1]">
           <MarketOverview />
         </div>
         <Separator className="h-full" orientation="vertical" />

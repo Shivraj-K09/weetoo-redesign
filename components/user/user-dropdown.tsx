@@ -10,8 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  BellIcon,
-  HelpCircleIcon,
   InboxIcon,
   LogOutIcon,
   SettingsIcon,
@@ -97,21 +95,21 @@ export function UserDropdown() {
               </DropdownMenuItem>
             </Link>
 
-            <Link href="#">
+            {/* <Link href="#">
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
                 <BellIcon className="w-4 h-4 mr-3 text-muted-foreground" />
                 Notifications
               </DropdownMenuItem>
-            </Link>
+            </Link> */}
 
             <DropdownMenuSeparator className="my-2" />
 
-            <Link href="#">
+            {/* <Link href="#">
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
                 <HelpCircleIcon className="w-4 h-4 mr-3 text-muted-foreground" />
                 Help & Support
               </DropdownMenuItem>
-            </Link>
+            </Link> */}
 
             <DropdownMenuSeparator className="my-2" />
 

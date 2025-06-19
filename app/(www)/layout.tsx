@@ -8,9 +8,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)]">
+    <div className="h-full flex flex-col font-[family-name:var(--font-geist-sans)]">
       <Header />
-      <main className="flex-1 flex flex-col h-full">{children}</main>
+      <main className="flex flex-col min-h-[calc(100vh-56px)]">{children}</main>
       <Footer />
       <FloatingChat />
     </div>

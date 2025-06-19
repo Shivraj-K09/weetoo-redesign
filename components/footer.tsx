@@ -13,7 +13,6 @@ export function Footer() {
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12">
-          {/* Company Info - Spans 5 columns */}
           <div className="lg:col-span-5 space-y-8">
             <div className="space-y-6">
               <Link href="/" className="inline-block">
@@ -50,7 +49,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Links - Spans 3 columns */}
           <div className="lg:col-span-3 space-y-8">
             <h3 className="text-sm font-semibold text-foreground">
               Quick Links
@@ -95,7 +93,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Contact Info - Spans 4 columns */}
           <div className="lg:col-span-4 space-y-8">
             <h3 className="text-sm font-semibold text-foreground">
               Contact Us

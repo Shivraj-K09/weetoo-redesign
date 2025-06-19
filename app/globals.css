@@ -181,6 +181,16 @@ body {
   display: none; /* Chrome, Safari, Opera*/
 }
 
+/* Hide scrollbar cross-browser */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 .custom-scrollbar {
   --sb-track-color: #232e33;
   --sb-thumb-color: #6baf8d;

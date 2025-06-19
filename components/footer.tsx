@@ -28,7 +28,7 @@ export function Footer() {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors md:w-[410px] w-full">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors w-full md:w-[410px]">
                 <ShieldAlert className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-sm font-medium text-foreground">
@@ -37,7 +37,7 @@ export function Footer() {
                   <p className="text-sm text-muted-foreground">Koh Hak-jin</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors md:w-[410px] w-full">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors w-full md:w-[410px]">
                 <Building2 className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-sm font-medium text-foreground">

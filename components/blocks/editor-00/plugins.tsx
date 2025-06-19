@@ -1,29 +1,34 @@
-import { useState } from "react"
-import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary"
-import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin"
+"use client";
 
-import { ContentEditable } from "@/components/editor/editor-ui/content-editable"
+import { useState } from "react";
+import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
+import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
+import { ContentEditable } from "@/components/editor/editor-ui/content-editable";
 
 export function Plugins() {
-  const [floatingAnchorElem, setFloatingAnchorElem] =
-    useState<HTMLDivElement | null>(null)
+  const [, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
-      setFloatingAnchorElem(_floatingAnchorElem)
+      setFloatingAnchorElem(_floatingAnchorElem);
     }
-  }
+  };
 
   return (
     <div className="relative">
       {/* toolbar plugins */}
       <div className="relative">
-        <RichTextPlugin
+        <PlainTextPlugin
           contentEditable={
-            <div className="">
-              <div className="" ref={onRef}>
-                <ContentEditable placeholder={"Start typing ..."} />
+            <div>
+              <div ref={onRef}>
+                <ContentEditable className="ContentEditable__root relative block min-h-72 overflow-auto p-4 focus:outline-none" />
               </div>
+            </div>
+          }
+          placeholder={
+            <div className="pointer-events-none absolute left-4 top-[18px] select-none text-muted-foreground/60">
+              Start typing...
             </div>
           }
           ErrorBoundary={LexicalErrorBoundary}
@@ -32,5 +37,5 @@ export function Plugins() {
       </div>
       {/* actions plugins */}
     </div>
-  )
+  );
 }

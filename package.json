@@ -13,6 +13,7 @@
     "@hookform/resolvers": "^5.0.1",
     "@lexical/react": "^0.32.1",
     "@lexical/rich-text": "^0.32.1",
+    "@lexical/utils": "^0.32.1",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.10",

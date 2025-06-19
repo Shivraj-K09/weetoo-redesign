@@ -1,6 +1,8 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -9,6 +11,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface PostPreviewProps {
@@ -47,17 +50,60 @@ export function PostPreview({
     setCarouselIndex(idx);
   };
 
+  // Mock user data for preview
+  const user = {
+    fullName: "Jane Doe",
+    nickname: "janedoe",
+    avatarUrl: "https://randomuser.me/api/portraits/women/44.jpg",
+    isVerified: true,
+  };
+  const views = 0;
+  const time = "just now";
+
   return (
-    <div className="w-full md:w-1/2 flex flex-col bg-card border border-border rounded-2xl shadow-2xl p-8 mx-auto md:mx-0 min-h-[650px] h-full justify-start overflow-y-auto overflow-x-hidden scrollbar-hide">
-      <h2 className="text-2xl font-bold mb-1 text-muted-foreground">Preview</h2>
-      <div className="flex flex-col w-full mx-auto min-h-[500px] bg-background rounded-2xl shadow-lg gap-1">
+    <div className="w-full md:w-1/2 flex flex-col bg-card border border-border rounded-2xl shadow-2xl p-8 mx-auto md:mx-0 justify-start overflow-y-auto overflow-x-hidden scrollbar-hide">
+      <div className="flex flex-col w-full mx-auto min-h-[500px] rounded-2xl shadow-lg gap-1">
         {/* Title */}
         {title && (
-          <h3 className="text-3xl font-extrabold text-foreground leading-tight mb-3">
-            {title}
-          </h3>
+          <>
+            <h3 className="text-3xl font-extrabold text-foreground leading-tight mb-3">
+              {title}
+            </h3>
+            {/* User Info Bar (below title) */}
+            <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
+              <div className="flex items-center gap-2 min-w-0">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={user.avatarUrl} alt={user.fullName} />
+                  <AvatarFallback>{user.fullName[0]}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-medium text-foreground truncate max-w-[90px]">
+                    {user.fullName}
+                  </span>
+                  <span className="text-xs text-muted-foreground truncate max-w-[70px]">
+                    @{user.nickname}
+                  </span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="ml-2 whitespace-nowrap"
+                >
+                  Follow
+                </Button>
+              </div>
+              {/* Details: views, time */}
+              <div className="flex items-center gap-3 text-xs text-muted-foreground whitespace-nowrap">
+                <span className="flex items-center gap-1">
+                  <Eye className="w-4 h-4" />
+                  {views} views
+                </span>
+                <span>•</span>
+                <span>{time}</span>
+              </div>
+            </div>
+          </>
         )}
-
         {/* Tags */}
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
@@ -71,7 +117,6 @@ export function PostPreview({
             ))}
           </div>
         )}
-
         {/* Images Carousel */}
         {images.length > 0 && (
           <div className="mb-4">
@@ -118,7 +163,6 @@ export function PostPreview({
             )}
           </div>
         )}
-
         {/* Content */}
         {content && (
           <div className="prose prose-neutral dark:prose-invert max-w-full text-base mt-2 break-words whitespace-pre-wrap">
@@ -129,7 +173,6 @@ export function PostPreview({
             ))}
           </div>
         )}
-
         {!title && !tags.length && !content && images.length === 0 && (
           <div className="text-muted-foreground text-left opacity-70 select-none">
             Start creating your post to see a live preview here.

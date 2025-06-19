@@ -11,7 +11,7 @@ import { PostPreview } from "./post-preview";
 import { RichTextEditor } from "./rich-text-editor";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-export function CreatePostForm() {
+export function CreatePostForm({ board }: { board?: string }) {
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -56,12 +56,21 @@ export function CreatePostForm() {
     setCarouselIndex(0);
   };
 
+  // Helper for board label
+  const boardLabel = board ? (
+    <div className="mb-3">
+      <span className="inline-block rounded bg-muted px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {board.charAt(0).toUpperCase() + board.slice(1)} Board
+      </span>
+    </div>
+  ) : null;
+
   return (
     <>
       {/* Mobile: Tabs for Create and Preview */}
       <div className="block md:hidden w-full">
         <Tabs defaultValue="create" className="w-full">
-          <TabsList className="w-full bg-transparent flex gap-1 mb-2">
+          <TabsList className="w-full bg-transparent flex gap-1 mb-2 mt-3">
             <TabsTrigger
               value="create"
               className="flex-1 rounded-lg py-2 px-2 text-base font-semibold data-[state=active]:bg-muted data-[state=active]:shadow-none"
@@ -80,6 +89,7 @@ export function CreatePostForm() {
             className="w-full min-h-[100dvh] flex flex-col pb-6 px-3"
           >
             <div className="flex-1 flex flex-col bg-card border border-border rounded-2xl shadow-lg p-4 sm:p-6">
+              {boardLabel}
               {/* Title */}
               <div className="mb-4">
                 <Label htmlFor="title" className="mb-2 text-muted-foreground">
@@ -189,6 +199,7 @@ export function CreatePostForm() {
       <div className="hidden md:flex min-h-[calc(100vh-80px)] flex-row gap-2 container mx-auto py-10">
         {/* Form Card */}
         <div className="w-full md:w-1/2 flex flex-col bg-card border border-border rounded-2xl shadow-lg p-8 mx-auto md:mx-0">
+          {boardLabel}
           {/* Title */}
           <div className="mb-6">
             <Label htmlFor="title" className="mb-2 text-muted-foreground">

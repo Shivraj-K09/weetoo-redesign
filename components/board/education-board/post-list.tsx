@@ -30,6 +30,7 @@ import {
   Plus,
   CheckCircle,
 } from "lucide-react";
+import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -287,10 +288,12 @@ export const PostsList = memo(() => {
             />
           </div>
           <div className="flex items-center justify-center gap-3 w-full sm:w-auto">
-            <Button className="whitespace-nowrap h-10 w-full sm:w-auto">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Post
-            </Button>
+            <Link href="/create-post?board=education">
+              <Button className="whitespace-nowrap h-10 w-full sm:w-auto">
+                <Plus className="w-4 h-4 mr-2" />
+                Create Post
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

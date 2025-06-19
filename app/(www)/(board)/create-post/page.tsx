@@ -1,4 +1,5 @@
-import { CreatePostForm } from "@/components/create-post/create-post-form";
+import { Suspense } from "react";
+import { CreatePostPageClient } from "./page-client";
 
 export const metadata = {
   title: "Create Post | WEETOO",
@@ -7,5 +8,9 @@ export const metadata = {
 };
 
 export default function CreatePostPage() {
-  return <CreatePostForm />;
+  return (
+    <Suspense>
+      <CreatePostPageClient />
+    </Suspense>
+  );
 }

@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EyeIcon, MessageCircleIcon, ThumbsUpIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export function TopPost() {
   const postData = [
@@ -76,7 +77,10 @@ export function TopPost() {
     <div className="flex flex-col gap-3 w-full h-full">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* Large Card (Top-Left) */}
-        <div className="h-[32.76rem] border w-full md:col-span-2 relative rounded-lg overflow-hidden group">
+        <Link
+          href="/education-board/1"
+          className="h-[32.76rem] border w-full md:col-span-2 relative rounded-lg overflow-hidden group block"
+        >
           <Image
             src="https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Large technology concept"
@@ -124,14 +128,15 @@ export function TopPost() {
               </div>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Small Cards (Right Column) */}
         <div className="flex flex-col h-full gap-3 md:col-span-1">
           {[postData[1], postData[2]].map((post, index) => (
-            <div
+            <Link
               key={index}
-              className="h-64 w-full border relative rounded-lg overflow-hidden group"
+              href={`/education-board/${index + 2}`}
+              className="h-64 w-full border relative rounded-lg overflow-hidden group block"
             >
               <Image
                 src={
@@ -188,7 +193,7 @@ export function TopPost() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -196,9 +201,10 @@ export function TopPost() {
       {/* Small Cards (Bottom Row) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 h-full">
         {[postData[3], postData[4], postData[5]].map((post, index) => (
-          <div
+          <Link
             key={index}
-            className="h-64 w-full border relative rounded-lg overflow-hidden group"
+            href={`/education-board/${index + 4}`}
+            className="h-64 w-full border relative rounded-lg overflow-hidden group block"
           >
             <Image
               src={
@@ -259,7 +265,7 @@ export function TopPost() {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

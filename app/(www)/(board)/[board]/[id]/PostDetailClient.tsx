@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import {
-  Bookmark,
   Calendar,
   CheckCircle,
   ChevronLeftIcon,
@@ -175,60 +174,62 @@ export default function PostDetailClient({
 
   return (
     <div className="bg-background text-foreground">
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto py-8 px-2 sm:px-4 lg:px-8">
         {/* Go Back Button */}
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition mb-8 cursor-pointer"
+          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition mb-6 sm:mb-8 cursor-pointer"
           aria-label="Go back"
         >
           <ChevronLeftIcon className="h-4 w-4" />
           Go Back
         </button>
         <article>
-          <header className="mb-6">
-            <h1 className="text-3xl font-extrabold tracking-tight lg:text-4xl mb-6">
+          <header className="mb-4 sm:mb-6">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight mb-4 sm:mb-6">
               {post.title}
             </h1>
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage
-                    src={post.author.avatar || ""}
-                    alt={post.author.name}
-                  />
-                  <AvatarFallback>
-                    {post.author.name.slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium flex items-center gap-1.5">
-                    {post.author.name}
-                    {post.author.verified && (
-                      <CheckCircle className="h-4 w-4 text-blue-500" />
-                    )}
-                  </div>
-                  <div className="text-xs text-muted-foreground leading-tight">
-                    {post.author.username}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+              <div className="flex w-full items-center justify-between gap-2 sm:gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Avatar className="h-9 w-9 sm:h-10 sm:w-10">
+                    <AvatarImage
+                      src={post.author.avatar || ""}
+                      alt={post.author.name}
+                    />
+                    <AvatarFallback>
+                      {post.author.name.slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-medium flex items-center gap-1.5">
+                      {post.author.name}
+                      {post.author.verified && (
+                        <CheckCircle className="h-4 w-4 text-blue-500" />
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground leading-tight">
+                      {post.author.username}
+                    </div>
                   </div>
                 </div>
+                <Button variant="outline" size="sm" className="w-fit">
+                  Follow
+                </Button>
               </div>
-              <Button variant="outline" size="sm">
-                Follow
-              </Button>
             </div>
             <div className="h-2" />
-            <div className="flex items-center gap-6 text-xs text-muted-foreground mb-6 mt-1">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground mb-4 sm:mb-6 mt-1">
               <div className="flex items-center gap-1.5">
                 <Calendar className="h-3 w-3" />
                 <span>{post.createdAt}</span>
               </div>
-              <span>·</span>
+              <span className="hidden sm:inline">·</span>
               <div className="flex items-center gap-1.5">
                 <Eye className="h-3 w-3" />
                 <span>{post.views} views</span>
               </div>
-              <span>·</span>
+              <span className="hidden sm:inline">·</span>
               <div className="flex items-center gap-1.5">
                 <Clock className="h-3 w-3" />
                 <span>{readingTime}</span>
@@ -237,7 +238,7 @@ export default function PostDetailClient({
           </header>
 
           {post.image && (
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               {Array.isArray(post.image) ? (
                 <div>
                   <Carousel setApi={setApi} className="w-full">
@@ -254,7 +255,7 @@ export default function PostDetailClient({
                     </CarouselContent>
                   </Carousel>
                   {post.image.length > 1 && (
-                    <div className="flex justify-center gap-2 mt-2">
+                    <div className="flex flex-wrap justify-center gap-2 mt-2">
                       {post.image.map((img: string, index: number) => (
                         <button
                           key={index}
@@ -264,7 +265,7 @@ export default function PostDetailClient({
                             src={img}
                             alt={`thumbnail ${index + 1}`}
                             className={cn(
-                              "h-16 w-24 object-cover rounded-md transition-all",
+                              "h-12 w-20 sm:h-16 sm:w-24 object-cover rounded-md transition-all",
                               current === index
                                 ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
                                 : "opacity-50 hover:opacity-100"
@@ -286,7 +287,7 @@ export default function PostDetailClient({
           )}
 
           {post.tags && post.tags.length > 0 && (
-            <div className="mb-8 flex flex-wrap items-center gap-2">
+            <div className="mb-6 sm:mb-8 flex flex-wrap items-center gap-2">
               <span className="text-xs font-semibold text-muted-foreground mr-2">
                 Tags:
               </span>
@@ -299,18 +300,34 @@ export default function PostDetailClient({
           )}
 
           <div
-            className="prose prose-lg dark:prose-invert max-w-none mx-auto"
+            className="prose prose-base sm:prose-lg dark:prose-invert max-w-none mx-auto"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
+          {/* Post Actions: Likes, Comments, Share */}
+          <div className="flex items-center gap-4 sm:gap-6 text-muted-foreground text-sm mt-6 mb-6 sm:mb-8">
+            <button className="flex items-center gap-1.5 hover:text-primary transition">
+              <ThumbsUp className="h-5 w-5" />
+              {post.likes}
+            </button>
+            <button className="flex items-center gap-1.5 hover:text-primary transition">
+              <MessageSquare className="h-5 w-5" />
+              {post.comments}
+            </button>
+            <button className="flex items-center gap-1.5 hover:text-primary transition">
+              <Send className="h-5 w-5" />
+              Share
+            </button>
+          </div>
+
           {/* Comment Section */}
-          <div className="my-12">
-            <h2 className="text-lg font-semibold mb-6">
+          <div className="my-8 sm:my-12">
+            <h2 className="text-base sm:text-lg font-semibold mb-4 sm:mb-6">
               {mockComments.length} Comments
             </h2>
             {/* Comment Box */}
-            <div className="flex items-start gap-3 mb-8">
-              <Avatar className="h-9 w-9">
+            <div className="flex items-start gap-2 sm:gap-3 mb-6 sm:mb-8">
+              <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
                 <AvatarImage
                   src={post.author.avatar || ""}
                   alt={post.author.name}
@@ -320,10 +337,13 @@ export default function PostDetailClient({
               <CommentTextarea />
             </div>
             {/* Comments List */}
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-6 sm:gap-8">
               {mockComments.map((comment) => (
-                <div key={comment.id} className="flex items-start gap-3 group">
-                  <Avatar className="h-9 w-9">
+                <div
+                  key={comment.id}
+                  className="flex items-start gap-2 sm:gap-3 group"
+                >
+                  <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
                     <AvatarImage
                       src={comment.user.avatar}
                       alt={comment.user.name}
@@ -333,7 +353,7 @@ export default function PostDetailClient({
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-0.5">
+                    <div className="flex flex-wrap items-center gap-2 mb-0.5">
                       <span className="font-semibold text-sm">
                         {comment.user.username}
                       </span>
@@ -350,7 +370,7 @@ export default function PostDetailClient({
                       className="text-sm mb-2"
                       dangerouslySetInnerHTML={{ __html: comment.content }}
                     />
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-3 sm:gap-4 text-xs text-muted-foreground">
                       <button className="flex items-center gap-1 hover:text-primary transition">
                         <ThumbsUp className="h-4 w-4" />
                         {comment.likes}
@@ -365,28 +385,9 @@ export default function PostDetailClient({
             </div>
           </div>
 
-          <footer className="mt-12">
-            <div className="flex items-center justify-between border-t border-border pt-6">
-              <div className="flex items-center gap-6 text-muted-foreground text-sm mt-12 mb-2">
-                <button className="flex items-center gap-1.5 hover:text-primary transition">
-                  <ThumbsUp className="h-5 w-5" />
-                  {post.likes}
-                </button>
-                <button className="flex items-center gap-1.5 hover:text-primary transition">
-                  <MessageSquare className="h-5 w-5" />
-                  {post.comments}
-                </button>
-                <button className="flex items-center gap-1.5 hover:text-primary transition">
-                  <Send className="h-5 w-5" />
-                  Share
-                </button>
-              </div>
-              <Button variant="ghost" size="icon">
-                <Bookmark className="h-5 w-5" />
-              </Button>
-            </div>
-
-            <div className="text-center mt-12">
+          <footer className="mt-8 sm:mt-12">
+            <div className="border-t border-border pt-6" />
+            <div className="text-center mt-8 sm:mt-12">
               <p className="text-muted-foreground">
                 More amazing articles coming soon!
               </p>

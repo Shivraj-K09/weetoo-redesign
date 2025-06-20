@@ -150,19 +150,18 @@ export function FloatingChat() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="fixed bottom-6 left-6 z-50"
+            className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 w-[98vw] max-w-[420px] p-0 sm:bottom-6 sm:left-6 sm:translate-x-0 sm:w-auto sm:max-w-none sm:p-0"
           >
             <div className="flex items-center gap-2">
               <Button
                 onClick={toggleChat}
-                className="rounded-full shadow-lg bg-gradient-to-br from-[#549BCC] to-[#63b3e4] hover:from-[#63b3e4] hover:to-[#549BCC] relative transition-all duration-300 h-12 px-3 flex items-center justify-center space-x-1 whitespace-nowrap cursor-pointer"
+                className="rounded-full shadow-lg bg-gradient-to-br from-[#549BCC] to-[#63b3e4] hover:from-[#63b3e4] hover:to-[#549BCC] relative transition-all duration-300 h-11 px-2 text-xs flex items-center justify-center space-x-1 whitespace-nowrap cursor-pointer sm:h-12 sm:px-3 sm:text-sm"
               >
-                <MessageSquare className="h-5 w-5 text-white" />
-                <span className="text-sm font-medium text-white">Chat</span>
-
+                <MessageSquare className="h-4 w-4 text-white sm:h-5 sm:w-5" />
+                <span className="font-medium text-white">Chat</span>
                 {unreadCount > 0 && (
                   <Badge
-                    className="absolute -top-1 -right-1 bg-red-500 text-white border-2 border-background h-6 w-6 p-0 flex items-center justify-center rounded-full"
+                    className="absolute -top-1 -right-1 bg-red-500 text-white border-2 border-background h-5 w-5 p-0 flex items-center justify-center rounded-full text-[10px] sm:h-6 sm:w-6 sm:text-xs"
                     variant="secondary"
                   >
                     {unreadCount}
@@ -184,24 +183,27 @@ export function FloatingChat() {
               opacity: 1,
               y: 0,
               scale: 1,
-              height: isMinimized ? "auto" : "650px",
-              width: isMinimized ? "300px" : "380px",
+              height: isMinimized ? "auto" : undefined,
+              width: isMinimized ? undefined : undefined,
             }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              "fixed bottom-6 left-6 z-50 bg-background rounded-lg shadow-xl border border-border overflow-hidden flex flex-col",
-              isMinimized ? "shadow-md" : "shadow-xl"
+              // Mobile: bottom center, full width, max height. Desktop: bottom left, fixed size.
+              "fixed bottom-3 left-1/2 -translate-x-1/2 z-50 bg-background rounded-md shadow-lg border border-border overflow-hidden flex flex-col w-[98vw] max-w-[420px] h-[70vh] p-0 m-0 right-auto sm:bottom-6 sm:left-6 sm:translate-x-0 sm:w-[380px] sm:max-w-none sm:h-[650px] sm:rounded-lg sm:shadow-xl sm:border sm:p-0 sm:m-0",
+              isMinimized
+                ? "w-[90vw] max-w-[340px] h-auto sm:w-[300px] sm:max-w-none sm:h-auto"
+                : "w-[98vw] max-w-[420px] h-[70vh] sm:w-[380px] sm:max-w-none sm:h-[650px]"
             )}
           >
             {/* Chat Header */}
-            <div className="bg-[#549BCC]/10 border-b border-border p-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-[#549BCC]" />
-                <h3 className="font-medium text-sm">Global Chat</h3>
+            <div className="bg-[#549BCC]/10 border-b border-border p-2 flex items-center justify-between sm:p-3">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <MessageSquare className="h-4 w-4 text-[#549BCC] sm:h-5 sm:w-5" />
+                <h3 className="font-medium text-xs sm:text-sm">Global Chat</h3>
                 <Badge
                   variant="outline"
-                  className="bg-green-500/10 text-green-600 border-green-200 text-xs"
+                  className="bg-green-500/10 text-green-600 border-green-200 text-[10px] px-1 py-0.5 sm:text-xs sm:px-2 sm:py-0.5"
                 >
                   {mockOnlineUsers.length} online
                 </Badge>
@@ -210,27 +212,27 @@ export function FloatingChat() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-6 w-6 sm:h-7 sm:w-7"
                   onClick={toggleUsersList}
                   disabled={isMinimized}
                 >
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <Users className="h-3.5 w-3.5 text-muted-foreground sm:h-4 sm:w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-6 w-6 sm:h-7 sm:w-7"
                   onClick={minimizeChat}
                 >
-                  <MinusIcon className="h-4 w-4 text-muted-foreground" />
+                  <MinusIcon className="h-3.5 w-3.5 text-muted-foreground sm:h-4 sm:w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-6 w-6 sm:h-7 sm:w-7"
                   onClick={toggleChat}
                 >
-                  <X className="h-4 w-4 text-muted-foreground" />
+                  <X className="h-3.5 w-3.5 text-muted-foreground sm:h-4 sm:w-4" />
                 </Button>
               </div>
             </div>
@@ -238,26 +240,28 @@ export function FloatingChat() {
             {!isMinimized && (
               <>
                 {/* Profile Section */}
-                <div className="bg-gradient-to-r from-[#549BCC]/5 to-[#63b3e4]/5 border-b border-border p-3">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12 ring-2 ring-[#549BCC]/20">
+                <div className="bg-gradient-to-r from-[#549BCC]/5 to-[#63b3e4]/5 border-b border-border p-2 sm:p-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <Avatar className="h-8 w-8 ring-2 ring-[#549BCC]/20 sm:h-12 sm:w-12">
                       <AvatarImage src="" alt="User" />
-                      <AvatarFallback className="bg-gradient-to-br from-[#549BCC] to-[#63b3e4] text-white">
+                      <AvatarFallback className="bg-gradient-to-br from-[#549BCC] to-[#63b3e4] text-white text-xs sm:text-base">
                         U
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm">User Name</h4>
-                      <div className="flex items-center gap-4 mt-1">
+                      <h4 className="font-medium text-xs sm:text-sm">
+                        User Name
+                      </h4>
+                      <div className="flex items-center gap-2 mt-0.5 sm:gap-4 sm:mt-1">
                         <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 text-yellow-500" />
-                          <span className="text-xs text-muted-foreground">
+                          <Star className="h-3.5 w-3.5 text-yellow-500 sm:h-4 sm:w-4" />
+                          <span className="text-[10px] text-muted-foreground sm:text-xs">
                             1,234 XP
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Coins className="h-4 w-4 text-amber-500" />
-                          <span className="text-xs text-muted-foreground">
+                          <Coins className="h-3.5 w-3.5 text-amber-500 sm:h-4 sm:w-4" />
+                          <span className="text-[10px] text-muted-foreground sm:text-xs">
                             567 KOR
                           </span>
                         </div>
@@ -265,18 +269,18 @@ export function FloatingChat() {
                     </div>
                   </div>
                   {/* Experience Level - Redesigned for minimal and clean look */}
-                  <div className="w-full flex flex-col gap-y-1 mt-2">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="w-full flex flex-col gap-y-0.5 mt-1 sm:mt-2 sm:gap-y-1">
+                    <div className="flex items-center justify-between text-[10px] text-muted-foreground sm:text-xs">
                       <span>Level 0</span>
                       <span>Level 1</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+                    <div className="w-full bg-gray-200 rounded-full h-1 dark:bg-gray-700 sm:h-1.5">
                       <div
-                        className="bg-red-500 h-1.5 rounded-full"
+                        className="bg-red-500 h-1 rounded-full sm:h-1.5"
                         style={{ width: `4%` }}
                       ></div>
                     </div>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between text-[10px] text-muted-foreground sm:text-xs">
                       <span>4% Complete</span>
                       <span className="text-red-500">450 EXP</span>
                     </div>
@@ -285,7 +289,7 @@ export function FloatingChat() {
 
                 {/* Chat Body with Messages */}
                 <div className="relative flex-1">
-                  <div className="absolute inset-0 overflow-y-auto p-3 space-y-3 scrollbar-thin">
+                  <div className="absolute inset-0 overflow-y-auto p-2 space-y-2 scrollbar-thin sm:p-3 sm:space-y-3">
                     {messages.map((message) => (
                       <ChatMessage key={message.id} message={message} />
                     ))}
@@ -294,23 +298,23 @@ export function FloatingChat() {
                 </div>
 
                 {/* Chat Input */}
-                <div className="p-4 border-t border-border bg-background/80 backdrop-blur-sm">
+                <div className="p-2 border-t border-border bg-background/80 backdrop-blur-sm sm:p-4">
                   <form
                     onSubmit={handleSendMessage}
-                    className="flex items-center gap-3"
+                    className="flex items-center gap-2 sm:gap-3"
                   >
                     <Input
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Type a message..."
-                      className="flex-1 h-12 text-sm rounded-md px-4"
+                      className="flex-1 h-9 text-xs rounded-md px-2 sm:h-12 sm:text-sm sm:px-4"
                     />
                     <Button
                       type="submit"
                       size="sm"
-                      className="h-12 w-12 rounded-md bg-[#549BCC] hover:bg-[#63b3e4] flex items-center justify-center"
+                      className="h-9 w-9 rounded-md bg-[#549BCC] hover:bg-[#63b3e4] flex items-center justify-center sm:h-12 sm:w-12"
                     >
-                      <SendIcon className="h-5 w-5" />
+                      <SendIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                     </Button>
                   </form>
                 </div>
@@ -323,31 +327,31 @@ export function FloatingChat() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: "100%" }}
                       transition={{ duration: 0.2 }}
-                      className="absolute top-[46px] right-0 bottom-0 w-[140px] bg-background border-l border-border overflow-y-auto"
+                      className="absolute top-[38px] right-0 bottom-0 w-[110px] bg-background border-l border-border overflow-y-auto text-xs p-0 sm:top-[46px] sm:w-[140px] sm:text-xs sm:p-0"
                     >
-                      <div className="p-3">
-                        <h4 className="text-xs font-medium text-muted-foreground mb-3">
+                      <div className="p-2 sm:p-3">
+                        <h4 className="font-medium text-[10px] text-muted-foreground mb-2 sm:text-xs sm:mb-3">
                           Online Users
                         </h4>
-                        <div className="space-y-2">
+                        <div className="space-y-1 sm:space-y-2">
                           {mockOnlineUsers.map((user) => (
                             <div
                               key={user.id}
-                              className="flex items-center gap-2"
+                              className="flex items-center gap-1 sm:gap-2"
                             >
                               <div className="relative">
-                                <Avatar className="h-6 w-6">
+                                <Avatar className="h-5 w-5 sm:h-6 sm:w-6">
                                   <AvatarImage
                                     src={user.avatar || ""}
                                     alt={user.name}
                                   />
-                                  <AvatarFallback className="text-xs">
+                                  <AvatarFallback className="text-[10px] sm:text-xs">
                                     {user.name[0]}
                                   </AvatarFallback>
                                 </Avatar>
-                                <span className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full border border-background"></span>
+                                <span className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-background sm:w-2 sm:h-2"></span>
                               </div>
-                              <span className="text-xs truncate">
+                              <span className="truncate text-[10px] sm:text-xs">
                                 {user.name}
                               </span>
                             </div>
@@ -362,16 +366,16 @@ export function FloatingChat() {
 
             {/* Minimized View */}
             {isMinimized && (
-              <div className="p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-green-500 text-white border-0 h-5 w-5 p-0 flex items-center justify-center rounded-full">
+              <div className="p-2 flex items-center justify-between sm:p-3">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Badge className="bg-green-500 text-white border-0 h-4 w-4 p-0 flex items-center justify-center rounded-full text-[10px] sm:h-5 sm:w-5 sm:text-xs">
                     {mockOnlineUsers.length}
                   </Badge>
-                  <span className="text-sm">Global Chat</span>
+                  <span className="text-xs sm:text-sm">Global Chat</span>
                 </div>
                 <div className="flex items-center gap-1">
                   {unreadCount > 0 && (
-                    <Badge className="bg-red-500 text-white border-0">
+                    <Badge className="bg-red-500 text-white border-0 text-[10px] px-1 py-0.5 sm:text-xs sm:px-2 sm:py-0.5">
                       {unreadCount} new
                     </Badge>
                   )}
@@ -379,9 +383,9 @@ export function FloatingChat() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsMinimized(false)}
-                    className="h-7 w-7 p-0"
+                    className="h-6 w-6 p-0 sm:h-7 sm:w-7"
                   >
-                    <ChevronUp className="h-4 w-4" />
+                    <ChevronUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </Button>
                 </div>
               </div>

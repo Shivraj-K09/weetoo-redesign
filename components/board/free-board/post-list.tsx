@@ -58,7 +58,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { motion } from "motion/react";
-import { MOCK_POSTS, type Post } from "./post-data";
+import { BOARD_POSTS, type Post } from "../post-data";
 
 // Animation variants
 const tableRowVariants = {
@@ -112,12 +112,12 @@ export const PostsList = memo(() => {
                   {post.isHot && (
                     <Flame className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
                   )}
-                  <a
-                    href="#"
+                  <Link
+                    href={`/free-board/${post.id}`}
                     className="font-semibold text-foreground hover:text-[#549BCC] cursor-pointer transition-colors line-clamp-1"
                   >
                     {post.title}
-                  </a>
+                  </Link>
                 </div>
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-1 truncate max-w-[500px] w-full">
                   {post.excerpt}
@@ -238,7 +238,7 @@ export const PostsList = memo(() => {
   );
 
   const table = useReactTable({
-    data: MOCK_POSTS,
+    data: BOARD_POSTS["free-board"],
     columns,
     state: {
       sorting,

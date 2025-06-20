@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div className="h-full">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 dark:from-black dark:via-gray-900 dark:to-black">
+      <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 dark:from-black dark:via-gray-900 dark:to-black md:pt-10">
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           {/* Floating Abstract Shapes */}

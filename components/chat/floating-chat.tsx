@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRoomStore } from "@/lib/store/room-store";
 import { cn } from "@/lib/utils";
 import {
   ChevronUp,
@@ -21,7 +22,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { ChatMessage } from "./chat-message";
 import { mockMessages, mockOnlineUsers } from "./mock-data";
-import { useRoomStore } from "@/lib/store/room-store";
 
 export function FloatingChat() {
   const isRoomOpen = useRoomStore(
@@ -190,10 +190,10 @@ export function FloatingChat() {
             transition={{ duration: 0.2 }}
             className={cn(
               // Mobile: bottom center, full width, max height. Desktop: bottom left, fixed size.
-              "fixed bottom-3 left-1/2 -translate-x-1/2 z-50 bg-background rounded-md shadow-lg border border-border overflow-hidden flex flex-col w-[98vw] max-w-[420px] h-[70vh] p-0 m-0 right-auto sm:bottom-6 sm:left-6 sm:translate-x-0 sm:w-[380px] sm:max-w-none sm:h-[650px] sm:rounded-lg sm:shadow-xl sm:border sm:p-0 sm:m-0",
+              "fixed bottom-3 left-1/2 -translate-x-1/2 z-50 bg-background rounded-md shadow-lg border border-border overflow-hidden flex flex-col w-[98vw] max-w-[420px] h-[70vh] p-0 m-0 right-auto sm:bottom-6 sm:left-6 sm:translate-x-0 sm:w-[380px] sm:max-w-none sm:h-[750px] sm:rounded-lg sm:shadow-xl sm:border sm:p-0 sm:m-0",
               isMinimized
                 ? "w-[90vw] max-w-[340px] h-auto sm:w-[300px] sm:max-w-none sm:h-auto"
-                : "w-[98vw] max-w-[420px] h-[70vh] sm:w-[380px] sm:max-w-none sm:h-[650px]"
+                : "w-[98vw] max-w-[420px] h-[70vh] sm:w-[380px] sm:max-w-none sm:h-[750px]"
             )}
           >
             {/* Chat Header */}

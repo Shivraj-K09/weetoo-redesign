@@ -10,7 +10,7 @@ export default function RootLayout({
   return (
     <div className="flex-1 flex flex-col font-[family-name:var(--font-geist-sans)] h-full w-full">
       <Header />
-      <main className="flex-1 flex flex-col h-full">{children}</main>
+      <main className="flex-1 flex flex-col">{children}</main>
       <Footer />
       <FloatingChat />
     </div>

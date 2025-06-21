@@ -9,7 +9,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { InboxIcon, LogOutIcon, ShieldIcon, UserIcon } from "lucide-react";
+import {
+  InboxIcon,
+  KeyRoundIcon,
+  LogOutIcon,
+  ShieldIcon,
+  UserIcon,
+} from "lucide-react";
 import Link from "next/link";
 
 export function UserDropdown() {
@@ -81,6 +87,12 @@ export function UserDropdown() {
                 Settings
               </DropdownMenuItem>
             </Link> */}
+            <Link href="/uid-registration">
+              <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+                <KeyRoundIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+                UID Registration
+              </DropdownMenuItem>
+            </Link>
 
             <Link href="/admin-verification">
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">

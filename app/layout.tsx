@@ -32,14 +32,14 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full`}
     >
-      <body className={`antialiased min-h-screen`}>
+      <body className={`antialiased h-full`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <div className="flex flex-col h-full">{children}</div>
         </ThemeProvider>
         <SpeedInsights />
         <Analytics />

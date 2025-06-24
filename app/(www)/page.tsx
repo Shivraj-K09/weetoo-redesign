@@ -56,6 +56,25 @@ export default function Home() {
     };
   }, [theme]);
 
+  // Free Board Images
+  const freeBoardImages = [
+    "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=400&q=80",
+  ];
+  // Education Board Images
+  const educationBoardImages = [
+    "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=400&q=80",
+  ];
+  // Profit Board Images
+  const profitBoardImages = [
+    "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=400&q=80",
+    "https://images.unsplash.com/photo-1461344577544-4e5dc9487184?auto=format&fit=crop&w=400&q=80",
+  ];
+
   return (
     <div className="h-full">
       {/* Hero Section */}
@@ -1002,7 +1021,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-2">
             {/* Free Board */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -1011,7 +1030,7 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <Card className="bg-white/60 border-gray-200 p-6 shadow-lg hover:shadow-green-300/50 transition-shadow duration-300 dark:bg-gray-800/60 dark:border-gray-700 dark:hover:shadow-green-500/20">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                     Free Board
                   </h3>
@@ -1023,28 +1042,41 @@ export default function Home() {
                   </Badge>
                 </div>
                 <div className="space-y-4">
-                  {[1, 2, 3].map((post) => (
+                  {[1, 2, 3].map((post, idx) => (
                     <div
                       key={post}
-                      className="p-4 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors border border-gray-200 cursor-pointer dark:bg-gray-900/50 dark:hover:bg-gray-900 dark:border-gray-700/50"
+                      className="relative bg-white dark:bg-gray-900/70 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden group"
                     >
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                        Post Title {post}
-                      </h4>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm truncate mb-2">
-                        This is a small description for post {post} on the Free
-                        Board.
-                      </p>
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8 border border-gray-300 dark:border-gray-700" />
-                          <p className="font-medium text-gray-800 dark:text-white text-sm">
-                            Trader {post}
-                          </p>
-                        </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          2 hours ago
+                      <div className="relative w-full h-40 overflow-hidden">
+                        <img
+                          src={freeBoardImages[idx]}
+                          alt={`Free Board Post ${post}`}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                        <span className="absolute top-3 left-3 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md z-10">
+                          Free Board
+                        </span>
+                      </div>
+                      <div className="flex-1 flex flex-col px-5 pt-4 pb-4">
+                        <span className="bg-transparent px-0 py-0 rounded text-base font-bold text-gray-900 dark:text-white shadow-none mb-1 line-clamp-1">
+                          Post Title {post}
+                        </span>
+                        <p className="text-gray-700 dark:text-gray-300 text-sm mb-2 line-clamp-2">
+                          This is a small description for post {post} on the
+                          Free Board.
                         </p>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10 border-2 border-white dark:border-gray-800 shadow -ml-1" />
+                          <div className="flex flex-col">
+                            <span className="font-medium text-gray-900 dark:text-white text-sm leading-tight">
+                              Trader {post}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+                              2 hours ago
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1060,7 +1092,7 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <Card className="bg-white/60 border-gray-200 p-6 shadow-lg hover:shadow-blue-300/50 transition-shadow duration-300 dark:bg-gray-800/60 dark:border-gray-700 dark:hover:shadow-blue-500/20">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                     Education Board
                   </h3>
@@ -1072,28 +1104,41 @@ export default function Home() {
                   </Badge>
                 </div>
                 <div className="space-y-4">
-                  {[1, 2, 3].map((post) => (
+                  {[1, 2, 3].map((post, idx) => (
                     <div
                       key={post}
-                      className="p-4 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors border border-gray-200 cursor-pointer dark:bg-gray-900/50 dark:hover:bg-gray-900 dark:border-gray-700/50"
+                      className="relative bg-white dark:bg-gray-900/70 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden group"
                     >
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                        Post Title {post}
-                      </h4>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm truncate mb-2">
-                        This is a small description for post {post} on the
-                        Education Board.
-                      </p>
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8 border border-gray-300 dark:border-gray-700" />
-                          <p className="font-medium text-gray-800 dark:text-white text-sm">
-                            Expert {post}
-                          </p>
-                        </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          1 day ago
+                      <div className="relative w-full h-40 overflow-hidden">
+                        <img
+                          src={educationBoardImages[idx]}
+                          alt={`Education Board Post ${post}`}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-blue-900/10 to-transparent" />
+                        <span className="absolute top-3 left-3 bg-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md z-10">
+                          Education Board
+                        </span>
+                      </div>
+                      <div className="flex-1 flex flex-col px-5 pt-4 pb-4">
+                        <span className="bg-transparent px-0 py-0 rounded text-base font-bold text-gray-900 dark:text-white shadow-none mb-1 line-clamp-1">
+                          Post Title {post}
+                        </span>
+                        <p className="text-gray-700 dark:text-gray-300 text-sm mb-2 line-clamp-2">
+                          This is a small description for post {post} on the
+                          Education Board.
                         </p>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10 border-2 border-white dark:border-gray-800 shadow -ml-1" />
+                          <div className="flex flex-col">
+                            <span className="font-medium text-gray-900 dark:text-white text-sm leading-tight">
+                              Expert {post}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+                              1 day ago
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1109,7 +1154,7 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <Card className="bg-white/60 border-gray-200 p-6 shadow-lg hover:shadow-purple-300/50 transition-shadow duration-300 dark:bg-gray-800/60 dark:border-gray-700 dark:hover:shadow-purple-500/20">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                     Profit Board
                   </h3>
@@ -1121,28 +1166,41 @@ export default function Home() {
                   </Badge>
                 </div>
                 <div className="space-y-4">
-                  {[1, 2, 3].map((post) => (
+                  {[1, 2, 3].map((post, idx) => (
                     <div
                       key={post}
-                      className="p-4 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors border border-gray-200 cursor-pointer dark:bg-gray-900/50 dark:hover:bg-gray-900 dark:border-gray-700/50"
+                      className="relative bg-white dark:bg-gray-900/70 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden group"
                     >
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                        Post Title {post}
-                      </h4>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm truncate mb-2">
-                        This is a small description for post {post} on the
-                        Profit Board.
-                      </p>
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8 border border-gray-300 dark:border-gray-700" />
-                          <p className="font-medium text-gray-800 dark:text-white text-sm">
-                            Pro Trader {post}
-                          </p>
-                        </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          3 hours ago
+                      <div className="relative w-full h-40 overflow-hidden">
+                        <img
+                          src={profitBoardImages[idx]}
+                          alt={`Profit Board Post ${post}`}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 via-purple-900/10 to-transparent" />
+                        <span className="absolute top-3 left-3 bg-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md z-10">
+                          Profit Board
+                        </span>
+                      </div>
+                      <div className="flex-1 flex flex-col px-5 pt-4 pb-4">
+                        <span className="bg-transparent px-0 py-0 rounded text-base font-bold text-gray-900 dark:text-white shadow-none mb-1 line-clamp-1">
+                          Post Title {post}
+                        </span>
+                        <p className="text-gray-700 dark:text-gray-300 text-sm mb-2 line-clamp-2">
+                          This is a small description for post {post} on the
+                          Profit Board.
                         </p>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10 border-2 border-white dark:border-gray-800 shadow -ml-1" />
+                          <div className="flex flex-col">
+                            <span className="font-medium text-gray-900 dark:text-white text-sm leading-tight">
+                              Pro Trader {post}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+                              3 hours ago
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}

@@ -1124,8 +1124,9 @@ export default function Home() {
               <Button
                 size="lg"
                 className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-gradient-to-r dark:from-blue-600 dark:to-purple-600 dark:hover:from-blue-700 dark:hover:to-purple-700 dark:text-white px-8 py-6 text-lg rounded-xl"
+                asChild
               >
-                Get Started Now
+                <Link href="/trading">Get Started Now</Link>
               </Button>
             </motion.div>
           </motion.div>

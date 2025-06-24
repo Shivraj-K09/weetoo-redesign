@@ -7,9 +7,55 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { motion } from "motion/react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function Home() {
+  const { theme } = useTheme();
+  useEffect(() => {
+    const colorTheme = theme === "dark" ? "dark" : "light";
+    // Remove any previous script if exists
+    const prevScript = document.getElementById(
+      "tradingview-ticker-tape-script"
+    );
+    if (prevScript) prevScript.remove();
+    // Remove previous widget content
+    const widget = document.getElementById("tradingview-ticker-tape");
+    if (widget) widget.innerHTML = "";
+    // Create script
+    const script = document.createElement("script");
+    script.id = "tradingview-ticker-tape-script";
+    script.type = "text/javascript";
+    script.async = true;
+    script.src =
+      "https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js";
+    script.innerHTML = JSON.stringify({
+      symbols: [
+        { proName: "FOREXCOM:SPXUSD", title: "S&P 500 Index" },
+        { proName: "FOREXCOM:NSXUSD", title: "US 100 Cash CFD" },
+        { proName: "FX_IDC:EURUSD", title: "EUR to USD" },
+        { proName: "BITSTAMP:BTCUSD", title: "Bitcoin" },
+        { proName: "BITSTAMP:ETHUSD", title: "Ethereum" },
+      ],
+      showSymbolLogo: true,
+      isTransparent: false,
+      displayMode: "compact",
+      colorTheme,
+      locale: "en",
+    });
+    const container = document.getElementById("tradingview-ticker-tape");
+    if (container) container.appendChild(script);
+    // Cleanup
+    return () => {
+      const prevScript = document.getElementById(
+        "tradingview-ticker-tape-script"
+      );
+      if (prevScript) prevScript.remove();
+      if (container) container.innerHTML = "";
+    };
+  }, [theme]);
+
   return (
     <div className="h-full">
       {/* Hero Section */}
@@ -137,22 +183,12 @@ export default function Home() {
             }}
           />
         </div>
-
         {/* Content */}
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="">
             <div className="text-center mb-12">
               <div className="container mx-auto">
-                {/* <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                >
-                  <Badge className="mb-6 bg-primary/10 text-primary border border-primary/20 px-6 py-2 text-sm">
-                    Next Generation Trading Platform
-                  </Badge>
-                </motion.div> */}
-
                 <HeroBadge
                   href="/trading"
                   text="Next Generation Trading Platform"
@@ -221,18 +257,36 @@ export default function Home() {
                   </motion.div>
                 </motion.div>
               </div>
-              {/* Trading Rooms Marquee */}
 
+              {/* Tradingview Ticker Tape */}
+              <motion.div
+                className="pt-4 max-w-5xl mx-auto"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+              >
+                <div
+                  className="tradingview-widget-container"
+                  style={{ minHeight: 50 }}
+                >
+                  <div
+                    className="tradingview-widget-container__widget"
+                    id="tradingview-ticker-tape"
+                  />
+                </div>
+              </motion.div>
+
+              {/* Trading Rooms Marquee */}
               <div>
                 <motion.div
-                  className="mt-6 w-full flex justify-center"
+                  className="pt-4 w-full flex justify-center"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.8 }}
                 >
                   <div className="w-full max-w-5xl">
-                    <div className="relative rounded-2xl shadow-lg px-2 py-2 overflow-hidden">
-                      <div className="absolute left-6 top-4 z-10">
+                    <div className="relative overflow-hidden">
+                      <div className="absolute left-0 top-4 z-10">
                         <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                           Live Rooms
                         </Badge>

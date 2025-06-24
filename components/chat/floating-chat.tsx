@@ -179,13 +179,11 @@ export function FloatingChat() {
           <motion.div
             ref={chatRef}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              height: isMinimized ? "auto" : undefined,
-              width: isMinimized ? undefined : undefined,
-            }}
+            animate={
+              isMinimized
+                ? { opacity: 1, y: 0, scale: 1, height: "auto" }
+                : { opacity: 1, y: 0, scale: 1, height: "70vh" }
+            }
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className={cn(

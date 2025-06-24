@@ -94,7 +94,6 @@ interface TradingRoom {
   isPublic: boolean;
   isHosted: boolean;
   participants: number;
-  profitPercentage?: number;
 }
 
 // Custom filter function for multi-column searching
@@ -145,7 +144,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: true,
     participants: 24,
-    profitPercentage: 12.5,
   },
   {
     id: "2",
@@ -161,7 +159,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 18,
-    profitPercentage: -3.2,
   },
   {
     id: "3",
@@ -177,7 +174,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: false,
     participants: 7,
-    profitPercentage: 8.7,
   },
   {
     id: "4",
@@ -193,7 +189,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 32,
-    profitPercentage: 15.3,
   },
   {
     id: "5",
@@ -224,7 +219,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: true,
     participants: 9,
-    profitPercentage: 22.1,
   },
   {
     id: "7",
@@ -300,7 +294,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: true,
     participants: 11,
-    profitPercentage: 5.9,
   },
   {
     id: "12",
@@ -316,7 +309,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: false,
     participants: 14,
-    profitPercentage: -1.2,
   },
   {
     id: "13",
@@ -332,7 +324,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: true,
     participants: 6,
-    profitPercentage: 18.0,
   },
   {
     id: "14",
@@ -348,7 +339,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 8,
-    profitPercentage: 2.3,
   },
   {
     id: "15",
@@ -364,7 +354,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 17,
-    profitPercentage: 10.4,
   },
   {
     id: "16",
@@ -380,7 +369,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: false,
     participants: 12,
-    profitPercentage: 6.1,
   },
   {
     id: "17",
@@ -396,7 +384,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: true,
     participants: 21,
-    profitPercentage: 4.2,
   },
   {
     id: "18",
@@ -412,7 +399,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 23,
-    profitPercentage: 7.7,
   },
   {
     id: "19",
@@ -428,7 +414,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: true,
     participants: 10,
-    profitPercentage: 13.6,
   },
   {
     id: "20",
@@ -444,7 +429,6 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 26,
-    profitPercentage: 3.5,
   },
 ];
 
@@ -532,19 +516,6 @@ export function TradingRoomsList() {
                 <UsersIcon className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">{room.participants}</span>
               </div>
-              {room.profitPercentage !== undefined && (
-                <span
-                  className={cn(
-                    "text-xs font-medium ml-2",
-                    room.profitPercentage > 0
-                      ? "text-emerald-600"
-                      : "text-red-600"
-                  )}
-                >
-                  {room.profitPercentage > 0 ? "+" : ""}
-                  {room.profitPercentage}%
-                </span>
-              )}
             </div>
           );
         },

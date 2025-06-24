@@ -133,6 +133,12 @@ export function FloatingChat() {
     }
   };
 
+  // Add this function to always close the chat
+  const closeChat = () => {
+    setIsOpen(false);
+    setIsMinimized(false);
+  };
+
   const minimizeChat = () => {
     setIsMinimized(true);
   };
@@ -228,7 +234,7 @@ export function FloatingChat() {
                   variant="ghost"
                   size="icon"
                   className="h-6 w-6 sm:h-7 sm:w-7"
-                  onClick={toggleChat}
+                  onClick={closeChat}
                 >
                   <X className="h-3.5 w-3.5 text-muted-foreground sm:h-4 sm:w-4" />
                 </Button>

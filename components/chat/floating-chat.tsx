@@ -156,7 +156,7 @@ export function FloatingChat() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 w-[98vw] max-w-[420px] p-0 sm:bottom-6 sm:left-6 sm:translate-x-0 sm:w-auto sm:max-w-none sm:p-0"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-[98vw] max-w-[420px] p-0 sm:bottom-12 sm:left-6 sm:translate-x-0 sm:w-auto sm:max-w-none sm:p-0"
           >
             <div className="flex items-center gap-2">
               <Button
@@ -188,16 +188,16 @@ export function FloatingChat() {
             animate={
               isMinimized
                 ? { opacity: 1, y: 0, scale: 1, height: "auto" }
-                : { opacity: 1, y: 0, scale: 1, height: "70vh" }
+                : { opacity: 1, y: 0, scale: 1, height: "90vh" }
             }
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className={cn(
               // Mobile: bottom center, full width, max height. Desktop: bottom left, fixed size.
-              "fixed bottom-3 left-1/2 -translate-x-1/2 z-50 bg-background rounded-md shadow-lg border border-border overflow-hidden flex flex-col w-[98vw] max-w-[420px] h-[70vh] p-0 m-0 right-auto sm:bottom-6 sm:left-6 sm:translate-x-0 sm:w-[380px] sm:max-w-none sm:h-[750px] sm:rounded-lg sm:shadow-xl sm:border sm:p-0 sm:m-0",
+              "fixed bottom-5 left-2/3 -translate-x-1/3 z-50 bg-background rounded-md shadow-lg border border-border overflow-hidden flex flex-col w-[98vw] max-w-[420px] h-[90vh] p-0 m-0 right-auto sm:bottom-12 sm:left-6 sm:translate-x-0 sm:w-[380px] sm:max-w-none sm:h-[90vh] sm:rounded-lg sm:shadow-xl sm:border sm:p-0 sm:m-0",
               isMinimized
                 ? "w-[90vw] max-w-[340px] h-auto sm:w-[300px] sm:max-w-none sm:h-auto"
-                : "w-[98vw] max-w-[420px] h-[70vh] sm:w-[380px] sm:max-w-none sm:h-[750px]"
+                : "w-[98vw] max-w-[420px] h-[90vh] sm:w-[380px] sm:max-w-none sm:h-[90vh]"
             )}
           >
             {/* Chat Header */}

@@ -5,7 +5,12 @@ import { Menu } from "./menu";
 import { ThemeToggle } from "./theme-toggle";
 import { UserDropdown } from "./user/user-dropdown";
 import { Button } from "./ui/button";
-import { Menu as MenuIcon } from "lucide-react";
+import {
+  CoinsIcon,
+  HeadsetIcon,
+  Menu as MenuIcon,
+  ShoppingBasketIcon,
+} from "lucide-react";
 import {
   Sheet,
   SheetContent,

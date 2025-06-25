@@ -94,6 +94,7 @@ interface TradingRoom {
   isPublic: boolean;
   isHosted: boolean;
   participants: number;
+  pnlPercentage?: number;
 }
 
 // Custom filter function for multi-column searching
@@ -144,6 +145,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: true,
     participants: 24,
+    pnlPercentage: 5.2,
   },
   {
     id: "2",
@@ -159,6 +161,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 18,
+    pnlPercentage: -2.1,
   },
   {
     id: "3",
@@ -174,6 +177,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: false,
     participants: 7,
+    pnlPercentage: 0.0,
   },
   {
     id: "4",
@@ -504,6 +508,32 @@ export function TradingRoomsList() {
           );
         },
         size: 180,
+      },
+      {
+        header: "P&L %",
+        accessorKey: "pnlPercentage",
+        cell: ({ row }) => {
+          const pnl = row.original.pnlPercentage;
+          return (
+            <span
+              className={cn(
+                "font-medium",
+                pnl === undefined
+                  ? "text-muted-foreground"
+                  : pnl > 0
+                  ? "text-green-500"
+                  : pnl < 0
+                  ? "text-red-500"
+                  : "text-muted-foreground"
+              )}
+            >
+              {pnl !== undefined
+                ? `${pnl > 0 ? "+" : ""}${pnl.toFixed(2)}%`
+                : "-"}
+            </span>
+          );
+        },
+        size: 90,
       },
       {
         header: "Participants",

@@ -10,10 +10,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Coins,
   InboxIcon,
   KeyRoundIcon,
   LogOutIcon,
   ShieldIcon,
+  Star,
   UserIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -40,7 +42,7 @@ export function UserDropdown() {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
-          className="w-64 p-0 bg-card/95 backdrop-blur-sm border shadow-lg rounded-xl overflow-hidden"
+          className="w-72 p-0 bg-card/95 backdrop-blur-sm border shadow-lg rounded-xl overflow-hidden"
           align="end"
           sideOffset={8}
         >
@@ -61,6 +63,37 @@ export function UserDropdown() {
                 <div className="text-xs text-muted-foreground">
                   shadcn@gmail.com
                 </div>
+              </div>
+            </div>
+            {/* Improved Level Card Section */}
+            <div className="my-3 p-3 rounded-xl bg-muted/60 shadow-sm border border-border flex flex-col gap-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Level 0
+                </span>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Level 1
+                </span>
+              </div>
+              <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden relative mb-1">
+                <div
+                  className="absolute left-0 top-0 h-2 bg-red-500 rounded-full"
+                  style={{ width: `4%` }}
+                ></div>
+              </div>
+              <div className="flex items-center justify-between text-xs mt-1">
+                <span className="text-muted-foreground">4% Complete</span>
+                <span className="text-red-500 font-semibold">450 EXP</span>
+              </div>
+              <div className="flex items-center justify-between gap-4 mt-1">
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Star className="h-4 w-4 text-yellow-500" />
+                  1,234 XP
+                </span>
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Coins className="h-4 w-4 text-amber-500" />
+                  567 KOR
+                </span>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import FloatingBubble from "@/components/FloatingBubble";
 import HeroBadge from "@/components/hero-badge";
 import { Icons } from "@/components/icons";
 import { Avatar } from "@/components/ui/avatar";
@@ -13,6 +14,7 @@ import { useEffect } from "react";
 
 export default function Home() {
   const { theme } = useTheme();
+
   useEffect(() => {
     const colorTheme = theme === "dark" ? "dark" : "light";
     // Remove any previous script if exists
@@ -95,45 +97,103 @@ export default function Home() {
               ease: "easeInOut",
             }}
           />
-          <motion.div
-            className="absolute top-40 right-8 sm:right-16 md:right-32 w-12 sm:w-16 md:w-24 h-12 sm:h-16 md:h-24 rounded-lg bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-lg rotate-45"
-            animate={{
-              y: [0, 15, 0],
-              x: [0, -8, 0],
-              rotate: [45, 60, 45],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-              delay: 1,
-            }}
-          />
-          <motion.div
-            className="absolute bottom-32 left-8 sm:left-20 md:left-40 w-10 sm:w-14 md:w-20 h-10 sm:h-14 md:h-20 rounded-full bg-gradient-to-r from-blue-400/15 to-purple-400/15 blur-lg"
-            animate={{
-              y: [0, -25, 0],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              duration: 7,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-              delay: 2,
+
+          <FloatingBubble
+            image="https://prod-tethermax.s3.ap-northeast-2.amazonaws.com/exchange/detail/ae5bc2dc-4a5d-48f6-8570-54e1ee6809dc.png"
+            color="#00eaff"
+            text="Bitget"
+            subtext="70% Payback"
+            size={90}
+            style={{
+              position: "absolute",
+              top: "30%",
+              left: "10%",
+              zIndex: 30,
             }}
           />
-          <motion.div
-            className="absolute bottom-20 right-8 sm:right-12 md:right-20 w-8 sm:w-12 md:w-16 h-8 sm:h-12 md:h-16 rounded-lg bg-gradient-to-r from-purple-400/10 to-blue-400/10 blur-md"
-            animate={{
-              y: [0, 20, 0],
-              x: [0, -12, 0],
-              rotate: [0, 15, 0],
+
+          <FloatingBubble
+            image="https://prod-tethermax.s3.ap-northeast-2.amazonaws.com/exchange/icon/bybit.png"
+            color="#f3c13a"
+            text="Bybit"
+            subtext="45% Payback"
+            size={80}
+            style={{
+              position: "absolute",
+              top: "40%",
+              right: "10%",
+              zIndex: 30,
             }}
-            transition={{
-              duration: 9,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-              delay: 0.5,
+          />
+
+          <FloatingBubble
+            image="https://prod-tethermax.s3.ap-northeast-2.amazonaws.com/exchange/detail/69f51d45-f5a4-4134-89e5-d0a4294477fd.png"
+            color="#e6007a"
+            text="Gate"
+            subtext="80% Payback"
+            size={75}
+            style={{
+              position: "absolute",
+              bottom: "12%",
+              left: "12%",
+              zIndex: 30,
+            }}
+          />
+
+          <FloatingBubble
+            image="https://prod-tethermax.s3.ap-northeast-2.amazonaws.com/exchange/detail/fb401999-b8d8-4bbf-a5f7-b739f5c9e10d.png"
+            color="#1ecb98"
+            text="Mexc"
+            subtext="50% Payback"
+            size={70}
+            style={{
+              position: "absolute",
+              bottom: "12%",
+              right: "12%",
+              zIndex: 30,
+            }}
+          />
+
+          <FloatingBubble
+            image="https://prod-tethermax.s3.ap-northeast-2.amazonaws.com/exchange/icon/bingx.png"
+            color="#2d7cff"
+            text="BingX"
+            subtext="60% Payback"
+            size={65}
+            style={{
+              position: "absolute",
+              top: "8%",
+              right: "8%",
+              zIndex: 30,
+            }}
+          />
+
+          <FloatingBubble
+            image="https://prod-tethermax.s3.ap-northeast-2.amazonaws.com/exchange/detail/c340b25d-db6a-42bb-bb4b-bf72a90837b4.png"
+            color="#4e9cff"
+            text="Blofin"
+            subtext="70% Payback"
+            size={60}
+            style={{
+              position: "absolute",
+              top: "12%",
+              left: "18%",
+              zIndex: 30,
+            }}
+          />
+
+          <FloatingBubble
+            image="https://prod-tethermax.s3.ap-northeast-2.amazonaws.com/exchange/icon/okx.png"
+            color="#222"
+            text="OKX"
+            subtext="50% Payback"
+            size={70}
+            style={{
+              position: "absolute",
+              top: "2%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 30,
             }}
           />
 

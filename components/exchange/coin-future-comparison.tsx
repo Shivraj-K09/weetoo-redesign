@@ -1,15 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
-import {
-  type ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getExpandedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { ChevronDownIcon, ExternalLink } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +11,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getExpandedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import {
+  Award,
+  ChevronDownIcon,
+  ExternalLink,
+  Star,
+  UserPlus,
+} from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { Fragment, useState } from "react";
 
 type Exchange = {
   id: string;
@@ -47,13 +54,13 @@ const EXCHANGES: Exchange[] = [
     tradingDiscount: "-",
     limitOrderFee: "0.024%",
     marketOrderFee: "0.045%",
-    event: "입금 20% 크레딧",
+    event: "20% Deposit Credit",
     description:
-      "바이낸스는 세계 최대 규모의 암호화폐 거래소로, 다양한 암호화폐와 거래 옵션을 제공합니다.",
+      "Binance is the world's largest cryptocurrency exchange, offering a wide variety of cryptocurrencies and trading options.",
     features: [
-      "전세계 비트코인 거래량 순위 6위 대형 거래소",
-      "한국 금융 서비스에 등록 거래소",
-      "안정적인 레버리지 관리 보장제도",
+      "Top 6 global Bitcoin trading volume exchange",
+      "Registered with Korean financial services",
+      "Stable leverage management guarantee system",
     ],
   },
   {
@@ -317,6 +324,370 @@ const columns: ColumnDef<Exchange>[] = [
   },
 ];
 
+// Card types and data (copied from trader-ranking.tsx)
+type CardColor = "gold" | "silver" | "bronze";
+type CardPosition = "left" | "center" | "right";
+
+interface CardData {
+  rank: number;
+  name: string;
+  username: string;
+  totalReturn: number;
+  portfolio: number;
+  winRate: number;
+  trades: number;
+  winStreak: number;
+  position: CardPosition;
+  color: CardColor;
+}
+
+const CARD_DATA: CardData[] = [
+  {
+    rank: 2,
+    name: EXCHANGES[1].name,
+    username: `@${EXCHANGES[1].id}`,
+    totalReturn: EXCHANGES[1].paybackRate,
+    portfolio: 0,
+    winRate: 0,
+    trades: 0,
+    winStreak: 0,
+    position: "left",
+    color: "silver",
+  },
+  {
+    rank: 1,
+    name: EXCHANGES[0].name,
+    username: `@${EXCHANGES[0].id}`,
+    totalReturn: EXCHANGES[0].paybackRate,
+    portfolio: 986200, // Placeholder, as EXCHANGES does not have portfolio
+    winRate: 79.1, // Placeholder, as EXCHANGES does not have winRate
+    trades: 287, // Placeholder, as EXCHANGES does not have trades
+    winStreak: 8, // Placeholder, as EXCHANGES does not have winStreak
+    position: "center",
+    color: "gold",
+  },
+  {
+    rank: 3,
+    name: EXCHANGES[2].name,
+    username: `@${EXCHANGES[2].id}`,
+    totalReturn: EXCHANGES[2].paybackRate,
+    portfolio: 0,
+    winRate: 0,
+    trades: 0,
+    winStreak: 0,
+    position: "right",
+    color: "bronze",
+  },
+];
+
+const cardVariants = {
+  hidden: { opacity: 0, scale: 0.8, y: 100 },
+  visible: (custom: number) => ({
+    opacity: 1,
+    scale: custom === 1 ? 1 : custom === 2 ? 0.9 : 0.85,
+    y: custom === 1 ? -20 : custom === 2 ? 38 : 50,
+    rotateY: custom === 2 ? 12 : custom === 3 ? -12 : 0,
+    z: custom === 1 ? 0 : custom === 2 ? -80 : -120,
+    transition: {
+      duration: 0.5,
+      delay: custom === 1 ? 0.1 : custom === 2 ? 0.4 : 0.7,
+      ease: [0.25, 0.46, 0.45, 0.94],
+    },
+  }),
+};
+
+import { memo, useMemo } from "react";
+const TraderCard = memo(
+  ({ data, exchange }: { data: CardData; exchange?: Exchange }) => {
+    const cardStyles = useMemo(() => {
+      const baseStyles = {
+        boxShadow: "",
+        backgroundImage: "",
+        border: "none",
+      };
+      switch (data.color) {
+        case "gold":
+          return {
+            ...baseStyles,
+            boxShadow:
+              "0 0 0 2px #f59e0b, 0 0 15px 4px rgba(245, 158, 11, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.15)",
+            backgroundImage:
+              "radial-gradient(circle at top left, rgba(252, 211, 77, 0.08), transparent 40%)",
+          };
+        case "silver":
+          return {
+            ...baseStyles,
+            boxShadow:
+              "0 0 0 1.5px #cbd5e1, 0 0 10px 2px rgba(148, 163, 184, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.1)",
+            backgroundImage:
+              "radial-gradient(circle at top left, rgba(203, 213, 225, 0.05), transparent 40%)",
+          };
+        case "bronze":
+          return {
+            ...baseStyles,
+            boxShadow:
+              "0 0 0 1.5px #f97316, 0 0 10px 2px rgba(217, 119, 6, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.1)",
+            backgroundImage:
+              "radial-gradient(circle at top left, rgba(253, 186, 116, 0.05), transparent 40%)",
+          };
+        default:
+          return baseStyles;
+      }
+    }, [data.color]);
+
+    const reflectionStyles = useMemo(() => {
+      const baseReflection = {
+        transform: "scaleY(-1)",
+        borderRadius: "0 0 16px 16px",
+        clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+        opacity: 0.45,
+        blur: "blur(2px)",
+        boxShadow: "none",
+        backgroundImage: "none",
+        top: "510px",
+        width: "20rem",
+        height: "150px",
+      };
+      switch (data.color) {
+        case "gold":
+          return {
+            ...baseReflection,
+            boxShadow:
+              "2px 0 0 0 #f59e0b, -2px 0 0 0 #f59e0b, 0 0 15px 4px rgba(245, 158, 11, 0.3)",
+            backgroundImage:
+              "radial-gradient(circle at top left, rgba(252, 211, 77, 0.05), transparent 30%)",
+            top: "540px",
+            width: "24rem",
+            height: "180px",
+          };
+        case "silver":
+          return {
+            ...baseReflection,
+            transform: "scaleY(-1) rotateY(12deg)",
+            boxShadow:
+              "1.5px 0 0 0 #cbd5e1, -1.5px 0 0 0 #cbd5e1, 0 0 10px 2px rgba(148, 163, 184, 0.2)",
+            backgroundImage:
+              "radial-gradient(circle at top left, rgba(203, 213, 225, 0.03), transparent 30%)",
+            top: "510px",
+            width: "20rem",
+            height: "150px",
+          };
+        case "bronze":
+          return {
+            ...baseReflection,
+            transform: "scaleY(-1) rotateY(-12deg)",
+            boxShadow:
+              "1.5px 0 0 0 #f97316, -1.5px 0 0 0 #f97316, 0 0 10px 2px rgba(217, 119, 6, 0.2)",
+            backgroundImage:
+              "radial-gradient(circle at top left, rgba(253, 186, 116, 0.03), transparent 30%)",
+            top: "510px",
+            width: "20rem",
+            height: "150px",
+          };
+        default:
+          return baseReflection;
+      }
+    }, [data.color]);
+
+    const cardSize = data.rank === 1 ? "w-96 h-[520px]" : "w-80 h-[490px]";
+    const padding = data.rank === 1 ? "p-7" : "p-6";
+
+    return (
+      <motion.div
+        className="relative group"
+        custom={data.rank}
+        variants={cardVariants}
+        initial="hidden"
+        animate="visible"
+        whileHover="hover"
+        style={{
+          transform: `rotateY(${
+            data.rank === 2 ? "12deg" : data.rank === 3 ? "-12deg" : "0deg"
+          }) translateZ(${
+            data.rank === 1 ? "0px" : data.rank === 2 ? "-80px" : "-120px"
+          }) translateY(${
+            data.rank === 1 ? "-20px" : data.rank === 2 ? "38px" : "50px"
+          }) scale(${
+            data.rank === 1 ? "1" : data.rank === 2 ? "0.9" : "0.85"
+          })`,
+        }}
+      >
+        <div
+          className={`${cardSize} rounded-2xl shadow-lg overflow-hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60`}
+          style={cardStyles}
+        >
+          <div className="absolute inset-0 opacity-30 bg-gradient-to-br from-white/20 via-white/5 to-transparent" />
+          <div className="absolute inset-0 opacity-15 bg-gradient-to-tl from-white/10 via-transparent to-white/5" />
+          <div className={`relative z-10 h-full ${padding} flex flex-col`}>
+            <div className="flex items-start justify-between mb-6">
+              <Badge
+                className={
+                  data.rank === 1
+                    ? "bg-yellow-400/20 text-yellow-200 border border-yellow-400/60 px-4 py-2.5 text-base font-bold shadow-lg"
+                    : data.rank === 2
+                    ? "bg-slate-200/10 text-slate-200 border border-slate-400/50 px-3.5 py-2 text-sm font-semibold shadow-md"
+                    : "bg-amber-700/20 text-amber-300 border border-amber-500/50 px-3.5 py-2 text-sm font-semibold shadow-md"
+                }
+              >
+                {data.rank === 1 ? (
+                  <Award className="w-5 h-5 mr-2" />
+                ) : data.rank === 2 ? (
+                  <Award className="w-3.5 h-3.5 mr-1.5" />
+                ) : (
+                  <Star className="w-3.5 h-3.5 mr-1.5" />
+                )}
+                #{data.rank}
+              </Badge>
+              <div className="text-right">
+                <div
+                  className={`${
+                    data.rank === 1
+                      ? "text-emerald-300 text-3xl"
+                      : "text-emerald-400 text-2xl"
+                  } font-bold`}
+                >
+                  +{data.totalReturn}%
+                </div>
+                <div className="text-xs text-muted-foreground font-medium">
+                  {data.rank === 1 || data.rank === 2 || data.rank === 3
+                    ? "Payback Rate"
+                    : "Total Return"}
+                </div>
+              </div>
+            </div>
+
+            <div
+              className={`flex items-center ${
+                data.rank === 1 ? "gap-4 mb-6" : "gap-3 mb-5"
+              }`}
+            >
+              <Avatar
+                className={`${
+                  data.rank === 1 ? "w-16 h-16" : "w-14 h-14"
+                } ring-2 ${
+                  data.color === "gold"
+                    ? "ring-yellow-400/30"
+                    : data.color === "silver"
+                    ? "ring-slate-400/20"
+                    : "ring-amber-500/20"
+                }`}
+              >
+                <AvatarImage src={``} alt={data.name} />
+                <AvatarFallback
+                  className={
+                    data.color === "gold"
+                      ? "bg-yellow-500/20 text-yellow-300 text-xl font-bold"
+                      : data.color === "silver"
+                      ? "bg-slate-500/20 text-slate-300 font-semibold text-lg"
+                      : "bg-amber-600/20 text-amber-300 font-semibold text-lg"
+                  }
+                >
+                  {data.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <h3
+                  className={`${
+                    data.rank === 1 ? "text-2xl" : "text-xl"
+                  } font-bold text-foreground`}
+                >
+                  {data.name}
+                </h3>
+                <p className="text-sm text-muted-foreground">{data.username}</p>
+              </div>
+            </div>
+
+            {(data.rank === 1 || data.rank === 2 || data.rank === 3) &&
+            exchange ? (
+              <div className="space-y-3 flex-1 mt-4">
+                <div className="flex items-center justify-between py-2 border-b border-border/30">
+                  <span className="font-medium text-muted-foreground">
+                    Payback Rate
+                  </span>
+                  <span className="font-bold text-foreground">
+                    {exchange.paybackRate}%
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-border/30">
+                  <span className="font-medium text-muted-foreground">
+                    Trading Discount
+                  </span>
+                  <span className="font-bold text-foreground">
+                    {exchange.tradingDiscount}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-border/30">
+                  <span className="font-medium text-muted-foreground">
+                    Limit Order Fee
+                  </span>
+                  <span className="font-bold text-foreground">
+                    {exchange.limitOrderFee}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-border/30">
+                  <span className="font-medium text-muted-foreground">
+                    Market Order Fee
+                  </span>
+                  <span className="font-bold text-foreground">
+                    {exchange.marketOrderFee}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="font-medium text-muted-foreground">
+                    Event
+                  </span>
+                  <span className="font-bold text-foreground">
+                    {exchange.event}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <Button
+                className={`w-full mb-5 ${
+                  data.color === "silver"
+                    ? "bg-slate-500/30 hover:bg-slate-500/40 text-slate-100 border border-slate-400/50 font-semibold h-10 shadow-sm hover:shadow-md"
+                    : "bg-amber-600/30 hover:bg-amber-600/40 text-amber-200 border border-amber-500/50 font-semibold h-10 shadow-sm hover:shadow-md"
+                } transition-all duration-300`}
+                variant="outline"
+              >
+                <UserPlus className="w-4 h-4 mr-2" /> Follow Trader
+              </Button>
+            )}
+          </div>
+        </div>
+        {/* Reflection */}
+        <div
+          className="absolute left-0 overflow-hidden"
+          style={{
+            top: reflectionStyles.top || "510px",
+            width: reflectionStyles.width === "96" ? "24rem" : "20rem",
+            height: reflectionStyles.height || "150px",
+            transform: reflectionStyles.transform,
+            borderRadius: reflectionStyles.borderRadius,
+            clipPath: reflectionStyles.clipPath,
+            boxShadow: reflectionStyles.boxShadow,
+            opacity: reflectionStyles.opacity,
+            backgroundImage: reflectionStyles.backgroundImage,
+            filter: "blur(2px)",
+          }}
+        >
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, hsl(var(--background) / 0.35) 0%, hsl(var(--background) / 0.2) 25%, transparent 65%)",
+            }}
+          />
+        </div>
+      </motion.div>
+    );
+  }
+);
+TraderCard.displayName = "TraderCard";
+
 export const CoinFuturesComparison = () => {
   const [, setHoveredRow] = useState<string | null>(null);
 
@@ -330,7 +701,35 @@ export const CoinFuturesComparison = () => {
 
   return (
     <div className="w-full">
-      <div className="border border-border rounded-lg overflow-hidden">
+      {/* Top 3 Trader Cards Section */}
+      <div
+        className="relative min-h-[700px] flex items-center justify-center gap-12 px-8 mb-16"
+        style={{ perspective: "1200px" }}
+      >
+        {CARD_DATA.map((cardData) =>
+          cardData.rank === 1 ? (
+            <TraderCard
+              key={cardData.rank}
+              data={cardData}
+              exchange={EXCHANGES[0]}
+            />
+          ) : cardData.rank === 2 ? (
+            <TraderCard
+              key={cardData.rank}
+              data={cardData}
+              exchange={EXCHANGES[1]}
+            />
+          ) : cardData.rank === 3 ? (
+            <TraderCard
+              key={cardData.rank}
+              data={cardData}
+              exchange={EXCHANGES[2]}
+            />
+          ) : null
+        )}
+      </div>
+      {/* Table Section */}
+      <div className="border border-border rounded-lg overflow-hidden mt-28">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

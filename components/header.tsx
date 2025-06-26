@@ -1,16 +1,10 @@
 "use client";
 
+import { Menu as MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { Menu } from "./menu";
 import { ThemeToggle } from "./theme-toggle";
-import { UserDropdown } from "./user/user-dropdown";
 import { Button } from "./ui/button";
-import {
-  CoinsIcon,
-  HeadsetIcon,
-  Menu as MenuIcon,
-  ShoppingBasketIcon,
-} from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -18,6 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
+import { UserDropdown } from "./user/user-dropdown";
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 

@@ -87,7 +87,7 @@ export function WeetooMarketDialog() {
           {PRODUCTS.map((product) => (
             <div
               key={product.key}
-              className="flex items-center justify-between gap-4 p-4 rounded-2xl border bg-background/80 shadow-sm hover:shadow-lg transition-shadow group"
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl border bg-background/80 shadow-sm hover:shadow-lg transition-shadow group w-full min-w-0 overflow-x-hidden"
             >
               <div className="flex flex-col gap-1 flex-1 min-w-0">
                 <div className="font-semibold text-base truncate group-hover:text-yellow-500 transition-colors">
@@ -100,7 +100,7 @@ export function WeetooMarketDialog() {
                   {product.price.toLocaleString()} cash
                 </div>
               </div>
-              <div className="flex items-center gap-2 ml-4">
+              <div className="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-4 shrink-0 self-start sm:self-center">
                 <Button
                   variant="outline"
                   size="icon"
@@ -128,6 +128,7 @@ export function WeetooMarketDialog() {
             </div>
           ))}
         </div>
+
         {/* Total and Purchase Button */}
         <div className="px-6 pt-4 pb-6 border-t bg-background/95 rounded-b-2xl shadow-inner">
           <div className="flex items-center justify-between mb-3">

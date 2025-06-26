@@ -82,7 +82,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 dark:from-black dark:via-gray-900 dark:to-black md:pt-10">
         {/* Animated Background Elements */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 z-0 hidden md:block">
           {/* Floating Abstract Shapes */}
           <motion.div
             className="absolute top-20 left-20 w-16 sm:w-24 md:w-32 h-16 sm:h-24 md:h-32 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-xl"
@@ -264,16 +264,18 @@ export default function Home() {
         </div>
         {/* Content */}
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 relative z-10 mt-5">
           <div className="">
             <div className="text-center mb-12">
-              <div className="container mx-auto">
-                <HeroBadge
-                  href="/trading"
-                  text="Next Generation Trading Platform"
-                  icon={<Icons.logo className="h-4 w-4" />}
-                  endIcon={<Icons.chevronRight className="h-4 w-4" />}
-                />
+              <div className="container mx-auto ">
+                <div className="mb-2 md:mb-0">
+                  <HeroBadge
+                    href="/trading"
+                    text="Next Generation Trading Platform"
+                    icon={<Icons.logo className="h-4 w-4" />}
+                    endIcon={<Icons.chevronRight className="h-4 w-4" />}
+                  />
+                </div>
 
                 <motion.h1
                   className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"

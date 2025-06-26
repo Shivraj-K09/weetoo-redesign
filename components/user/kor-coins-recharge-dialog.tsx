@@ -150,7 +150,8 @@ export function KorCoinsRechargeDialog() {
                     htmlFor="depositor-name"
                     className="font-semibold text-sm"
                   >
-                    Depositor's Name <span className="text-red-500">*</span>
+                    Depositor&apos;s Name{" "}
+                    <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="depositor-name"

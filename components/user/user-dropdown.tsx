@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import { CustomerSupportDialog } from "./customer-support-dialog";
 import { KorCoinsRechargeDialog } from "./kor-coins-recharge-dialog";
+import { WeetooMarketDialog } from "./weetoo-market-dialog";
 
 export function UserDropdown() {
   return (
@@ -144,6 +145,9 @@ export function UserDropdown() {
             </Link> */}
 
             <DropdownMenuSeparator className="my-2" />
+
+            {/* Weetoo Market */}
+            <WeetooMarketDialog />
 
             {/* KOR Coins Recharge*/}
             <KorCoinsRechargeDialog />

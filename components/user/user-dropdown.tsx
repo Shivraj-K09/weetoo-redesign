@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { CustomerSupportDialog } from "./customer-support-dialog";
+import { KorCoinsRechargeDialog } from "./kor-coins-recharge-dialog";
 
 export function UserDropdown() {
   return (
@@ -145,7 +146,7 @@ export function UserDropdown() {
             <DropdownMenuSeparator className="my-2" />
 
             {/* KOR Coins Recharge*/}
-            {/* <KorCoinsRechargeDialog /> */}
+            <KorCoinsRechargeDialog />
 
             {/* Customer Support */}
             <CustomerSupportDialog />

@@ -144,8 +144,13 @@ export function UserDropdown() {
 
             <DropdownMenuSeparator className="my-2" />
 
-            {/* Customer Support Dialog Trigger */}
+            {/* KOR Coins Recharge*/}
+            {/* <KorCoinsRechargeDialog /> */}
+
+            {/* Customer Support */}
             <CustomerSupportDialog />
+
+            <DropdownMenuSeparator className="my-2" />
 
             <Link href="#">
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">

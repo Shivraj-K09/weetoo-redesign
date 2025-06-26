@@ -5,7 +5,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Headphones } from "lucide-react";
 import Link from "next/link";
 
@@ -13,10 +12,13 @@ export function CustomerSupportDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors flex items-center gap-3">
+        <button
+          type="button"
+          className="w-full text-sm text-left cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors flex items-center gap-5"
+        >
           <Headphones className="w-4 h-4 text-muted-foreground" />
           <span>Customer Support</span>
-        </DropdownMenuItem>
+        </button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>

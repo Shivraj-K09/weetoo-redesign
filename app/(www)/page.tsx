@@ -82,7 +82,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 dark:from-black dark:via-gray-900 dark:to-black md:pt-10">
         {/* Animated Background Elements */}
-        <div className="absolute inset-0 z-0 hidden md:block">
+        <div className="absolute inset-0">
           {/* Floating Abstract Shapes */}
           <motion.div
             className="absolute top-20 left-20 w-16 sm:w-24 md:w-32 h-16 sm:h-24 md:h-32 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-xl"
@@ -104,12 +104,7 @@ export default function Home() {
             text="Bitget"
             subtext="70% Payback"
             size={90}
-            style={{
-              position: "absolute",
-              top: "30%",
-              left: "10%",
-              zIndex: 30,
-            }}
+            className="absolute top-[30%] left-[10%] z-30"
           />
 
           <FloatingBubble
@@ -118,12 +113,7 @@ export default function Home() {
             text="Bybit"
             subtext="45% Payback"
             size={80}
-            style={{
-              position: "absolute",
-              top: "40%",
-              right: "10%",
-              zIndex: 30,
-            }}
+            className="absolute top-[40%] right-[10%] z-30"
           />
 
           <FloatingBubble
@@ -132,12 +122,7 @@ export default function Home() {
             text="Gate"
             subtext="80% Payback"
             size={75}
-            style={{
-              position: "absolute",
-              bottom: "12%",
-              left: "12%",
-              zIndex: 30,
-            }}
+            className="absolute bottom-[12%] left-[12%] z-30"
           />
 
           <FloatingBubble
@@ -146,12 +131,7 @@ export default function Home() {
             text="Mexc"
             subtext="50% Payback"
             size={70}
-            style={{
-              position: "absolute",
-              bottom: "12%",
-              right: "12%",
-              zIndex: 30,
-            }}
+            className="absolute bottom-[12%] right-[12%] z-30"
           />
 
           <FloatingBubble
@@ -160,12 +140,7 @@ export default function Home() {
             text="BingX"
             subtext="60% Payback"
             size={65}
-            style={{
-              position: "absolute",
-              top: "8%",
-              right: "8%",
-              zIndex: 30,
-            }}
+            className="absolute top-[8%] right-[8%] z-30"
           />
 
           <FloatingBubble
@@ -174,12 +149,7 @@ export default function Home() {
             text="Blofin"
             subtext="70% Payback"
             size={60}
-            style={{
-              position: "absolute",
-              top: "12%",
-              left: "18%",
-              zIndex: 30,
-            }}
+            className="absolute top-[12%] left-[18%] z-30"
           />
 
           <FloatingBubble
@@ -188,13 +158,7 @@ export default function Home() {
             text="OKX"
             subtext="50% Payback"
             size={70}
-            style={{
-              position: "absolute",
-              top: "2%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 30,
-            }}
+            className="absolute top-[2%] left-1/2 -translate-x-1/2 z-30"
           />
 
           {/* Animated Curved Lines */}
@@ -264,18 +228,16 @@ export default function Home() {
         </div>
         {/* Content */}
 
-        <div className="container mx-auto px-4 relative z-10 mt-5">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="">
             <div className="text-center mb-12">
-              <div className="container mx-auto ">
-                <div className="mb-2 md:mb-0">
-                  <HeroBadge
-                    href="/trading"
-                    text="Next Generation Trading Platform"
-                    icon={<Icons.logo className="h-4 w-4" />}
-                    endIcon={<Icons.chevronRight className="h-4 w-4" />}
-                  />
-                </div>
+              <div className="container mx-auto">
+                <HeroBadge
+                  href="/trading"
+                  text="Next Generation Trading Platform"
+                  icon={<Icons.logo className="h-4 w-4" />}
+                  endIcon={<Icons.chevronRight className="h-4 w-4" />}
+                />
 
                 <motion.h1
                   className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"

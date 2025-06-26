@@ -157,6 +157,13 @@ export function UserDropdown() {
 
             <DropdownMenuSeparator className="my-2" />
 
+            {/* <Link href="#">
+              <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+                <HelpCircleIcon className="w-4 h-4 mr-3 text-muted-foreground" />
+                Help & Support
+              </DropdownMenuItem>
+            </Link> */}
+
             <Link href="#">
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
                 <LogOutIcon className="w-4 h-4 mr-3 text-red-500" />

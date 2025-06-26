@@ -7,9 +7,8 @@ interface FloatingBubbleProps {
   color: string; // background color for the bubble
   text: string;
   subtext?: string;
-  style?: React.CSSProperties; // for position, size, etc.
   size?: number; // size in px (width/height)
-  className?: string; // for extra classes
+  className?: string; // for all layout/position/size
 }
 
 const FloatingBubble: React.FC<FloatingBubbleProps> = ({
@@ -17,19 +16,17 @@ const FloatingBubble: React.FC<FloatingBubbleProps> = ({
   color,
   text,
   subtext,
-  style = {},
   size = 90,
   className,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-
   return (
     <div
       className={cn(
         "relative overflow-visible flex items-center cursor-pointer",
         className
       )}
-      style={{ width: size, height: size, ...style }}
+      style={{ width: size, height: size }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -42,7 +39,6 @@ const FloatingBubble: React.FC<FloatingBubbleProps> = ({
           style={{ background: color }}
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 18, ease: "linear" }}
-          // originX/Y default to 0.5
         >
           <img
             src={image}

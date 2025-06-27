@@ -247,7 +247,7 @@ export default function Home() {
                   <CarouselContent>
                     {/* First banner: Minimal Welcome & Value Prop */}
                     <CarouselItem key={1}>
-                      <div className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] lg:h-[380px] flex flex-col md:flex-row justify-center rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-green-50/60 to-lime-50/40 dark:from-green-900/30 dark:to-lime-900/20 shadow-xl transition-colors duration-300 px-4 md:px-10 py-10 md:py-0 overflow-hidden">
+                      <div className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] lg:h-[380px] flex flex-col md:flex-row justify-center rounded-2xl bg-gradient-to-br from-green-50/60 to-lime-50/40 dark:from-green-900/30 dark:to-lime-900/20 shadow-xl transition-colors duration-300 px-4 md:px-10 py-10 md:py-0 overflow-hidden">
                         <div className="flex flex-col justify-center items-start h-full z-10 max-w-[400px] w-full flex-1">
                           <div className="flex items-center gap-2 mb-4">
                             {/* Minimal trading icon (candlestick chart) */}
@@ -324,7 +324,7 @@ export default function Home() {
                     </CarouselItem>
                     {/* Second and third banners: numbers only */}
                     <CarouselItem key={2}>
-                      <div className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] lg:h-[380px] flex flex-col md:flex-row justify-center rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-green-50/60 to-lime-50/40 dark:from-green-900/30 dark:to-lime-900/20 shadow-xl transition-colors duration-300 px-4 md:px-10 py-10 md:py-0 overflow-hidden">
+                      <div className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] lg:h-[380px] flex flex-col md:flex-row justify-center rounded-2xl bg-gradient-to-br from-green-50/60 to-lime-50/40 dark:from-green-900/30 dark:to-lime-900/20 shadow-xl transition-colors duration-300 px-4 md:px-10 py-10 md:py-0 overflow-hidden">
                         <div className="flex flex-col justify-center items-start h-full z-10 max-w-[400px] w-full flex-1">
                           <div className="flex items-center gap-2 mb-4">
                             {/* Minimal icon: news (green theme) */}
@@ -392,7 +392,7 @@ export default function Home() {
                       </div>
                     </CarouselItem>
                     <CarouselItem key={3}>
-                      <div className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] lg:h-[380px] flex flex-col md:flex-row justify-center rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-pink-50/60 to-purple-50/40 dark:from-pink-900/30 dark:to-purple-900/20 shadow-xl transition-colors duration-300 px-4 md:px-10 py-10 md:py-0 overflow-hidden">
+                      <div className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] lg:h-[380px] flex flex-col md:flex-row justify-center rounded-2xl bg-gradient-to-br from-pink-50/60 to-purple-50/40 dark:from-pink-900/30 dark:to-purple-900/20 shadow-xl transition-colors duration-300 px-4 md:px-10 py-10 md:py-0 overflow-hidden">
                         <div className="flex flex-col justify-center items-start h-full z-10 max-w-[400px] w-full flex-1">
                           <div className="flex items-center gap-2 mb-4">
                             {/* Minimal icon: chat bubble */}

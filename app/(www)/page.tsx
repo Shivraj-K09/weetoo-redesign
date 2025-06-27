@@ -108,7 +108,7 @@ export default function Home() {
             text="Bitget"
             subtext="70% Payback"
             size={90}
-            className="absolute top-[30%] left-[10%] z-30"
+            className="absolute top-[30%] left-[10%] z-30 md:block hidden"
           />
 
           <FloatingBubble
@@ -117,7 +117,7 @@ export default function Home() {
             text="Bybit"
             subtext="45% Payback"
             size={80}
-            className="absolute top-[40%] right-[10%] z-30"
+            className="absolute top-[40%] right-[10%] z-30 md:block hidden"
           />
 
           <FloatingBubble
@@ -126,7 +126,7 @@ export default function Home() {
             text="Gate"
             subtext="80% Payback"
             size={75}
-            className="absolute bottom-[12%] left-[12%] z-30"
+            className="absolute bottom-[12%] left-[12%] z-30 md:block hidden"
           />
 
           <FloatingBubble
@@ -135,7 +135,7 @@ export default function Home() {
             text="Mexc"
             subtext="50% Payback"
             size={70}
-            className="absolute bottom-[12%] right-[12%] z-30"
+            className="absolute bottom-[12%] right-[12%] z-30 md:block hidden"
           />
 
           <FloatingBubble
@@ -144,7 +144,7 @@ export default function Home() {
             text="BingX"
             subtext="60% Payback"
             size={65}
-            className="absolute top-[8%] right-[8%] z-30"
+            className="absolute top-[8%] right-[8%] z-30 md:block hidden"
           />
 
           <FloatingBubble
@@ -153,7 +153,7 @@ export default function Home() {
             text="Blofin"
             subtext="70% Payback"
             size={60}
-            className="absolute top-[12%] left-[18%] z-30"
+            className="absolute top-[12%] left-[18%] z-30 md:block hidden"
           />
 
           <FloatingBubble
@@ -162,7 +162,7 @@ export default function Home() {
             text="OKX"
             subtext="50% Payback"
             size={70}
-            className="absolute top-[2%] left-1/2 -translate-x-1/2 z-30"
+            className="absolute top-[2%] left-1/2 -translate-x-1/2 z-30 md:block hidden"
           />
 
           {/* Animated Curved Lines */}
@@ -247,8 +247,8 @@ export default function Home() {
                   <CarouselContent>
                     {/* First banner: Minimal Welcome & Value Prop */}
                     <CarouselItem key={1}>
-                      <div className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] lg:h-[380px] flex flex-col md:flex-row justify-center rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-blue-50/60 to-purple-50/40 dark:from-blue-900/30 dark:to-purple-900/20 shadow-xl transition-colors duration-300 px-4 md:px-10 py-10 md:py-0 overflow-hidden">
-                        <div className="flex flex-col justify-center items-start h-full z-10 max-w-lg flex-1">
+                      <div className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] lg:h-[380px] flex flex-col md:flex-row justify-center rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-green-50/60 to-lime-50/40 dark:from-green-900/30 dark:to-lime-900/20 shadow-xl transition-colors duration-300 px-4 md:px-10 py-10 md:py-0 overflow-hidden">
+                        <div className="flex flex-col justify-center items-start h-full z-10 max-w-[400px] w-full flex-1">
                           <div className="flex items-center gap-2 mb-4">
                             {/* Minimal trading icon (candlestick chart) */}
                             <svg
@@ -296,10 +296,10 @@ export default function Home() {
                             </span>
                           </div>
                           <div className="max-w-[400px] w-full">
-                            <h2 className="w-full text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 text-left">
+                            <h2 className="w-full text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-4 text-left">
                               Experience Next-Gen Trading with Weetoo
                             </h2>
-                            <p className="w-full text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-300 mb-8 text-left">
+                            <p className="w-full text-xs sm:text-sm md:text-base lg:text-lg text-gray-500 dark:text-gray-300 mb-4 sm:mb-8 text-left">
                               Join a vibrant community, learn, compete, and grow
                               your trading skills risk-free.
                             </p>
@@ -307,13 +307,13 @@ export default function Home() {
                           <Button
                             asChild
                             size="lg"
-                            className="rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold shadow-none h-12"
+                            className="w-full md:w-auto rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold shadow-none h-12"
                           >
                             <Link href="/trading">Get Started</Link>
                           </Button>
                         </div>
                         {/* Right-side image illustration (only on md and up) */}
-                        <div className="hidden md:flex flex-1 items-center justify-end h-full z-10">
+                        <div className="hidden lg:flex flex-1 items-center justify-end h-full z-10">
                           <img
                             src="/trading.svg"
                             alt="Trading dashboard illustration"
@@ -365,10 +365,10 @@ export default function Home() {
                             </span>
                           </div>
                           <div className="max-w-[400px] w-full">
-                            <h2 className="w-full text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 text-left">
+                            <h2 className="w-full text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-4 text-left">
                               Stay Ahead with Real-Time Market News
                             </h2>
-                            <p className="w-full text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-300 mb-8 text-left">
+                            <p className="w-full text-xs sm:text-sm md:text-base lg:text-lg text-gray-500 dark:text-gray-300 mb-4 sm:mb-8 text-left">
                               Get the latest updates, trends, and insights from
                               the world of trading and finance.
                             </p>
@@ -376,13 +376,13 @@ export default function Home() {
                           <Button
                             asChild
                             size="lg"
-                            className="rounded-lg bg-green-600 hover:bg-green-700 text-white text-base font-semibold shadow-none h-12"
+                            className="w-full md:w-auto rounded-lg bg-green-600 hover:bg-green-700 text-white text-base font-semibold shadow-none h-12"
                           >
                             <Link href="/information/news">Read News</Link>
                           </Button>
                         </div>
                         {/* Right-side image illustration (only on md and up) */}
-                        <div className="hidden md:flex flex-1 items-center justify-end h-full z-10">
+                        <div className="hidden lg:flex flex-1 items-center justify-end h-full z-10">
                           <img
                             src="/news.svg"
                             alt="News illustration"
@@ -427,10 +427,10 @@ export default function Home() {
                             </span>
                           </div>
                           <div className="max-w-[400px] w-full">
-                            <h2 className="w-full text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 text-left">
+                            <h2 className="w-full text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-4 text-left">
                               Connect, Share, and Grow Together
                             </h2>
-                            <p className="w-full text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-300 mb-8 text-left">
+                            <p className="w-full text-xs sm:text-sm md:text-base lg:text-lg text-gray-500 dark:text-gray-300 mb-4 sm:mb-8 text-left">
                               Join discussions, ask questions, and collaborate
                               with traders from around the world.
                             </p>
@@ -438,7 +438,7 @@ export default function Home() {
                           <Button
                             asChild
                             size="lg"
-                            className="rounded-lg bg-pink-600 hover:bg-pink-700 text-white text-base font-semibold shadow-none h-12"
+                            className="w-full md:w-auto rounded-lg bg-pink-600 hover:bg-pink-700 text-white text-base font-semibold shadow-none h-12"
                           >
                             <Link href="/board/free-board">
                               Visit Community
@@ -446,7 +446,7 @@ export default function Home() {
                           </Button>
                         </div>
                         {/* Right-side image illustration (only on md and up) */}
-                        <div className="hidden md:flex flex-1 items-center justify-end h-full z-10">
+                        <div className="hidden lg:flex flex-1 items-center justify-end h-full z-10">
                           <img
                             src="/community.svg"
                             alt="Community illustration"

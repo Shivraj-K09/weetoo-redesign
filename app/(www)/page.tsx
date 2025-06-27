@@ -1,12 +1,16 @@
 "use client";
 
 import FloatingBubble from "@/components/FloatingBubble";
-import HeroBadge from "@/components/hero-badge";
-import { Icons } from "@/components/icons";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
@@ -232,251 +236,405 @@ export default function Home() {
           <div className="">
             <div className="text-center mb-12">
               <div className="container mx-auto">
-                <HeroBadge
-                  href="/trading"
-                  text="Next Generation Trading Platform"
-                  icon={<Icons.logo className="h-4 w-4" />}
-                  endIcon={<Icons.chevronRight className="h-4 w-4" />}
-                />
-
-                <motion.h1
-                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
+                {/* Hero Carousel Banner START */}
+                <Carousel
+                  plugins={[
+                    Autoplay({ delay: 3500, stopOnInteraction: false }),
+                  ]}
+                  className="w-full max-w-5xl mx-auto mb-8"
                 >
-                  Master the Art of
-                  <motion.span
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.8, delay: 0.5 }}
-                  >
-                    {" "}
-                    Trading
-                  </motion.span>
-                </motion.h1>
-
-                <motion.p
-                  className="text-lg sm:text-xl text-gray-700 dark:text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed px-4 sm:px-0"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                >
-                  Experience real trading without real risks. Create rooms,
-                  share insights, and climb the leaderboards while learning the
-                  art of trading.
-                </motion.p>
-
-                <motion.div
-                  className="flex flex-col sm:flex-row gap-4 justify-center px-4 sm:px-0"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
-                >
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button
-                      size="lg"
-                      className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-gradient-to-r dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 dark:text-white px-8 py-6 text-lg rounded-xl"
-                      asChild
-                    >
-                      <Link href="/trading">Start Trading</Link>
-                    </Button>
-                  </motion.div>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800/50 px-8 py-6 text-lg rounded-xl"
-                    >
-                      Learn More
-                    </Button>
-                  </motion.div>
-                </motion.div>
-              </div>
-
-              {/* Tradingview Ticker Tape */}
-              <motion.div
-                className="pt-4 max-w-5xl mx-auto"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.7 }}
-              >
-                <div
-                  className="tradingview-widget-container"
-                  style={{ minHeight: 50 }}
-                >
-                  <div
-                    className="tradingview-widget-container__widget"
-                    id="tradingview-ticker-tape"
-                  />
-                </div>
-              </motion.div>
-
-              {/* Trading Rooms Marquee */}
-              <div>
-                <motion.div
-                  className="pt-4 w-full flex justify-center"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.8 }}
-                >
-                  <div className="w-full max-w-5xl">
-                    <div className="relative overflow-hidden">
-                      <div className="absolute left-0 top-4 z-10">
-                        <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
-                          Live Rooms
-                        </Badge>
-                      </div>
-                      <div
-                        className="marquee-track flex items-center gap-6 pl-36"
-                        style={{ height: "300px" }}
-                      >
-                        <div className="marquee-inner flex items-center gap-6">
-                          {(() => {
-                            const rooms = [
-                              {
-                                name: "BTC Strategy Discussion",
-                                creator: { name: "Alex Thompson" },
-                                symbol: "BTCUSDT",
-                                category: "Chat",
-                                isPublic: true,
-                                participants: 24,
-                              },
-                              {
-                                name: "ETH Technical Analysis",
-                                creator: { name: "Sarah Kim" },
-                                symbol: "ETHUSDT",
-                                category: "Voice",
-                                isPublic: true,
-                                participants: 18,
-                              },
-                              {
-                                name: "Futures Trading Strategies",
-                                creator: { name: "Emma Wilson" },
-                                symbol: "BTCUSDT",
-                                category: "Chat",
-                                isPublic: true,
-                                participants: 15,
-                              },
-                              {
-                                name: "Day Trading Strategies",
-                                creator: { name: "William Taylor" },
-                                symbol: "BNBUSDT",
-                                category: "Voice",
-                                isPublic: true,
-                                participants: 19,
-                              },
-                              {
-                                name: "VIP BTC Room",
-                                creator: { name: "David Lee" },
-                                symbol: "BTCUSDT",
-                                category: "Voice",
-                                isPublic: false,
-                                participants: 9,
-                              },
-                              {
-                                name: "ETH Swing Group",
-                                creator: { name: "Olivia Brown" },
-                                symbol: "ETHUSDT",
-                                category: "Chat",
-                                isPublic: true,
-                                participants: 27,
-                              },
-                              {
-                                name: "BNB Quick Trades",
-                                creator: { name: "Sophia Garcia" },
-                                symbol: "BNBUSDT",
-                                category: "Chat",
-                                isPublic: false,
-                                participants: 12,
-                              },
-                              {
-                                name: "BTCUSDT Morning Brief",
-                                creator: { name: "Grace Hall" },
-                                symbol: "BTCUSDT",
-                                category: "Chat",
-                                isPublic: true,
-                                participants: 21,
-                              },
-                              {
-                                name: "ETHUSDT Pro Signals",
-                                creator: { name: "Ethan Wright" },
-                                symbol: "ETHUSDT",
-                                category: "Chat",
-                                isPublic: false,
-                                participants: 14,
-                              },
-                              {
-                                name: "BNBUSDT Insights",
-                                creator: { name: "Nina Patel" },
-                                symbol: "BNBUSDT",
-                                category: "Voice",
-                                isPublic: true,
-                                participants: 17,
-                              },
-                            ];
-                            const allRooms = [...rooms, ...rooms];
-                            return allRooms.map((room, idx) => (
-                              <motion.div
-                                key={idx}
-                                whileHover={{
-                                  scale: 1.035,
-                                  boxShadow: "0 6px 28px 0 rgba(0,0,0,0.15)",
-                                }}
-                                whileTap={{ scale: 0.97 }}
-                                className="flex flex-col justify-between min-w-[320px] max-w-[320px] h-[190px] rounded-2xl border border-gray-300/20 dark:border-gray-700/40 bg-gradient-to-b from-gray-900/60 to-gray-800/80 dark:from-gray-900/80 dark:to-gray-900/60 shadow-lg relative overflow-hidden p-6 transition-all duration-200"
-                              >
-                                <div className="flex items-center justify-between w-full mb-3">
-                                  <span className="text-sm font-bold px-3 py-1.5 rounded-full bg-red-500 text-white">
-                                    LIVE
-                                  </span>
-                                  <span className="text-sm font-semibold px-3 py-1.5 rounded-full bg-gray-800/80 text-gray-100 dark:bg-gray-700/80 dark:text-gray-200">
-                                    {room.participants} participants
-                                  </span>
-                                </div>
-                                <div className="flex flex-col flex-1 justify-start items-start text-left">
-                                  <div className="text-xl font-bold text-white leading-tight mb-1 truncate w-full">
-                                    {room.name}
-                                  </div>
-                                  <div className="text-sm text-gray-400 mb-3 truncate w-full">
-                                    by {room.creator.name}
-                                  </div>
-                                  <div className="flex flex-wrap gap-2 mt-auto pt-2 border-t border-gray-700/30">
-                                    <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-600/20 text-blue-400 tracking-wide">
-                                      {room.symbol}
-                                    </span>
-                                    <span className="text-xs font-medium px-3 py-1 rounded-full bg-purple-600/20 text-purple-300 tracking-wide">
-                                      {room.category}
-                                    </span>
-                                    <span
-                                      className={`text-xs font-medium px-3 py-1 rounded-full ${
-                                        room.isPublic
-                                          ? "bg-green-600/20 text-green-300"
-                                          : "bg-yellow-600/20 text-yellow-200"
-                                      } tracking-wide`}
-                                    >
-                                      {room.isPublic ? "Public" : "Private"}
-                                    </span>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            ));
-                          })()}
+                  <CarouselContent>
+                    {/* First banner: Minimal Welcome & Value Prop */}
+                    <CarouselItem key={1}>
+                      <div className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] lg:h-[380px] flex flex-col md:flex-row justify-center rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-blue-50/60 to-purple-50/40 dark:from-blue-900/30 dark:to-purple-900/20 shadow-xl transition-colors duration-300 px-4 md:px-10 py-10 md:py-0 overflow-hidden">
+                        <div className="flex flex-col justify-center items-start h-full z-10 max-w-lg flex-1">
+                          <div className="flex items-center gap-2 mb-4">
+                            {/* Minimal trading icon (candlestick chart) */}
+                            <svg
+                              width="22"
+                              height="22"
+                              viewBox="0 0 22 22"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                x="2"
+                                y="10"
+                                width="2"
+                                height="7"
+                                rx="1"
+                                fill="#60A5FA"
+                              />
+                              <rect
+                                x="7"
+                                y="7"
+                                width="2"
+                                height="10"
+                                rx="1"
+                                fill="#6366F1"
+                              />
+                              <rect
+                                x="12"
+                                y="5"
+                                width="2"
+                                height="12"
+                                rx="1"
+                                fill="#A78BFA"
+                              />
+                              <rect
+                                x="17"
+                                y="13"
+                                width="2"
+                                height="4"
+                                rx="1"
+                                fill="#60A5FA"
+                              />
+                            </svg>
+                            <span className="uppercase tracking-widest text-xs font-semibold text-gray-400 dark:text-gray-500">
+                              TRADE SMARTER, TOGETHER
+                            </span>
+                          </div>
+                          <div className="max-w-[400px] w-full">
+                            <h2 className="w-full text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 text-left">
+                              Experience Next-Gen Trading with Weetoo
+                            </h2>
+                            <p className="w-full text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-300 mb-8 text-left">
+                              Join a vibrant community, learn, compete, and grow
+                              your trading skills risk-free.
+                            </p>
+                          </div>
+                          <Button
+                            asChild
+                            size="lg"
+                            className="rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold shadow-none h-12"
+                          >
+                            <Link href="/trading">Get Started</Link>
+                          </Button>
+                        </div>
+                        {/* Right-side image illustration (only on md and up) */}
+                        <div className="hidden md:flex flex-1 items-center justify-end h-full z-10">
+                          <img
+                            src="/trading.svg"
+                            alt="Trading dashboard illustration"
+                            className="w-[440px] max-w-[440px] max-h-[500px] h-auto object-contain drop-shadow-xl"
+                          />
                         </div>
                       </div>
-                      {/* Marquee animation overlay for fade effect */}
-                      <div className="pointer-events-none absolute top-0 left-0 w-[70%] h-full bg-gradient-to-r from-blue-50/0 to-transparent dark:from-black/0 z-20" />
-                      <div className="pointer-events-none absolute top-0 right-0 w-[70%] h-full bg-gradient-to-l from-blue-50/0 to-transparent dark:from-black/0 z-20" />
-                    </div>
+                    </CarouselItem>
+                    {/* Second and third banners: numbers only */}
+                    <CarouselItem key={2}>
+                      <div className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] lg:h-[380px] flex flex-col md:flex-row justify-center rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-green-50/60 to-lime-50/40 dark:from-green-900/30 dark:to-lime-900/20 shadow-xl transition-colors duration-300 px-4 md:px-10 py-10 md:py-0 overflow-hidden">
+                        <div className="flex flex-col justify-center items-start h-full z-10 max-w-[400px] w-full flex-1">
+                          <div className="flex items-center gap-2 mb-4">
+                            {/* Minimal icon: news (green theme) */}
+                            <svg
+                              width="22"
+                              height="22"
+                              viewBox="0 0 22 22"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                x="3"
+                                y="5"
+                                width="16"
+                                height="12"
+                                rx="2"
+                                fill="#22C55E"
+                              />
+                              <rect
+                                x="6"
+                                y="8"
+                                width="10"
+                                height="2"
+                                rx="1"
+                                fill="#A3E635"
+                              />
+                              <rect
+                                x="6"
+                                y="12"
+                                width="7"
+                                height="2"
+                                rx="1"
+                                fill="#4ADE80"
+                              />
+                            </svg>
+                            <span className="uppercase tracking-widest text-xs font-semibold text-green-600 dark:text-green-400">
+                              LATEST NEWS
+                            </span>
+                          </div>
+                          <div className="max-w-[400px] w-full">
+                            <h2 className="w-full text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 text-left">
+                              Stay Ahead with Real-Time Market News
+                            </h2>
+                            <p className="w-full text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-300 mb-8 text-left">
+                              Get the latest updates, trends, and insights from
+                              the world of trading and finance.
+                            </p>
+                          </div>
+                          <Button
+                            asChild
+                            size="lg"
+                            className="rounded-lg bg-green-600 hover:bg-green-700 text-white text-base font-semibold shadow-none h-12"
+                          >
+                            <Link href="/information/news">Read News</Link>
+                          </Button>
+                        </div>
+                        {/* Right-side image illustration (only on md and up) */}
+                        <div className="hidden md:flex flex-1 items-center justify-end h-full z-10">
+                          <img
+                            src="/news.svg"
+                            alt="News illustration"
+                            className="w-[320px] max-w-[320px] max-h-[320px] h-auto object-contain drop-shadow-xl"
+                          />
+                        </div>
+                      </div>
+                    </CarouselItem>
+                    <CarouselItem key={3}>
+                      <div className="relative w-full h-[220px] sm:h-[260px] md:h-[320px] lg:h-[380px] flex flex-col md:flex-row justify-center rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-pink-50/60 to-purple-50/40 dark:from-pink-900/30 dark:to-purple-900/20 shadow-xl transition-colors duration-300 px-4 md:px-10 py-10 md:py-0 overflow-hidden">
+                        <div className="flex flex-col justify-center items-start h-full z-10 max-w-[400px] w-full flex-1">
+                          <div className="flex items-center gap-2 mb-4">
+                            {/* Minimal icon: chat bubble */}
+                            <svg
+                              width="22"
+                              height="22"
+                              viewBox="0 0 22 22"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                x="3"
+                                y="6"
+                                width="16"
+                                height="10"
+                                rx="4"
+                                fill="#EC4899"
+                              />
+                              <ellipse
+                                cx="11"
+                                cy="11"
+                                rx="6"
+                                ry="3"
+                                fill="#A78BFA"
+                              />
+                              <circle cx="8" cy="11" r="1" fill="#F472B6" />
+                              <circle cx="11" cy="11" r="1" fill="#F472B6" />
+                              <circle cx="14" cy="11" r="1" fill="#F472B6" />
+                            </svg>
+                            <span className="uppercase tracking-widest text-xs font-semibold text-pink-600 dark:text-pink-400">
+                              COMMUNITY POWER
+                            </span>
+                          </div>
+                          <div className="max-w-[400px] w-full">
+                            <h2 className="w-full text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 text-left">
+                              Connect, Share, and Grow Together
+                            </h2>
+                            <p className="w-full text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-300 mb-8 text-left">
+                              Join discussions, ask questions, and collaborate
+                              with traders from around the world.
+                            </p>
+                          </div>
+                          <Button
+                            asChild
+                            size="lg"
+                            className="rounded-lg bg-pink-600 hover:bg-pink-700 text-white text-base font-semibold shadow-none h-12"
+                          >
+                            <Link href="/board/free-board">
+                              Visit Community
+                            </Link>
+                          </Button>
+                        </div>
+                        {/* Right-side image illustration (only on md and up) */}
+                        <div className="hidden md:flex flex-1 items-center justify-end h-full z-10">
+                          <img
+                            src="/community.svg"
+                            alt="Community illustration"
+                            className="w-[320px] max-w-[320px] max-h-[320px] h-auto object-contain drop-shadow-xl"
+                          />
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  </CarouselContent>
+                </Carousel>
+                {/* Hero Carousel Banner END */}
+
+                {/* Tradingview Ticker Tape */}
+                <motion.div
+                  className="pt-4 max-w-5xl mx-auto"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.7 }}
+                >
+                  <div
+                    className="tradingview-widget-container"
+                    style={{ minHeight: 50 }}
+                  >
+                    <div
+                      className="tradingview-widget-container__widget"
+                      id="tradingview-ticker-tape"
+                    />
                   </div>
                 </motion.div>
+
+                {/* Trading Rooms Marquee */}
+                <div>
+                  <motion.div
+                    className="pt-4 w-full flex justify-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.8 }}
+                  >
+                    <div className="w-full max-w-5xl">
+                      <div className="relative overflow-hidden">
+                        <div className="absolute left-0 top-4 z-10">
+                          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+                            Live Rooms
+                          </Badge>
+                        </div>
+                        <div
+                          className="marquee-track flex items-center gap-6 pl-36"
+                          style={{ height: "300px" }}
+                        >
+                          <div className="marquee-inner flex items-center gap-6">
+                            {(() => {
+                              const rooms = [
+                                {
+                                  name: "BTC Strategy Discussion",
+                                  creator: { name: "Alex Thompson" },
+                                  symbol: "BTCUSDT",
+                                  category: "Chat",
+                                  isPublic: true,
+                                  participants: 24,
+                                },
+                                {
+                                  name: "ETH Technical Analysis",
+                                  creator: { name: "Sarah Kim" },
+                                  symbol: "ETHUSDT",
+                                  category: "Voice",
+                                  isPublic: true,
+                                  participants: 18,
+                                },
+                                {
+                                  name: "Futures Trading Strategies",
+                                  creator: { name: "Emma Wilson" },
+                                  symbol: "BTCUSDT",
+                                  category: "Chat",
+                                  isPublic: true,
+                                  participants: 15,
+                                },
+                                {
+                                  name: "Day Trading Strategies",
+                                  creator: { name: "William Taylor" },
+                                  symbol: "BNBUSDT",
+                                  category: "Voice",
+                                  isPublic: true,
+                                  participants: 19,
+                                },
+                                {
+                                  name: "VIP BTC Room",
+                                  creator: { name: "David Lee" },
+                                  symbol: "BTCUSDT",
+                                  category: "Voice",
+                                  isPublic: false,
+                                  participants: 9,
+                                },
+                                {
+                                  name: "ETH Swing Group",
+                                  creator: { name: "Olivia Brown" },
+                                  symbol: "ETHUSDT",
+                                  category: "Chat",
+                                  isPublic: true,
+                                  participants: 27,
+                                },
+                                {
+                                  name: "BNB Quick Trades",
+                                  creator: { name: "Sophia Garcia" },
+                                  symbol: "BNBUSDT",
+                                  category: "Chat",
+                                  isPublic: false,
+                                  participants: 12,
+                                },
+                                {
+                                  name: "BTCUSDT Morning Brief",
+                                  creator: { name: "Grace Hall" },
+                                  symbol: "BTCUSDT",
+                                  category: "Chat",
+                                  isPublic: true,
+                                  participants: 21,
+                                },
+                                {
+                                  name: "ETHUSDT Pro Signals",
+                                  creator: { name: "Ethan Wright" },
+                                  symbol: "ETHUSDT",
+                                  category: "Chat",
+                                  isPublic: false,
+                                  participants: 14,
+                                },
+                                {
+                                  name: "BNBUSDT Insights",
+                                  creator: { name: "Nina Patel" },
+                                  symbol: "BNBUSDT",
+                                  category: "Voice",
+                                  isPublic: true,
+                                  participants: 17,
+                                },
+                              ];
+                              const allRooms = [...rooms, ...rooms];
+                              return allRooms.map((room, idx) => (
+                                <motion.div
+                                  key={idx}
+                                  whileHover={{
+                                    scale: 1.035,
+                                    boxShadow: "0 6px 28px 0 rgba(0,0,0,0.15)",
+                                  }}
+                                  whileTap={{ scale: 0.97 }}
+                                  className="flex flex-col justify-between min-w-[320px] max-w-[320px] h-[190px] rounded-2xl border border-gray-300/20 dark:border-gray-700/40 bg-gradient-to-b from-gray-900/60 to-gray-800/80 dark:from-gray-900/80 dark:to-gray-900/60 shadow-lg relative overflow-hidden p-6 transition-all duration-200"
+                                >
+                                  <div className="flex items-center justify-between w-full mb-3">
+                                    <span className="text-sm font-bold px-3 py-1.5 rounded-full bg-red-500 text-white">
+                                      LIVE
+                                    </span>
+                                    <span className="text-sm font-semibold px-3 py-1.5 rounded-full bg-gray-800/80 text-gray-100 dark:bg-gray-700/80 dark:text-gray-200">
+                                      {room.participants} participants
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-col flex-1 justify-start items-start text-left">
+                                    <div className="text-xl font-bold text-white leading-tight mb-1 truncate w-full">
+                                      {room.name}
+                                    </div>
+                                    <div className="text-sm text-gray-400 mb-3 truncate w-full">
+                                      by {room.creator.name}
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 mt-auto pt-2 border-t border-gray-700/30">
+                                      <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-600/20 text-blue-400 tracking-wide">
+                                        {room.symbol}
+                                      </span>
+                                      <span className="text-xs font-medium px-3 py-1 rounded-full bg-purple-600/20 text-purple-300 tracking-wide">
+                                        {room.category}
+                                      </span>
+                                      <span
+                                        className={`text-xs font-medium px-3 py-1 rounded-full ${
+                                          room.isPublic
+                                            ? "bg-green-600/20 text-green-300"
+                                            : "bg-yellow-600/20 text-yellow-200"
+                                        } tracking-wide`}
+                                      >
+                                        {room.isPublic ? "Public" : "Private"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              ));
+                            })()}
+                          </div>
+                        </div>
+                        {/* Marquee animation overlay for fade effect */}
+                        <div className="pointer-events-none absolute top-0 left-0 w-[70%] h-full bg-gradient-to-r from-blue-50/0 to-transparent dark:from-black/0 z-20" />
+                        <div className="pointer-events-none absolute top-0 right-0 w-[70%] h-full bg-gradient-to-l from-blue-50/0 to-transparent dark:from-black/0 z-20" />
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
               </div>
             </div>
           </div>

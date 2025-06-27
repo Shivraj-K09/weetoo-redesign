@@ -238,6 +238,7 @@ export default function Home() {
               <div className="container mx-auto">
                 {/* Hero Carousel Banner START */}
                 <Carousel
+                  opts={{ loop: true }}
                   plugins={[
                     Autoplay({ delay: 3500, stopOnInteraction: false }),
                   ]}

@@ -1,7 +1,6 @@
 import { ChevronLeftIcon, TrendingUpIcon } from "lucide-react";
 import Link from "next/link";
 import { RegisterForm } from "./register-form";
-import { ImageCarousel } from "../login/ImageCarousel";
 
 export const metadata = {
   title: "Register | Weetoo",
@@ -34,7 +33,6 @@ export default function Register() {
           </div>
           <RegisterForm />
         </div>
-        <ImageCarousel />
       </div>
     </div>
   );

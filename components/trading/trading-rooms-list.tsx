@@ -193,6 +193,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 32,
+    pnlPercentage: 1.7,
   },
   {
     id: "5",
@@ -208,6 +209,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 15,
+    pnlPercentage: -3.4,
   },
   {
     id: "6",
@@ -223,6 +225,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: true,
     participants: 9,
+    pnlPercentage: 2.9,
   },
   {
     id: "7",
@@ -238,6 +241,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 41,
+    pnlPercentage: 0.8,
   },
   {
     id: "8",
@@ -253,6 +257,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: false,
     participants: 5,
+    pnlPercentage: -1.2,
   },
   {
     id: "9",
@@ -268,6 +273,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 27,
+    pnlPercentage: 4.5,
   },
   {
     id: "10",
@@ -283,6 +289,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 19,
+    pnlPercentage: -0.7,
   },
   {
     id: "11",
@@ -298,6 +305,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: true,
     participants: 11,
+    pnlPercentage: 3.1,
   },
   {
     id: "12",
@@ -313,6 +321,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: false,
     participants: 14,
+    pnlPercentage: -2.8,
   },
   {
     id: "13",
@@ -328,6 +337,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: true,
     participants: 6,
+    pnlPercentage: 1.2,
   },
   {
     id: "14",
@@ -343,6 +353,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 8,
+    pnlPercentage: 2.3,
   },
   {
     id: "15",
@@ -358,6 +369,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 17,
+    pnlPercentage: -1.9,
   },
   {
     id: "16",
@@ -373,6 +385,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: false,
     participants: 12,
+    pnlPercentage: 0.6,
   },
   {
     id: "17",
@@ -388,6 +401,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: true,
     participants: 21,
+    pnlPercentage: 5.0,
   },
   {
     id: "18",
@@ -403,6 +417,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 23,
+    pnlPercentage: -4.2,
   },
   {
     id: "19",
@@ -418,6 +433,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: false,
     isHosted: true,
     participants: 10,
+    pnlPercentage: 3.7,
   },
   {
     id: "20",
@@ -433,6 +449,7 @@ const mockTradingRooms: TradingRoom[] = [
     isPublic: true,
     isHosted: false,
     participants: 26,
+    pnlPercentage: -0.5,
   },
 ];
 
@@ -996,9 +1013,9 @@ export function TradingRoomsList() {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className="h-16">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="last:py-0">
+                    <TableCell key={cell.id} className="pl-5 py-5">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

@@ -12,7 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { UserDropdown } from "./user/user-dropdown";
+// import { UserDropdown } from "./user/user-dropdown";
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
@@ -38,7 +38,13 @@ export function Header() {
           </Button> */}
 
           <ThemeToggle />
-          <UserDropdown />
+          {/* <UserDropdown /> */}
+          <Button variant="outline" className="cursor-pointer shadow-none h-8">
+            <Link href="/login">Login</Link>
+          </Button>
+          <Button className="cursor-pointer shadow-none h-8">
+            <Link href="/register">Register</Link>
+          </Button>
 
           {/* Mobile Menu Button */}
           <Sheet>

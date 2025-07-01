@@ -76,7 +76,7 @@ export function LoginForm() {
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span
-              className="w-full border-t border-gray-800"
+              className="w-full border-t border-border"
               aria-hidden="true"
             ></span>
           </div>

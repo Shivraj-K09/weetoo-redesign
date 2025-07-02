@@ -91,6 +91,7 @@ interface TradingRoom {
   symbol: string;
   category: "regular" | "voice";
   createdAt: string;
+  createdAtTimestamp: number;
   isPublic: boolean;
   isHosted: boolean;
   participants: number;
@@ -142,6 +143,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "BTC/USDT",
     category: "regular",
     createdAt: "2h ago",
+    createdAtTimestamp: Date.now() - 2 * 60 * 60 * 1000, // 2 hours ago
     isPublic: true,
     isHosted: true,
     participants: 24,
@@ -158,6 +160,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "ETH/USDT",
     category: "voice",
     createdAt: "3h ago",
+    createdAtTimestamp: Date.now() - 3 * 60 * 60 * 1000, // 3 hours ago
     isPublic: true,
     isHosted: false,
     participants: 18,
@@ -174,6 +177,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "SOL/USDT",
     category: "regular",
     createdAt: "5h ago",
+    createdAtTimestamp: Date.now() - 5 * 60 * 60 * 1000, // 5 hours ago
     isPublic: false,
     isHosted: false,
     participants: 7,
@@ -190,6 +194,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "XRP/KRW",
     category: "voice",
     createdAt: "6h ago",
+    createdAtTimestamp: Date.now() - 6 * 60 * 60 * 1000, // 6 hours ago
     isPublic: true,
     isHosted: false,
     participants: 32,
@@ -206,6 +211,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "BTC/USDT",
     category: "regular",
     createdAt: "8h ago",
+    createdAtTimestamp: Date.now() - 8 * 60 * 60 * 1000, // 8 hours ago
     isPublic: true,
     isHosted: false,
     participants: 15,
@@ -222,6 +228,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "DOGE/USDT",
     category: "voice",
     createdAt: "10h ago",
+    createdAtTimestamp: Date.now() - 10 * 60 * 60 * 1000, // 10 hours ago
     isPublic: false,
     isHosted: true,
     participants: 9,
@@ -238,6 +245,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "ADA/USDT",
     category: "regular",
     createdAt: "12h ago",
+    createdAtTimestamp: Date.now() - 12 * 60 * 60 * 1000, // 12 hours ago
     isPublic: true,
     isHosted: false,
     participants: 41,
@@ -254,6 +262,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "ETH/BTC",
     category: "voice",
     createdAt: "1d ago",
+    createdAtTimestamp: Date.now() - 24 * 60 * 60 * 1000, // 1 day ago
     isPublic: false,
     isHosted: false,
     participants: 5,
@@ -270,6 +279,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "LINK/USDT",
     category: "regular",
     createdAt: "1d ago",
+    createdAtTimestamp: Date.now() - 24 * 60 * 60 * 1000, // 1 day ago
     isPublic: true,
     isHosted: false,
     participants: 27,
@@ -286,6 +296,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "BNB/USDT",
     category: "voice",
     createdAt: "2d ago",
+    createdAtTimestamp: Date.now() - 2 * 24 * 60 * 60 * 1000, // 2 days ago
     isPublic: true,
     isHosted: false,
     participants: 19,
@@ -302,6 +313,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "BTC/USDT",
     category: "voice",
     createdAt: "3d ago",
+    createdAtTimestamp: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3 days ago
     isPublic: true,
     isHosted: true,
     participants: 11,
@@ -318,6 +330,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "ETH/USDT",
     category: "regular",
     createdAt: "2d ago",
+    createdAtTimestamp: Date.now() - 2 * 24 * 60 * 60 * 1000, // 2 days ago
     isPublic: false,
     isHosted: false,
     participants: 14,
@@ -334,6 +347,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "BTC/USD",
     category: "voice",
     createdAt: "4d ago",
+    createdAtTimestamp: Date.now() - 4 * 24 * 60 * 60 * 1000, // 4 days ago
     isPublic: false,
     isHosted: true,
     participants: 6,
@@ -350,6 +364,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "USDT/USD",
     category: "regular",
     createdAt: "5d ago",
+    createdAtTimestamp: Date.now() - 5 * 24 * 60 * 60 * 1000, // 5 days ago
     isPublic: true,
     isHosted: false,
     participants: 8,
@@ -366,6 +381,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "UNI/USDT",
     category: "regular",
     createdAt: "6d ago",
+    createdAtTimestamp: Date.now() - 6 * 24 * 60 * 60 * 1000, // 6 days ago
     isPublic: true,
     isHosted: false,
     participants: 17,
@@ -382,6 +398,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "XRP/KRW",
     category: "voice",
     createdAt: "1w ago",
+    createdAtTimestamp: Date.now() - 7 * 24 * 60 * 60 * 1000, // 1 week ago
     isPublic: false,
     isHosted: false,
     participants: 12,
@@ -398,6 +415,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "ETH/USD",
     category: "regular",
     createdAt: "1w ago",
+    createdAtTimestamp: Date.now() - 7 * 24 * 60 * 60 * 1000, // 1 week ago
     isPublic: true,
     isHosted: true,
     participants: 21,
@@ -414,6 +432,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "BTC/JPY",
     category: "voice",
     createdAt: "1w ago",
+    createdAtTimestamp: Date.now() - 7 * 24 * 60 * 60 * 1000, // 1 week ago
     isPublic: true,
     isHosted: false,
     participants: 23,
@@ -430,6 +449,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "AVAX/USDT",
     category: "regular",
     createdAt: "2w ago",
+    createdAtTimestamp: Date.now() - 14 * 24 * 60 * 60 * 1000, // 2 weeks ago
     isPublic: false,
     isHosted: true,
     participants: 10,
@@ -446,6 +466,7 @@ const mockTradingRooms: TradingRoom[] = [
     symbol: "MATIC/USDT",
     category: "voice",
     createdAt: "2w ago",
+    createdAtTimestamp: Date.now() - 14 * 24 * 60 * 60 * 1000, // 2 weeks ago
     isPublic: true,
     isHosted: false,
     participants: 26,
@@ -629,11 +650,17 @@ export function TradingRoomsList() {
           return (
             <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <ClockIcon className="h-3.5 w-3.5" />
-              {row.getValue("createdAt")}
+              {row.original.createdAt}
             </div>
           );
         },
         size: 140,
+        enableSorting: true,
+        sortingFn: (rowA, rowB) => {
+          return (
+            rowA.original.createdAtTimestamp - rowB.original.createdAtTimestamp
+          );
+        },
       },
       {
         id: "actions",
@@ -981,22 +1008,27 @@ export function TradingRoomsList() {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                          {{
-                            asc: (
-                              <ChevronUpIcon
-                                className="shrink-0 opacity-60"
-                                size={16}
-                                aria-hidden="true"
-                              />
-                            ),
-                            desc: (
+                          {header.column.getIsSorted() === "asc" ? (
+                            <ChevronUpIcon
+                              className="shrink-0 opacity-80 text-primary"
+                              size={16}
+                              aria-hidden="true"
+                            />
+                          ) : header.column.getIsSorted() === "desc" ? (
+                            <ChevronDownIcon
+                              className="shrink-0 opacity-80 text-primary"
+                              size={16}
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <span className="flex flex-col items-center opacity-40">
+                              <ChevronUpIcon size={12} />
                               <ChevronDownIcon
-                                className="shrink-0 opacity-60"
-                                size={16}
-                                aria-hidden="true"
+                                size={12}
+                                style={{ marginTop: -4 }}
                               />
-                            ),
-                          }[header.column.getIsSorted() as string] ?? null}
+                            </span>
+                          )}
                         </div>
                       ) : (
                         flexRender(

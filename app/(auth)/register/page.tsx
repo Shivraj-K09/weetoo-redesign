@@ -1,6 +1,5 @@
 import { TrendingUpIcon } from "lucide-react";
 import Link from "next/link";
-import { RightSide } from "@/components/right-side";
 import { RegisterForm } from "./register-form";
 
 export const metadata = {
@@ -11,7 +10,7 @@ export const metadata = {
 
 export default function Login() {
   return (
-    <div className="h-screen bg-background">
+    <div className="h-screen bg-background w-full">
       <div className="w-full h-full flex">
         <div className="w-full h-full flex relative">
           <div className="absolute top-7 left-10 flex items-center gap-2">
@@ -28,7 +27,6 @@ export default function Login() {
           </div>
           <RegisterForm />
         </div>
-        <RightSide />
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 import { TrendingUpIcon } from "lucide-react";
 import Link from "next/link";
 import { LoginForm } from "./login-form";
-import { RightSide } from "@/components/right-side";
 
 export const metadata = {
   title: "Login | Weetoo",
@@ -10,7 +9,7 @@ export const metadata = {
 
 export default function Login() {
   return (
-    <div className="h-screen bg-background">
+    <div className="h-screen bg-background w-full">
       <div className="w-full h-full flex">
         <div className="w-full h-full flex relative">
           <div className="absolute top-7 left-10 flex items-center gap-2">
@@ -27,7 +26,6 @@ export default function Login() {
           </div>
           <LoginForm />
         </div>
-        <RightSide />
       </div>
     </div>
   );

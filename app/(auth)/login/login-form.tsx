@@ -7,7 +7,7 @@ import Link from "next/link";
 export function LoginForm() {
   return (
     <div className="w-full h-full flex items-center justify-center flex-col">
-      <div className="flex flex-col w-full max-w-md gap-5">
+      <div className="flex flex-col w-full max-w-md gap-4">
         <div className="flex gap-0.5 flex-col select-none">
           <h3 className="text-[1.3rem] font-semibold">Welcome Back</h3>
           <p className="text-muted-foreground text-sm">

@@ -1,6 +1,6 @@
 import { TrendingUpIcon } from "lucide-react";
 import Link from "next/link";
-import { RightSide } from "./right-side";
+import { RightSide } from "@/components/right-side";
 import { RegisterForm } from "./register-form";
 
 export const metadata = {

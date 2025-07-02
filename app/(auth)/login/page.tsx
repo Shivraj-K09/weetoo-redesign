@@ -1,7 +1,7 @@
 import { TrendingUpIcon } from "lucide-react";
 import Link from "next/link";
 import { LoginForm } from "./login-form";
-import { RightSide } from "./right-side";
+import { RightSide } from "@/components/right-side";
 
 export const metadata = {
   title: "Login | Weetoo",

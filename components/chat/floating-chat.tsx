@@ -69,6 +69,15 @@ export function FloatingChat() {
   const [authChecked, setAuthChecked] = useState(false);
   const lastSessionId = useRef<string | null>(null);
 
+  const EXP_PER_LEVEL = 10000;
+  const exp = user?.exp ?? 0;
+  const level = Math.floor(exp / EXP_PER_LEVEL);
+  const expThisLevel = exp - level * EXP_PER_LEVEL;
+  const progress = Math.max(
+    0,
+    Math.min(100, (expThisLevel / EXP_PER_LEVEL) * 100)
+  );
+
   // Save state to localStorage whenever it changes
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -394,39 +403,20 @@ export function FloatingChat() {
                     {/* Experience Level - Redesigned for minimal and clean look */}
                     <div className="w-full flex flex-col gap-y-0.5 mt-1 sm:mt-2 sm:gap-y-1">
                       <div className="flex items-center justify-between text-[10px] text-muted-foreground sm:text-xs">
-                        <span>Level {user.level ?? 0}</span>
-                        <span>Level {(user.level ?? 0) + 1}</span>
+                        <span>Level {level}</span>
+                        <span>Level {level + 1}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-1 dark:bg-gray-700 sm:h-1.5">
                         <div
                           className="bg-red-500 h-1 rounded-full sm:h-1.5"
                           style={{
-                            width: `${Math.max(
-                              0,
-                              Math.min(
-                                100,
-                                (((user.exp ?? 0) - (user.level ?? 0) * 10000) /
-                                  10000) *
-                                  100
-                              )
-                            )}%`,
+                            width: `${progress}%`,
                           }}
                         ></div>
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-muted-foreground sm:text-xs">
-                        <span>{`${Math.max(
-                          0,
-                          Math.min(
-                            100,
-                            (((user.exp ?? 0) - (user.level ?? 0) * 10000) /
-                              10000) *
-                              100
-                          )
-                        ).toFixed(0)}% Complete`}</span>
-                        <span className="text-red-500">{`${(
-                          (user.exp ?? 0) -
-                          (user.level ?? 0) * 10000
-                        ).toLocaleString()} / 10,000 EXP`}</span>
+                        <span>{`${progress.toFixed(0)}% Complete`}</span>
+                        <span className="text-red-500">{`${expThisLevel.toLocaleString()} / ${EXP_PER_LEVEL} EXP`}</span>
                       </div>
                     </div>
                   </div>

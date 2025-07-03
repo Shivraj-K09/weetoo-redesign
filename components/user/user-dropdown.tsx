@@ -135,18 +135,17 @@ export function UserDropdown() {
       user.avatar_url || "https://vercel.com/api/www/avatar?s=64&u=weetoo";
     const nickname = user.nickname || user.email || "-";
     const email = user.email || "-";
-    const level = user.level ?? 0;
+    const EXP_PER_LEVEL = 10000;
     const exp = user.exp ?? 0;
+    const level = Math.floor(exp / EXP_PER_LEVEL);
+    const expThisLevel = exp - level * EXP_PER_LEVEL;
+    const progress = Math.max(
+      0,
+      Math.min(100, (expThisLevel / EXP_PER_LEVEL) * 100)
+    );
     const kor_coins = user.kor_coins ?? 0;
     const isVerified = !!user.verified;
     const role = user.role || "user";
-    const EXP_PER_LEVEL = 10000;
-    const prevLevelExp = level * EXP_PER_LEVEL;
-    const progress = Math.max(
-      0,
-      Math.min(100, ((exp - prevLevelExp) / EXP_PER_LEVEL) * 100)
-    );
-    const expThisLevel = exp - prevLevelExp;
     return {
       fullName,
       avatarUrl,

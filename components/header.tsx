@@ -1,7 +1,10 @@
 "use client";
 
+import { createClient } from "@/lib/supabase/client";
 import { Menu as MenuIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { Menu } from "./menu";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "./ui/button";
@@ -12,10 +15,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { useEffect, useState, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { UserDropdown } from "./user/user-dropdown";
-import { useRouter } from "next/navigation";
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 

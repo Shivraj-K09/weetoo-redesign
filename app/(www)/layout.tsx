@@ -1,24 +1,25 @@
+"use client";
+
 import { FloatingChat } from "@/components/chat/floating-chat";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Weetoo - We Trade",
-  description:
-    "Weetoo is a platform for the trading simulation of cryptocurrencies, stocks, and forex. Join us to learn, practice, and compete in a risk-free environment.",
-};
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  // List of routes where Footer should be hidden
+  const hideFooterRoutes = ["/profile"];
+  const hideFooter = hideFooterRoutes.includes(pathname);
+
   return (
     <div className="flex-1 flex flex-col font-[family-name:var(--font-geist-sans)] min-h-screen w-full">
       <Header />
       <main className="flex-1 flex flex-col">{children}</main>
-      <Footer />
+      {!hideFooter && <Footer />}
       <FloatingChat />
     </div>
   );

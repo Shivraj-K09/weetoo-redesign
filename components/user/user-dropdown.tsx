@@ -11,15 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
 import { GradientAvatar } from "@/utils/gradient-avatar";
-import {
-  Coins,
-  InboxIcon,
-  KeyRoundIcon,
-  LogOutIcon,
-  ShieldIcon,
-  Star,
-  UserIcon,
-} from "lucide-react";
+import { Coins, LogOutIcon, ShieldIcon, Star, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -325,7 +317,7 @@ export function UserDropdown() {
                 Profile
               </DropdownMenuItem>
             </Link>
-            <Link href="/inbox">
+            {/* <Link href="/inbox">
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
                 <InboxIcon className="w-4 h-4 mr-3 text-muted-foreground" />
                 Inbox
@@ -336,7 +328,7 @@ export function UserDropdown() {
                 <KeyRoundIcon className="w-4 h-4 mr-3 text-muted-foreground" />
                 UID Registration
               </DropdownMenuItem>
-            </Link>
+            </Link> */}
             {/* Admin Dashboard: Only for admin or super_admin */}
             {["admin", "super_admin"].includes(role) && (
               <Link href="/admin-verification">

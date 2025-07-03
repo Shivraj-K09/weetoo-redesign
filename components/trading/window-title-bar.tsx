@@ -3,14 +3,6 @@
 import type React from "react";
 
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
-import { GlobeIcon, LockIcon, XIcon } from "lucide-react";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -21,6 +13,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { GlobeIcon, LockIcon } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface WindowTitleBarProps {
@@ -113,14 +113,6 @@ export function WindowTitleBar({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        {/* Close (X) Button */}
-        <button
-          onClick={onClose}
-          className="w-8 h-8 cursor-pointer flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors rounded"
-          aria-label="Close"
-        >
-          <XIcon className="h-3 w-3" />
-        </button>
       </div>
     </div>
   );

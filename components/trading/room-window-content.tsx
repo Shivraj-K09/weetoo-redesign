@@ -46,7 +46,7 @@ export default function RoomWindowContent() {
             <div className="w-full h-[300px] border border-border bg-background">
               <ParticipantsList />
             </div>
-            <div className="w-full h-full border border-border bg-background">
+            <div className="w-full h-[515px] border border-border bg-background">
               <Chat />
             </div>
           </div>

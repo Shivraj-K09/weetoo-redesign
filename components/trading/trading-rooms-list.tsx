@@ -77,7 +77,6 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { CreateRoom } from "./create-room";
-import { TradingRoomWindow } from "./room-window";
 
 // Types
 interface TradingRoom {
@@ -491,15 +490,6 @@ export function TradingRoomsList() {
     },
   ]);
 
-  const [openWindow, setOpenWindow] = useState<{
-    isOpen: boolean;
-    roomName: string;
-    roomData?: TradingRoom;
-  }>({
-    isOpen: false,
-    roomName: "",
-  });
-
   const columns = useMemo<ColumnDef<TradingRoom>[]>(
     () => [
       {
@@ -670,13 +660,10 @@ export function TradingRoomsList() {
             <Button
               size="sm"
               className="px-4 h-9 font-medium cursor-pointer"
-              onClick={() =>
-                setOpenWindow({
-                  isOpen: true,
-                  roomName: row.original.name,
-                  roomData: row.original,
-                })
-              }
+              onClick={() => {
+                const url = `/room/${row.original.id}`;
+                window.open(url, "_blank");
+              }}
             >
               <DoorOpenIcon />
               Join Room
@@ -1184,13 +1171,6 @@ export function TradingRoomsList() {
           </Pagination>
         </div>
       </div>
-
-      <TradingRoomWindow
-        roomName={openWindow.roomName}
-        isPublic={openWindow.roomData?.isPublic ?? true}
-        isOpen={openWindow.isOpen}
-        onClose={() => setOpenWindow({ isOpen: false, roomName: "" })}
-      />
     </div>
   );
 }

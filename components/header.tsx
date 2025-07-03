@@ -12,11 +12,56 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-// import { UserDropdown } from "./user/user-dropdown";
+import { useEffect, useState, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { UserDropdown } from "./user/user-dropdown";
+import { useRouter } from "next/navigation";
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export function Header() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createClient();
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) {
+        setIsLoggedIn(!!data.session);
+        setAuthChecked(true);
+      }
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setIsLoggedIn(!!session);
+        setAuthChecked(true);
+        router.refresh();
+      }
+    );
+    return () => {
+      mounted = false;
+      listener?.subscription.unsubscribe();
+    };
+  }, [router]);
+
+  // Memoized render for auth section
+  const renderAuthSection = useCallback(() => {
+    if (!authChecked) return <div className="w-[120px] h-8" />;
+    if (isLoggedIn) return <UserDropdown />;
+    return (
+      <>
+        <Button variant="outline" className="cursor-pointer shadow-none h-8">
+          <Link href="/login">Login</Link>
+        </Button>
+        <Button className="cursor-pointer shadow-none h-8">
+          <Link href="/register">Register</Link>
+        </Button>
+      </>
+    );
+  }, [authChecked, isLoggedIn]);
+
   return (
     <header className="w-full border-dashed border-border border-b sticky top-0 z-50 bg-background ">
       <div className="h-14 flex justify-between w-full items-center container mx-auto gap-2 md:gap-4 px-4">
@@ -38,13 +83,10 @@ export function Header() {
           </Button> */}
 
           <ThemeToggle />
+
+          {renderAuthSection()}
+
           {/* <UserDropdown /> */}
-          <Button variant="outline" className="cursor-pointer shadow-none h-8">
-            <Link href="/login">Login</Link>
-          </Button>
-          <Button className="cursor-pointer shadow-none h-8">
-            <Link href="/register">Register</Link>
-          </Button>
 
           {/* Mobile Menu Button */}
           <Sheet>

@@ -15,6 +15,7 @@ import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function Home() {
   const { theme } = useTheme();
@@ -61,6 +62,17 @@ export default function Home() {
       if (container) container.innerHTML = "";
     };
   }, [theme]);
+
+  // Log Supabase user/session on mount
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data, error }) => {
+      console.log("[Home] Supabase session:", { data, error });
+    });
+    supabase.auth.getUser().then(({ data, error }) => {
+      console.log("[Home] Supabase user:", { data, error });
+    });
+  }, []);
 
   // Free Board Images
   const freeBoardImages = [

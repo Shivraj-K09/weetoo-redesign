@@ -1,13 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import type React from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useRoomStore } from "@/lib/store/room-store";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { GradientAvatar } from "@/utils/gradient-avatar";
 import {
   ChevronUp,
   Coins,
@@ -22,6 +26,19 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { ChatMessage } from "./chat-message";
 import { mockMessages, mockOnlineUsers } from "./mock-data";
+
+// Add UserData interface for user state
+interface UserData {
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  nickname?: string;
+  email?: string;
+  avatar_url?: string;
+  level?: number;
+  exp?: number;
+  kor_coins?: number;
+}
 
 export function FloatingChat() {
   const isRoomOpen = useRoomStore(
@@ -47,6 +64,10 @@ export function FloatingChat() {
   const [unreadCount, setUnreadCount] = useState(2);
   const chatRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [user, setUser] = useState<UserData | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
+  const lastSessionId = useRef<string | null>(null);
 
   // Save state to localStorage whenever it changes
   useEffect(() => {
@@ -99,6 +120,85 @@ export function FloatingChat() {
     return () => clearInterval(interval);
   }, [isOpen, isMinimized]);
 
+  useEffect(() => {
+    let mounted = true;
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data }) => {
+      const sessionId = data.session?.user?.id || null;
+      if (lastSessionId.current === sessionId && user) {
+        setUserLoading(false);
+        setAuthChecked(true);
+        return;
+      }
+      lastSessionId.current = sessionId;
+      if (!sessionId) {
+        if (mounted) setUser(null);
+        setUserLoading(false);
+        setAuthChecked(true);
+        return;
+      }
+      setUserLoading(true);
+      supabase
+        .from("users")
+        .select(
+          "id, first_name, last_name, nickname, email, avatar_url, level, exp, kor_coins"
+        )
+        .eq("id", sessionId)
+        .single()
+        .then(
+          ({ data, error }: { data: UserData | null; error: Error | null }) => {
+            if (mounted) {
+              setUser(error ? null : data);
+              setUserLoading(false);
+              setAuthChecked(true);
+            }
+          }
+        );
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        const sessionId = session?.user?.id || null;
+        if (lastSessionId.current === sessionId && user) {
+          setUserLoading(false);
+          setAuthChecked(true);
+          return;
+        }
+        lastSessionId.current = sessionId;
+        if (!sessionId) {
+          setUser(null);
+          setUserLoading(false);
+          setAuthChecked(true);
+          return;
+        }
+        setUserLoading(true);
+        supabase
+          .from("users")
+          .select(
+            "id, first_name, last_name, nickname, email, avatar_url, level, exp, kor_coins"
+          )
+          .eq("id", sessionId)
+          .single()
+          .then(
+            ({
+              data,
+              error,
+            }: {
+              data: UserData | null;
+              error: Error | null;
+            }) => {
+              setUser(error ? null : data);
+              setUserLoading(false);
+              setAuthChecked(true);
+            }
+          );
+      }
+    );
+    return () => {
+      mounted = false;
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim()) {
@@ -146,6 +246,10 @@ export function FloatingChat() {
   const toggleUsersList = () => {
     setShowUsersList(!showUsersList);
   };
+
+  if (!authChecked) {
+    return null;
+  }
 
   return (
     <>
@@ -245,53 +349,125 @@ export function FloatingChat() {
 
             {!isMinimized && (
               <>
-                {/* Profile Section */}
-                <div className="bg-gradient-to-r from-[#549BCC]/5 to-[#63b3e4]/5 border-b border-border p-2 sm:p-3">
-                  <div className="flex items-center gap-2 min-w-0 sm:gap-3">
-                    <Avatar className="h-8 w-8 ring-2 ring-[#549BCC]/20 sm:h-12 sm:w-12">
-                      <AvatarImage src="" alt="User" />
-                      <AvatarFallback className="bg-gradient-to-br from-[#549BCC] to-[#63b3e4] text-white text-xs sm:text-base">
-                        U
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-xs truncate sm:text-sm">
-                        User Name
-                      </h4>
-                      <div className="flex items-center gap-2 mt-0.5 sm:gap-4 sm:mt-1">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3.5 w-3.5 text-yellow-500 sm:h-4 sm:w-4" />
-                          <span className="text-[10px] text-muted-foreground sm:text-xs">
-                            1,234 XP
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Coins className="h-3.5 w-3.5 text-amber-500 sm:h-4 sm:w-4" />
-                          <span className="text-[10px] text-muted-foreground sm:text-xs">
-                            567 KOR
-                          </span>
+                {/* Profile Section or Login/Register */}
+                {authChecked && user ? (
+                  <div className="bg-gradient-to-r from-[#549BCC]/5 to-[#63b3e4]/5 border-b border-border p-2 sm:p-3">
+                    <div className="flex items-center gap-2 min-w-0 sm:gap-3">
+                      <Avatar className="h-8 w-8 ring-2 ring-[#549BCC]/20 sm:h-12 sm:w-12">
+                        {user.avatar_url ? (
+                          <AvatarImage
+                            src={user.avatar_url}
+                            alt={user.nickname || user.email || "User"}
+                          />
+                        ) : user.id ? (
+                          <GradientAvatar id={user.id} />
+                        ) : (
+                          <AvatarFallback className="bg-gradient-to-br from-[#549BCC] to-[#63b3e4] text-white text-xs sm:text-base">
+                            {user.nickname?.[0] || user.email?.[0] || "U"}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-xs truncate sm:text-sm">
+                          {user.first_name || user.last_name
+                            ? `${user.first_name || ""} ${
+                                user.last_name || ""
+                              }`.trim()
+                            : user.nickname || user.email || "User"}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-0.5 sm:gap-4 sm:mt-1">
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3.5 w-3.5 text-yellow-500 sm:h-4 sm:w-4" />
+                            <span className="text-[10px] text-muted-foreground sm:text-xs">
+                              {(user.exp ?? 0).toLocaleString()} XP
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Coins className="h-3.5 w-3.5 text-amber-500 sm:h-4 sm:w-4" />
+                            <span className="text-[10px] text-muted-foreground sm:text-xs">
+                              {(user.kor_coins ?? 0).toLocaleString()} KOR
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
+                    {/* Experience Level - Redesigned for minimal and clean look */}
+                    <div className="w-full flex flex-col gap-y-0.5 mt-1 sm:mt-2 sm:gap-y-1">
+                      <div className="flex items-center justify-between text-[10px] text-muted-foreground sm:text-xs">
+                        <span>Level {user.level ?? 0}</span>
+                        <span>Level {(user.level ?? 0) + 1}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1 dark:bg-gray-700 sm:h-1.5">
+                        <div
+                          className="bg-red-500 h-1 rounded-full sm:h-1.5"
+                          style={{
+                            width: `${Math.max(
+                              0,
+                              Math.min(
+                                100,
+                                (((user.exp ?? 0) - (user.level ?? 0) * 10000) /
+                                  10000) *
+                                  100
+                              )
+                            )}%`,
+                          }}
+                        ></div>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] text-muted-foreground sm:text-xs">
+                        <span>{`${Math.max(
+                          0,
+                          Math.min(
+                            100,
+                            (((user.exp ?? 0) - (user.level ?? 0) * 10000) /
+                              10000) *
+                              100
+                          )
+                        ).toFixed(0)}% Complete`}</span>
+                        <span className="text-red-500">{`${(
+                          (user.exp ?? 0) -
+                          (user.level ?? 0) * 10000
+                        ).toLocaleString()} / 10,000 EXP`}</span>
+                      </div>
+                    </div>
                   </div>
-                  {/* Experience Level - Redesigned for minimal and clean look */}
-                  <div className="w-full flex flex-col gap-y-0.5 mt-1 sm:mt-2 sm:gap-y-1">
-                    <div className="flex items-center justify-between text-[10px] text-muted-foreground sm:text-xs">
-                      <span>Level 0</span>
-                      <span>Level 1</span>
+                ) : userLoading ? (
+                  <div className="bg-gradient-to-r from-[#549BCC]/5 to-[#63b3e4]/5 border-b border-border p-2 sm:p-3">
+                    <div className="flex items-center gap-2 min-w-0 sm:gap-3">
+                      <Skeleton className="h-8 w-8 rounded-full sm:h-12 sm:w-12" />
+                      <div className="flex-1 min-w-0">
+                        <Skeleton className="h-4 w-20 mb-1" />
+                        <div className="flex items-center gap-2 mt-0.5 sm:gap-4 sm:mt-1">
+                          <Skeleton className="h-3 w-10" />
+                          <Skeleton className="h-3 w-10" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1 dark:bg-gray-700 sm:h-1.5">
-                      <div
-                        className="bg-red-500 h-1 rounded-full sm:h-1.5"
-                        style={{ width: `4%` }}
-                      ></div>
-                    </div>
-                    <div className="flex items-center justify-between text-[10px] text-muted-foreground sm:text-xs">
-                      <span>4% Complete</span>
-                      <span className="text-red-500">450 EXP</span>
+                    <div className="w-full flex flex-col gap-y-0.5 mt-1 sm:mt-2 sm:gap-y-1">
+                      <Skeleton className="h-2 w-full" />
+                      <Skeleton className="h-2 w-1/2" />
                     </div>
                   </div>
-                </div>
+                ) : authChecked && !user ? (
+                  <div className="bg-gradient-to-r from-[#549BCC]/5 to-[#63b3e4]/5 border-b border-border p-2 sm:p-3 flex items-center gap-2 justify-between">
+                    <span className="text-xs sm:text-sm">Please </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-3 py-1 text-xs sm:h-9 sm:px-4 sm:text-sm"
+                      asChild
+                    >
+                      <Link href="/login">Login</Link>
+                    </Button>
+                    <span className="text-xs sm:text-sm">or</span>
+                    <Button
+                      size="sm"
+                      className="h-7 px-3 py-1 text-xs sm:h-9 sm:px-4 sm:text-sm"
+                      asChild
+                    >
+                      <Link href="/register">Register</Link>
+                    </Button>
+                  </div>
+                ) : null}
 
                 {/* Chat Body with Messages */}
                 <div className="relative flex-1 min-h-0 min-w-0">

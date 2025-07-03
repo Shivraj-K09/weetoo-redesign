@@ -91,7 +91,7 @@ export function RightSide() {
   ];
 
   return (
-    <div className="w-full h-full overflow-hidden bg-[color:var(--card)] flex items-center justify-center relative">
+    <div className="w-full h-full overflow-hidden bg-[color:var(--card)] hidden lg:flex items-center justify-center relative">
       {/* Background image */}
       {/* <img
         src="/abstract.jpg"

@@ -1,14 +1,143 @@
+"use client";
+
+import { useState, useTransition, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
+const NAVER_CLIENT_ID = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID;
+const NAVER_REDIRECT_URI =
+  typeof window !== "undefined"
+    ? window.location.origin + "/api/auth/naver"
+    : "";
+
+function getNaverOAuthUrl() {
+  const state = Math.random().toString(36).substring(2);
+  if (typeof window !== "undefined") {
+    localStorage.setItem("naver_oauth_state", state);
+  }
+  const params = new URLSearchParams({
+    response_type: "code",
+    client_id: NAVER_CLIENT_ID || "",
+    redirect_uri: NAVER_REDIRECT_URI,
+    state,
+  });
+  return `https://nid.naver.com/oauth2.0/authorize?${params.toString()}`;
+}
+
 export function RegisterForm() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [agree, setAgree] = useState(false);
+  const [loading, startTransition] = useTransition();
+  const [lastUsed, setLastUsed] = useState<string | null>(null);
+  const router = useRouter();
+  const supabase = createClient();
+
+  // Only read from localStorage once on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setLastUsed(localStorage.getItem("weetoo-last-sign-in-method"));
+    }
+  }, []);
+
+  // Memoized email/password register handler
+  const handleSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!agree) {
+        toast.error(
+          "You must agree to the Terms of Service and Privacy Policy."
+        );
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match.");
+        return;
+      }
+      startTransition(async () => {
+        // Register user with Supabase Auth
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              first_name: firstName,
+              last_name: lastName,
+              nickname,
+              role: "user",
+            },
+          },
+        });
+        if (error) {
+          toast.error(error.message || "Registration failed");
+        } else {
+          // Insert into public.users with role 'user' (if not handled by trigger)
+          // This is a fallback; ideally, your DB trigger sets the role.
+          localStorage.setItem("weetoo-last-sign-in-method", "email");
+          toast.success("Registration successful! Please log in.");
+          router.push("/login");
+        }
+      });
+    },
+    [
+      email,
+      password,
+      confirmPassword,
+      firstName,
+      lastName,
+      nickname,
+      agree,
+      router,
+      supabase,
+    ]
+  );
+
+  // Memoized social register handler
+  const handleSocialRegister = useCallback(
+    (provider: "google" | "kakao") => {
+      startTransition(async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo: window.location.origin + "/callback",
+          },
+        });
+        if (error) {
+          toast.error(error.message || `Register with ${provider} failed`, {
+            position: "top-center",
+          });
+        } else {
+          localStorage.setItem("weetoo-last-sign-in-method", provider);
+          toast.success(`Redirecting to ${provider}...`, {
+            position: "top-center",
+          });
+        }
+      });
+    },
+    [supabase]
+  );
+
+  // Memoized Naver register handler
+  const handleNaverRegister = useCallback(() => {
+    const url = getNaverOAuthUrl();
+    localStorage.setItem("weetoo-last-sign-in-method", "naver");
+    window.location.href = url;
+  }, []);
+
   return (
     <div className="w-full h-full flex items-center justify-center flex-col">
       <div className="flex flex-col w-full max-w-md gap-4">
-        <div className="flex gap-0.5 flex-col select-none">
+        <div className="flex gap-0.5 flex-col items-center select-none">
           <h3 className="text-[1.3rem] font-semibold">Create your account</h3>
           <p className="text-muted-foreground text-sm">
             Register to Weetoo to start trading cryptocurrencies and more.
@@ -17,7 +146,13 @@ export function RegisterForm() {
 
         <div className="max-w-md w-full mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 mt-4">
-            <button className="border w-full h-12 flex items-center justify-center rounded-lg cursor-pointer hover:bg-accent">
+            <button
+              type="button"
+              className="border w-full h-12 flex items-center justify-center rounded-lg cursor-pointer hover:bg-accent relative"
+              onClick={() => handleSocialRegister("google")}
+              disabled={loading}
+              aria-label="Register with Google"
+            >
               <svg
                 className="w-5 h-5 "
                 viewBox="0 0 256 262"
@@ -41,19 +176,22 @@ export function RegisterForm() {
                   fill="#EB4335"
                 />
               </svg>
+              {lastUsed === "google" && (
+                <span
+                  className="absolute -top-1.5 -right-1.5 bg-gray-700 text-white text-[10px] px-1.5 py-0.5 rounded-full z-10 shadow-sm"
+                  style={{ minWidth: "44px", textAlign: "center" }}
+                >
+                  Last used
+                </span>
+              )}
             </button>
-            <button className="border w-full h-12 flex items-center justify-center rounded-lg bg-[#03C75A] cursor-pointer hover:bg-[#03B94D]">
-              <svg
-                role="img"
-                className="w-4 h-4 fill-current"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <title>Naver</title>
-                <path d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845Z" />
-              </svg>
-            </button>
-            <button className="border w-full h-12 flex items-center justify-center rounded-lg bg-[#FFCD00] cursor-pointer hover:bg-[#FFB900]">
+            <button
+              type="button"
+              className="border w-full h-12 flex items-center justify-center rounded-lg bg-[#FFCD00] cursor-pointer hover:bg-[#FFB900] relative"
+              onClick={() => handleSocialRegister("kakao")}
+              disabled={loading}
+              aria-label="Register with Kakao"
+            >
               <svg
                 width="20"
                 height="20"
@@ -69,6 +207,39 @@ export function RegisterForm() {
                   fill="#000000"
                 ></path>
               </svg>
+              {lastUsed === "kakao" && (
+                <span
+                  className="absolute -top-1.5 -right-1.5 bg-gray-700 text-white text-[10px] px-1.5 py-0.5 rounded-full z-10 shadow-sm"
+                  style={{ minWidth: "44px", textAlign: "center" }}
+                >
+                  Last used
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              className="border w-full h-12 flex items-center justify-center rounded-lg bg-[#03C75A] cursor-pointer hover:bg-[#03B94D] relative"
+              onClick={handleNaverRegister}
+              disabled={loading}
+              aria-label="Register with Naver"
+            >
+              <svg
+                role="img"
+                className="w-4 h-4 fill-current"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <title>Naver</title>
+                <path d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845Z" />
+              </svg>
+              {lastUsed === "naver" && (
+                <span
+                  className="absolute -top-1.5 -right-1.5 bg-gray-700 text-white text-[10px] px-1.5 py-0.5 rounded-full z-10 shadow-sm"
+                  style={{ minWidth: "44px", textAlign: "center" }}
+                >
+                  Last used
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -88,13 +259,16 @@ export function RegisterForm() {
         </div>
       </div>
 
-      <form className="space-y-4 w-full max-w-md mt-6">
+      <form className="space-y-4 w-full max-w-md mt-6" onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <Input
             type="text"
             id="firstName"
             placeholder="First name"
             className="h-12 bg-transparent"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            disabled={loading}
           />
 
           <Input
@@ -102,6 +276,9 @@ export function RegisterForm() {
             id="lastName"
             placeholder="Last name"
             className="h-12 bg-transparent"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            disabled={loading}
           />
         </div>
 
@@ -111,16 +288,32 @@ export function RegisterForm() {
             id="nickname"
             placeholder="Nickname"
             className="h-12 bg-transparent"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            disabled={loading}
           />
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 relative">
           <Input
             type="email"
             id="email"
             placeholder="Email address"
             className="h-12 bg-transparent"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            disabled={loading}
           />
+          {lastUsed === "email" && (
+            <span
+              className="absolute -top-1.5 -right-1.5 bg-gray-700 text-white text-[10px] px-1.5 py-0.5 rounded-full z-10 shadow-sm"
+              style={{ minWidth: "44px", textAlign: "center" }}
+            >
+              Last used
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -129,6 +322,10 @@ export function RegisterForm() {
             id="password"
             placeholder="Password"
             className="h-12 bg-transparent"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={loading}
           />
         </div>
 
@@ -138,11 +335,20 @@ export function RegisterForm() {
             id="confirmPassword"
             placeholder="Confirm password"
             className="h-12 bg-transparent"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            disabled={loading}
           />
         </div>
 
         <div className="flex items-center gap-2 w-full">
-          <Checkbox id="agree" />
+          <Checkbox
+            id="agree"
+            checked={agree}
+            onCheckedChange={(v) => setAgree(!!v)}
+            disabled={loading}
+          />
           <Label className="text-xs text-muted-foreground" htmlFor="agree">
             I agree to the
             <Link
@@ -161,8 +367,12 @@ export function RegisterForm() {
           </Label>
         </div>
 
-        <Button type="submit" className="w-full h-12">
-          Register
+        <Button
+          type="submit"
+          className="w-full h-12"
+          disabled={loading || !agree}
+        >
+          {loading ? "Registering..." : "Register"}
         </Button>
         <p className="text-sm text-muted-foreground text-center">
           Already have an account?{" "}

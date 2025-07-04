@@ -1,19 +1,19 @@
 "use client";
 
-import { memo, useMemo } from "react";
-import { motion } from "motion/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  TrendingUp,
-  DollarSign,
-  Target,
-  Zap,
   Award,
+  DollarSign,
   Star,
+  Target,
+  TrendingUp,
   UserPlus,
+  Zap,
 } from "lucide-react";
+import { motion } from "motion/react";
+import { memo, useMemo } from "react";
 import { TraderRankingTable } from "./trader-ranking-table";
 
 // Define proper types
@@ -31,6 +31,7 @@ interface CardData {
   winStreak: number;
   position: CardPosition;
   color: CardColor;
+  isOnline: boolean;
 }
 
 interface ReflectionStyles {
@@ -59,6 +60,7 @@ const CARD_DATA: CardData[] = [
     winStreak: 8,
     position: "left",
     color: "silver",
+    isOnline: false,
   },
   {
     rank: 1,
@@ -71,6 +73,7 @@ const CARD_DATA: CardData[] = [
     winStreak: 23,
     position: "center",
     color: "gold",
+    isOnline: true,
   },
   {
     rank: 3,
@@ -83,6 +86,7 @@ const CARD_DATA: CardData[] = [
     winStreak: 5,
     position: "right",
     color: "bronze",
+    isOnline: true,
   },
 ];
 
@@ -112,6 +116,29 @@ const cardVariants = {
 //     transition: { duration: 0.2, ease: "easeInOut" },
 //   }),
 // };
+
+// OnlineIndicator copied from kor-coins-ranking
+const OnlineIndicator = memo(({ isOnline }: { isOnline: boolean }) => (
+  <div className="flex items-center gap-1.5 mt-1">
+    <div
+      className={
+        isOnline
+          ? "w-2 h-2 rounded-full bg-green-500 animate-pulse"
+          : "w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-600"
+      }
+    />
+    <span
+      className={
+        isOnline
+          ? "text-xs text-green-600 dark:text-green-400"
+          : "text-xs text-muted-foreground"
+      }
+    >
+      {isOnline ? "Online" : "Offline"}
+    </span>
+  </div>
+));
+OnlineIndicator.displayName = "OnlineIndicator";
 
 // Memoized card component
 const TraderCard = memo(({ data }: { data: CardData }) => {
@@ -306,6 +333,7 @@ const TraderCard = memo(({ data }: { data: CardData }) => {
                 {data.name}
               </h3>
               <p className="text-sm text-muted-foreground">{data.username}</p>
+              <OnlineIndicator isOnline={data.isOnline} />
             </div>
           </div>
 

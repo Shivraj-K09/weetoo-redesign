@@ -1,42 +1,35 @@
 "use client";
 
-import { useMemo, useState, useCallback, memo } from "react";
 import {
-  type ColumnDef,
   flexRender,
   getCoreRowModel,
-  getSortedRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
-  type SortingState,
+  type ColumnDef,
   type PaginationState,
+  type SortingState,
 } from "@tanstack/react-table";
 import {
+  Award,
   ChevronDownIcon,
-  ChevronUpIcon,
-  DollarSign,
-  Target,
-  TrendingUp,
-  Crown,
   ChevronFirstIcon,
   ChevronLastIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  Award,
+  ChevronUpIcon,
+  Crown,
+  DollarSign,
   Star,
+  Target,
+  TrendingUp,
 } from "lucide-react";
+import { memo, useCallback, useMemo, useState } from "react";
 
-import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Label } from "@/components/ui/label";
 import {
   Pagination,
   PaginationContent,
@@ -49,8 +42,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface RankedTrader {
   rank: number;
@@ -65,6 +65,7 @@ interface RankedTrader {
   portfolioValue: number;
   winStreak?: number;
   isHost?: boolean;
+  isOnline: boolean;
 }
 
 // Move mock data outside component to prevent recreation on every render
@@ -81,6 +82,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     trades: 542,
     portfolioValue: 2847300,
     winStreak: 23,
+    isOnline: true,
   },
   {
     rank: 2,
@@ -94,6 +96,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     trades: 287,
     portfolioValue: 986200,
     winStreak: 8,
+    isOnline: false,
   },
   {
     rank: 3,
@@ -107,6 +110,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     trades: 198,
     portfolioValue: 763400,
     winStreak: 5,
+    isOnline: true,
   },
   {
     rank: 4,
@@ -120,6 +124,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     trades: 150,
     portfolioValue: 652000,
     winStreak: 4,
+    isOnline: true,
   },
   {
     rank: 5,
@@ -134,6 +139,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     portfolioValue: 608000,
     winStreak: 6,
     isHost: true,
+    isOnline: true,
   },
   {
     rank: 6,
@@ -147,6 +153,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     trades: 180,
     portfolioValue: 551000,
     winStreak: 3,
+    isOnline: true,
   },
   {
     rank: 7,
@@ -160,6 +167,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     trades: 120,
     portfolioValue: 505000,
     winStreak: 2,
+    isOnline: false,
   },
   {
     rank: 8,
@@ -173,6 +181,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     trades: 250,
     portfolioValue: 483000,
     winStreak: 7,
+    isOnline: true,
   },
   {
     rank: 9,
@@ -187,6 +196,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     portfolioValue: 459000,
     winStreak: 1,
     isHost: true,
+    isOnline: false,
   },
   {
     rank: 10,
@@ -200,6 +210,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     trades: 160,
     portfolioValue: 421000,
     winStreak: 3,
+    isOnline: true,
   },
   {
     rank: 11,
@@ -213,6 +224,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     trades: 130,
     portfolioValue: 400000,
     winStreak: 2,
+    isOnline: false,
   },
   {
     rank: 12,
@@ -226,6 +238,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     trades: 220,
     portfolioValue: 385000,
     winStreak: 1,
+    isOnline: true,
   },
   {
     rank: 13,
@@ -239,6 +252,7 @@ const MOCK_RANKED_TRADERS: RankedTrader[] = [
     trades: 175,
     portfolioValue: 352000,
     winStreak: 4,
+    isOnline: false,
   },
 ];
 
@@ -273,15 +287,40 @@ const RankBadge = memo(({ rank }: { rank: number }) => {
 });
 RankBadge.displayName = "RankBadge";
 
+// OnlineIndicator copied from kor-coins-ranking
+const OnlineIndicator = memo(({ isOnline }: { isOnline: boolean }) => (
+  <div className="flex items-center gap-1.5 mt-1">
+    <div
+      className={
+        isOnline
+          ? "w-2 h-2 rounded-full bg-green-500 animate-pulse"
+          : "w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-600"
+      }
+    />
+    <span
+      className={
+        isOnline
+          ? "text-xs text-green-600 dark:text-green-400"
+          : "text-xs text-muted-foreground"
+      }
+    >
+      {isOnline ? "Online" : "Offline"}
+    </span>
+  </div>
+));
+OnlineIndicator.displayName = "OnlineIndicator";
+
 const TraderCell = memo(
   ({
     trader,
     rank,
     isHost,
+    isOnline,
   }: {
     trader: RankedTrader["trader"];
     rank: number;
     isHost?: boolean;
+    isOnline: boolean;
   }) => (
     <div className="flex items-center gap-3 py-1">
       <Avatar className="h-10 w-10 ring-2 ring-border">
@@ -304,6 +343,7 @@ const TraderCell = memo(
           )}
         </div>
         <div className="text-sm text-muted-foreground">{trader.username}</div>
+        <OnlineIndicator isOnline={isOnline} />
       </div>
     </div>
   )
@@ -356,6 +396,7 @@ export const TraderRankingTable = memo(() => {
             trader={row.original.trader}
             rank={row.original.rank}
             isHost={row.original.isHost}
+            isOnline={row.original.isOnline}
           />
         ),
         size: 280,

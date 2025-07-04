@@ -16,11 +16,9 @@ export async function GET(req: NextRequest) {
       symbolList.map(async (symbol) => {
         try {
           const [tickerRes, klinesRes] = await Promise.all([
+            fetch(`https://api.binance.us/api/v3/ticker/24hr?symbol=${symbol}`),
             fetch(
-              `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`
-            ),
-            fetch(
-              `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1h&limit=24`
+              `https://api.binance.us/api/v3/klines?symbol=${symbol}&interval=1h&limit=24`
             ),
           ]);
           if (!tickerRes.ok || !klinesRes.ok) {

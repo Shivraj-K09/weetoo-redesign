@@ -1,8 +1,7 @@
 import CryptoDashboardClient from "@/components/comprehensive-data/CryptoDashboardClient";
 import { Metadata } from "next";
-import { lazy } from "react";
 
-// Lazy load the chart component
+// // Lazy load the chart component
 // const RelativePerformanceChart = lazy(() =>
 //   import("@/components/comprehensive-data/relative-performance-chart").then(
 //     (mod) => ({

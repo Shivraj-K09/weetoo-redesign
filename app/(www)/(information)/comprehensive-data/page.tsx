@@ -3,13 +3,13 @@ import { Metadata } from "next";
 import { lazy } from "react";
 
 // Lazy load the chart component
-const RelativePerformanceChart = lazy(() =>
-  import("@/components/comprehensive-data/relative-performance-chart").then(
-    (mod) => ({
-      default: mod.RelativePerformanceChart,
-    })
-  )
-);
+// const RelativePerformanceChart = lazy(() =>
+//   import("@/components/comprehensive-data/relative-performance-chart").then(
+//     (mod) => ({
+//       default: mod.RelativePerformanceChart,
+//     })
+//   )
+// );
 
 export const metadata: Metadata = {
   title: "Comprehensive Data - Market Insights and Analytics",

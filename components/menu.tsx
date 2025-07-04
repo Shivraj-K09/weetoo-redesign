@@ -64,12 +64,12 @@ const broker: { title: string; href: string; description: string }[] = [
       "Compare Korean crypto exchanges - fees, features, security, and trading pairs",
   },
 
-  {
-    title: "Overseas Futures Comparison",
-    href: "/overseas-futures",
-    description:
-      "Compare international exchanges - regulations, leverage, and global trading options",
-  },
+  // {
+  //   title: "Overseas Futures Comparison",
+  //   href: "/overseas-futures",
+  //   description:
+  //     "Compare international exchanges - regulations, leverage, and global trading options",
+  // },
 ];
 
 export function Menu() {
@@ -208,7 +208,7 @@ export function Menu() {
   );
 
   const renderDesktopMenu = () => (
-    <NavigationMenu>
+    <NavigationMenu viewport={false}>
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger>Trading</NavigationMenuTrigger>
@@ -254,7 +254,7 @@ export function Menu() {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Information</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+            <ul className="w-[300px] p-2">
               {information.map((item) => (
                 <ListItem key={item.title} title={item.title} href={item.href}>
                   {item.description}
@@ -266,8 +266,8 @@ export function Menu() {
 
         <NavigationMenuItem>
           <NavigationMenuTrigger>Broker</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+          <NavigationMenuContent className="w-full ">
+            <ul className="grid p-2 grid-cols-1 w-[300px]">
               {broker.map((item) => (
                 <ListItem key={item.title} title={item.title} href={item.href}>
                   {item.description}

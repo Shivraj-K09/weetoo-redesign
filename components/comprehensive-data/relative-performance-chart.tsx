@@ -4,6 +4,9 @@ import { useMemo, memo } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
+// Global Set to track which charts have already animated
+const animatedCharts = new Set<string>();
+
 interface PerformanceData {
   symbol: string;
   name: string;
@@ -51,6 +54,11 @@ const PerformanceBar = memo(
     maxAbsValue: number;
   }) => {
     const isPositive = item.performance >= 0;
+
+    // Create a unique key for this bar
+    const barKey = `performance-bar-${item.symbol}`;
+    const hasAnimated = animatedCharts.has(barKey);
+
     const barHeight = useMemo(() => {
       const normalizedHeight = (Math.abs(item.performance) / maxAbsValue) * 100;
       return Math.max(4, normalizedHeight);
@@ -78,9 +86,12 @@ const PerformanceBar = memo(
         {/* Bar */}
         <div className="relative w-full h-80 flex items-end">
           <motion.div
-            initial={{ height: 0 }}
+            initial={hasAnimated ? { height: `${barHeight}%` } : { height: 0 }}
             animate={{ height: `${barHeight}%` }}
             transition={{ duration: 0.6, delay: index * 0.02 }}
+            onAnimationComplete={() => {
+              animatedCharts.add(barKey);
+            }}
             className={cn("w-full", isPositive ? "bg-green-500" : "bg-red-500")}
             style={{ minHeight: "2px" }}
           />
@@ -103,11 +114,18 @@ export const RelativePerformanceChart = memo(
       return Math.max(...values);
     }, []);
 
+    // Create a unique key for the main chart
+    const chartKey = "relative-performance-chart";
+    const hasAnimated = animatedCharts.has(chartKey);
+
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={hasAnimated ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
+        onAnimationComplete={() => {
+          animatedCharts.add(chartKey);
+        }}
         className="w-full"
       >
         <div className="bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg">

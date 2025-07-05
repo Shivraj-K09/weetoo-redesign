@@ -17,16 +17,112 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Skeleton } from "../ui/skeleton";
+
+interface UserData {
+  id: string;
+  kor_coins?: number;
+}
 
 export function CreateRoom() {
   const [privacy, setPrivacy] = useState("public");
   const [category, setCategory] = useState("regular");
   const [symbol, setSymbol] = useState("BTCUSDT");
   const [showPassword, setShowPassword] = useState(false);
+  const [user, setUser] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const lastSessionId = useRef<string | null>(null);
 
-  // Mock user KOR coins balance - in real app this would come from user context/API
-  const userKorCoins = 12500;
+  // Fetch user data including KOR coins
+  useEffect(() => {
+    let mounted = true;
+    const supabase = createClient();
+
+    supabase.auth.getSession().then(({ data }) => {
+      const sessionId = data.session?.user?.id || null;
+
+      if (lastSessionId.current === sessionId && user) {
+        setLoading(false);
+        return;
+      }
+      lastSessionId.current = sessionId;
+      if (!sessionId) {
+        if (mounted) setLoading(false);
+        return;
+      }
+      setLoading(true);
+
+      supabase
+        .from("users")
+        .select("id, kor_coins")
+        .eq("id", sessionId)
+        .single()
+        .then(({ data, error }) => {
+          if (mounted) {
+            if (error) {
+              console.error("Failed to fetch user data:", error);
+            }
+            setUser(error ? null : data);
+            setLoading(false);
+          }
+        });
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        const sessionId = session?.user?.id || null;
+        if (lastSessionId.current === sessionId && user) {
+          setLoading(false);
+          return;
+        }
+        lastSessionId.current = sessionId;
+        if (!sessionId) {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+        setLoading(true);
+        supabase
+          .from("users")
+          .select("id, kor_coins")
+          .eq("id", sessionId)
+          .single()
+          .then(({ data, error }) => {
+            if (error) {
+              console.error("Failed to fetch user data on auth change:", error);
+            }
+            setUser(error ? null : data);
+            setLoading(false);
+          });
+      }
+    );
+
+    return () => {
+      mounted = false;
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Get user KOR coins with fallback
+  const userKorCoins = useMemo(() => {
+    return user?.kor_coins ?? 0;
+  }, [user?.kor_coins]);
+
+  // Format number with K suffix for display
+  const formatNumber = (num: number) => {
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
+    return num.toString();
+  };
 
   // Cost calculation based on room category
   const getRoomCost = (category: string) => {
@@ -167,9 +263,22 @@ export function CreateRoom() {
                   <p className="text-xs text-muted-foreground font-medium">
                     Available Balance
                   </p>
-                  <p className="text-lg font-bold text-foreground">
-                    {userKorCoins.toLocaleString()} KOR
-                  </p>
+                  {loading ? (
+                    <Skeleton className="h-6 w-20" />
+                  ) : (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <p className="text-lg font-bold text-foreground cursor-help">
+                            {formatNumber(userKorCoins)} KOR
+                          </p>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" align="center">
+                          <p>{userKorCoins.toLocaleString()} KOR</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </div>
               </div>
               <div className="text-right">
@@ -200,7 +309,7 @@ export function CreateRoom() {
                     ? "Host can speak, participants can ask questions via text chat"
                     : "Host and participants can communicate via text chat"}
                 </p>
-                {!canAfford && (
+                {!loading && !canAfford && (
                   <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium">
                     ⚠️ Insufficient balance. You need{" "}
                     {(roomCost - userKorCoins).toLocaleString()} more KOR Coins.
@@ -214,8 +323,8 @@ export function CreateRoom() {
             <Button type="button" variant="outline">
               Cancel
             </Button>
-            <Button type="submit" disabled={!canAfford}>
-              Create Room
+            <Button type="submit" disabled={loading || !canAfford}>
+              {loading ? "Loading..." : "Create Room"}
             </Button>
           </div>
         </form>

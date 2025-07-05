@@ -40,7 +40,7 @@ export function ProfileTabs() {
   return (
     <>
       {/* Redesigned Left Tabs */}
-      <div className="w-[250px] p-4 border-r flex flex-col text-sm gap-2 bg-background">
+      <div className="w-[250px] p-4 border-r flex flex-col text-sm gap-2 bg-background flex-shrink-0">
         {TABS.map((tab) => (
           <button
             key={tab.key}
@@ -59,7 +59,7 @@ export function ProfileTabs() {
         ))}
       </div>
       {/* Right Content */}
-      <div className="flex-1">{TAB_COMPONENTS[selectedTab]}</div>
+      <div className="flex-1 flex flex-col">{TAB_COMPONENTS[selectedTab]}</div>
     </>
   );
 }

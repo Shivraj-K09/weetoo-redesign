@@ -27,6 +27,7 @@ export function Header() {
   useEffect(() => {
     const supabase = createClient();
     let mounted = true;
+
     supabase.auth.getSession().then(({ data }) => {
       if (mounted) {
         setIsLoggedIn(!!data.session);

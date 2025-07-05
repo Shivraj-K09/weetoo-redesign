@@ -30,7 +30,6 @@ interface UserData {
   level?: number;
   exp?: number;
   kor_coins?: number;
-  verified?: boolean;
   role?: string;
 }
 
@@ -44,8 +43,10 @@ export function UserDropdown() {
   useEffect(() => {
     let mounted = true;
     const supabase = createClient();
+
     supabase.auth.getSession().then(({ data }) => {
       const sessionId = data.session?.user?.id || null;
+
       if (lastSessionId.current === sessionId && user) {
         setLoading(false);
         return;
@@ -56,15 +57,25 @@ export function UserDropdown() {
         return;
       }
       setLoading(true);
+
       supabase
         .from("users")
         .select(
-          "id, first_name, last_name, nickname, email, avatar_url, level, exp, kor_coins, verified, role"
+          "id, first_name, last_name, nickname, email, avatar_url, level, exp, kor_coins, role"
         )
         .eq("id", sessionId)
         .single()
         .then(({ data, error }) => {
           if (mounted) {
+            if (error) {
+              console.error("Failed to fetch user data:", error);
+              // If it's an RLS policy error, we can still show a basic dropdown
+              if (error.code === "42P17") {
+                console.warn(
+                  "RLS policy error detected. This might be due to infinite recursion in the policy."
+                );
+              }
+            }
             setUser(error ? null : data);
             setLoading(false);
           }
@@ -87,11 +98,14 @@ export function UserDropdown() {
         supabase
           .from("users")
           .select(
-            "id, first_name, last_name, nickname, email, avatar_url, level, exp, kor_coins, verified, role"
+            "id, first_name, last_name, nickname, email, avatar_url, level, exp, kor_coins, role"
           )
           .eq("id", sessionId)
           .single()
           .then(({ data, error }) => {
+            if (error) {
+              console.error("Failed to fetch user data on auth change:", error);
+            }
             setUser(error ? null : data);
             setLoading(false);
           });
@@ -136,7 +150,6 @@ export function UserDropdown() {
       Math.min(100, (expThisLevel / EXP_PER_LEVEL) * 100)
     );
     const kor_coins = user.kor_coins ?? 0;
-    const isVerified = !!user.verified;
     const role = user.role || "user";
     return {
       fullName,
@@ -146,7 +159,6 @@ export function UserDropdown() {
       level,
       exp,
       kor_coins,
-      isVerified,
       role,
       progress,
       expThisLevel,
@@ -174,7 +186,6 @@ export function UserDropdown() {
     level,
     exp,
     kor_coins,
-    isVerified,
     role,
     progress,
     expThisLevel,
@@ -199,12 +210,9 @@ export function UserDropdown() {
               ) : (
                 <GradientAvatar id={avatarId} />
               )}
-              {/* Only show fallback text if both avatar_url and gradient are missing (should never happen) */}
-              {user.avatar_url === undefined && (
-                <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white text-sm font-medium">
-                  {nickname.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              )}
+              <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white text-sm font-medium">
+                {nickname.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
           </button>
         </DropdownMenuTrigger>
@@ -224,21 +232,13 @@ export function UserDropdown() {
                 ) : (
                   <GradientAvatar id={avatarId} />
                 )}
-                {/* Only show fallback text if both avatar_url and gradient are missing (should never happen) */}
-                {user.avatar_url === undefined && (
-                  <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white font-medium">
-                    {nickname.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                )}
+                <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white font-medium">
+                  {nickname.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium flex items-center gap-1">
                   {loading ? <Skeleton className="h-4 w-24" /> : fullName}
-                  {isVerified && !loading && (
-                    <span className="ml-1 text-green-500" title="Verified">
-                      ✔
-                    </span>
-                  )}
                 </div>
                 <div className="text-xs text-muted-foreground truncate">
                   {loading ? <Skeleton className="h-3 w-28" /> : email}

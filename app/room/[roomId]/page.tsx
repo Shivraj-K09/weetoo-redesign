@@ -1,11 +1,23 @@
 "use client";
 
-import { TradingRoomWindow } from "@/components/trading/room-window";
+import { TradingRoomWindow } from "@/components/room/room-window";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
 
 // Full mock data from trading-rooms-list
-const mockTradingRooms = [
+const mockTradingRooms: Array<{
+  id: string;
+  name: string;
+  creator: { id: string; name: string; avatar: string };
+  symbol: string;
+  category: "regular" | "voice";
+  createdAt: string;
+  createdAtTimestamp: number;
+  isPublic: boolean;
+  isHosted: boolean;
+  participants: number;
+  pnlPercentage?: number;
+}> = [
   {
     id: "1",
     name: "BTC Strategy Discussion",
@@ -283,6 +295,10 @@ export default function TradingRoomPage() {
   }
 
   return (
-    <TradingRoomWindow roomName={roomData.name} isPublic={roomData.isPublic} />
+    <TradingRoomWindow
+      roomName={roomData.name}
+      isPublic={roomData.isPublic}
+      roomType={roomData.category}
+    />
   );
 }

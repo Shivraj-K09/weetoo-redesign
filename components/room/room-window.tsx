@@ -7,21 +7,22 @@ import { WindowTitleBar } from "./window-title-bar";
 interface TradingRoomWindowProps {
   roomName: string;
   isPublic: boolean;
+  roomType: "regular" | "voice";
 }
 
 export function TradingRoomWindow({
   roomName,
   isPublic,
+  roomType,
 }: TradingRoomWindowProps) {
   return (
     <div className="w-full min-h-screen bg-background flex flex-col">
       <WindowTitleBar
         roomName={roomName}
         isPublic={isPublic}
-        isMaximized={true}
+        roomType={roomType}
         onCloseRoom={() => {}}
         onTitleBarMouseDown={() => {}}
-        onClose={() => {}}
       />
       <div className="flex-1">
         <RoomWindowContent />

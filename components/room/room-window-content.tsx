@@ -6,13 +6,13 @@ import { TradingForm } from "./trading-form";
 import { ParticipantsList } from "./participants-list";
 import { Chat } from "./chat";
 import { TradeHistoryTabs } from "./trade-history-tabs";
-import { Separator } from "../ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { MarketOverview } from "./market-overview";
 import { TradingOverview } from "./trading-overview";
 
 export default function RoomWindowContent() {
   return (
-    <div className="h-[calc(100%-3rem)] bg-background flex flex-col gap-2 px-3 py-3">
+    <div className="h-[calc(100%-3rem)] bg-background flex flex-col gap-2 px-3 py-2">
       <div className="border h-[80px] w-full flex">
         <div className="w-full flex-[1]">
           <MarketOverview />

@@ -5,8 +5,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Headphones } from "lucide-react";
 import Link from "next/link";
+import { Icons } from "../icons";
 
 export function CustomerSupportDialog() {
   return (
@@ -16,14 +16,14 @@ export function CustomerSupportDialog() {
           type="button"
           className="w-full text-sm text-left cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors flex items-center gap-5"
         >
-          <Headphones className="w-4 h-4 text-muted-foreground" />
+          <Icons.customerSupport className="w-4 h-4 text-muted-foreground" />
           <span>Customer Support</span>
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold mb-2 flex items-center gap-2">
-            <Headphones className="w-5 h-5 text-muted-foreground" />
+            <Icons.customerSupport className="w-5 h-5 text-muted-foreground" />
             Customer Support
           </DialogTitle>
         </DialogHeader>

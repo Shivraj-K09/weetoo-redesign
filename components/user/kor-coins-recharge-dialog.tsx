@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { Coins } from "lucide-react";
 import { useState } from "react";
+import { Icons } from "../icons";
 
 export function KorCoinsRechargeDialog() {
   const [korCoinsAmount, setKorCoinsAmount] = useState("");
@@ -24,7 +24,7 @@ export function KorCoinsRechargeDialog() {
           type="button"
           className="w-full text-sm text-left cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors flex items-center gap-5"
         >
-          <Coins className="w-4 h-4 text-muted-foreground" />
+          <Icons.coins className="w-5 h-5 text-muted-foreground" />
           <span>KOR Coins Recharge</span>
         </button>
       </DialogTrigger>
@@ -33,7 +33,7 @@ export function KorCoinsRechargeDialog() {
           <div className="overflow-y-auto px-6 pt-6 pb-2 flex-1">
             <DialogHeader className="flex gap-0">
               <DialogTitle className="text-lg font-bold flex items-center gap-1.5">
-                <Coins className="w-5 h-5 text-muted-foreground" />
+                <Icons.coins className="w-5 h-5 text-muted-foreground" />
                 KOR Coins Recharge
               </DialogTitle>
               <DialogDescription>

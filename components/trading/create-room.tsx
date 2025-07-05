@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { PlusIcon, Eye, EyeOff } from "lucide-react";
+import { PlusIcon, Eye, EyeOff, Coins, Wallet } from "lucide-react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import {
@@ -24,6 +24,23 @@ export function CreateRoom() {
   const [category, setCategory] = useState("regular");
   const [symbol, setSymbol] = useState("BTCUSDT");
   const [showPassword, setShowPassword] = useState(false);
+
+  // Mock user KOR coins balance - in real app this would come from user context/API
+  const userKorCoins = 12500;
+
+  // Cost calculation based on room category
+  const getRoomCost = (category: string) => {
+    switch (category) {
+      case "voice":
+        return 8000;
+      case "regular":
+      default:
+        return 5000;
+    }
+  };
+
+  const roomCost = getRoomCost(category);
+  const canAfford = userKorCoins >= roomCost;
 
   return (
     <Dialog>
@@ -138,11 +155,68 @@ export function CreateRoom() {
               </SelectContent>
             </Select>
           </div>
+
+          {/* User Balance Display */}
+          <div className="p-4 bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900/30 dark:to-slate-900/30 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <Wallet className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Available Balance
+                  </p>
+                  <p className="text-lg font-bold text-foreground">
+                    {userKorCoins.toLocaleString()} KOR
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">Room Cost</p>
+                <p
+                  className={`text-lg font-bold ${
+                    canAfford
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-red-600 dark:text-red-400"
+                  }`}
+                >
+                  {roomCost.toLocaleString()} KOR
+                </p>
+              </div>
+            </div>
+
+            {/* Room Features */}
+            <div className="flex items-start gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <div className="p-1.5 bg-amber-50 dark:bg-amber-950/30 rounded-md">
+                <Coins className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-medium text-foreground mb-1">
+                  Room Features:
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {category === "voice"
+                    ? "Host can speak, participants can ask questions via text chat"
+                    : "Host and participants can communicate via text chat"}
+                </p>
+                {!canAfford && (
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium">
+                    ⚠️ Insufficient balance. You need{" "}
+                    {(roomCost - userKorCoins).toLocaleString()} more KOR Coins.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline">
               Cancel
             </Button>
-            <Button type="submit">Create Room</Button>
+            <Button type="submit" disabled={!canAfford}>
+              Create Room
+            </Button>
           </div>
         </form>
       </DialogContent>

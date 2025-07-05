@@ -6,8 +6,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Minus, Plus, ShoppingBasket } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
+import { Icons } from "../icons";
 
 type ProductKey = "memberReset" | "chatReset" | "messageRights";
 
@@ -69,14 +70,14 @@ export function WeetooMarketDialog() {
           type="button"
           className="w-full text-sm text-left cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors flex items-center gap-5"
         >
-          <ShoppingBasket className="w-4 h-4 text-muted-foreground" />
+          <Icons.market className="w-5 h-5 text-muted-foreground" />
           <span>Weetoo Market</span>
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-md p-0">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            <ShoppingBasket className="w-6 h-6 text-yellow-400" />
+            <Icons.market className="w-6 h-6 text-yellow-400" />
             Weetoo Market
           </DialogTitle>
           <div className="text-sm text-muted-foreground mt-1 font-normal">

@@ -3,6 +3,7 @@
 import { FloatingChat } from "@/components/chat/floating-chat";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { UtilityBar } from "@/components/utility-bar";
 import { usePathname } from "next/navigation";
 
 export default function RootLayout({
@@ -17,6 +18,7 @@ export default function RootLayout({
 
   return (
     <div className="flex-1 flex flex-col font-[family-name:var(--font-geist-sans)] min-h-screen w-full">
+      <UtilityBar />
       <Header />
       <main className="flex-1 flex flex-col">{children}</main>
       {!hideFooter && <Footer />}

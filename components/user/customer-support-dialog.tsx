@@ -17,7 +17,7 @@ export function CustomerSupportDialog() {
           className="w-full text-sm text-left cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors flex items-center gap-5"
         >
           <Icons.customerSupport className="w-4 h-4 text-muted-foreground" />
-          <span>Customer Support</span>
+          <span className="whitespace-nowrap">Customer Support</span>
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-md">

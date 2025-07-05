@@ -79,15 +79,8 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* <Button variant="outline" className="cursor-pointer shadow-none h-10">
-            Login/Register
-          </Button> */}
-
           <ThemeToggle />
-
           {renderAuthSection()}
-
-          {/* <UserDropdown /> */}
 
           {/* Mobile Menu Button */}
           <Sheet>

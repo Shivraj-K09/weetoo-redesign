@@ -33,6 +33,7 @@ interface UserData {
 }
 
 export function CreateRoom() {
+  const [open, setOpen] = useState(false);
   const [privacy, setPrivacy] = useState("public");
   const [category, setCategory] = useState("regular");
   const [symbol, setSymbol] = useState("BTCUSDT");
@@ -139,7 +140,7 @@ export function CreateRoom() {
   const canAfford = userKorCoins >= roomCost;
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="ml-auto cursor-pointer">
           <PlusIcon className="-ms-1 opacity-60" size={16} aria-hidden="true" />
@@ -320,7 +321,11 @@ export function CreateRoom() {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={loading || !canAfford}>

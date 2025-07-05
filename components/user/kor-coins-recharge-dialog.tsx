@@ -25,7 +25,7 @@ export function KorCoinsRechargeDialog() {
           className="w-full text-sm text-left cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors flex items-center gap-5"
         >
           <Icons.coins className="w-5 h-5 text-muted-foreground" />
-          <span>KOR Coins Recharge</span>
+          <span className="whitespace-nowrap">KOR Coins Recharge</span>
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-md p-0">

@@ -10,6 +10,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Icons } from "../icons";
@@ -20,13 +26,21 @@ export function KorCoinsRechargeDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button
-          type="button"
-          className="w-full text-sm text-left cursor-pointer rounded-lg px-3 py-2.5 hover:bg-accent transition-colors flex items-center gap-5"
-        >
-          <Icons.coins className="w-5 h-5 text-muted-foreground" />
-          <span className="whitespace-nowrap">KOR Coins Recharge</span>
-        </button>
+        <Button variant="ghost" size="icon" className="rounded-lg">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="flex items-center gap-2">
+                  <Icons.coins className="w-5 h-5 text-muted-foreground" />
+                  <span className="whitespace-nowrap sr-only">
+                    KOR Coins Recharge
+                  </span>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">KOR Coins Recharge</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md p-0">
         <div className="flex flex-col max-h-[80vh]">

@@ -14,7 +14,7 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="cursor-pointer rounded-full border-border"
+      className="cursor-pointer border-border"
     >
       <Sun className="h-4.5 w-4.5 dark:hidden" />
       <Moon className="hidden h-4.5 w-4.5 dark:block" />

@@ -18,6 +18,9 @@ import {
 import { UserDropdown } from "./user/user-dropdown";
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { WeetooMarketDialog } from "./user/weetoo-market-dialog";
+import { KorCoinsRechargeDialog } from "./user/kor-coins-recharge-dialog";
+import { CustomerSupportDialog } from "./user/customer-support-dialog";
 
 export function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -79,6 +82,9 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2">
+          <WeetooMarketDialog />
+          <KorCoinsRechargeDialog />
+          <CustomerSupportDialog />
           <ThemeToggle />
           {renderAuthSection()}
 

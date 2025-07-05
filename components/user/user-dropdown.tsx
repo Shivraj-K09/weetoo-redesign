@@ -16,9 +16,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { CustomerSupportDialog } from "./customer-support-dialog";
-import { KorCoinsRechargeDialog } from "./kor-coins-recharge-dialog";
-import { WeetooMarketDialog } from "./weetoo-market-dialog";
 
 interface UserData {
   id: string;
@@ -340,11 +337,11 @@ export function UserDropdown() {
             )}
             <DropdownMenuSeparator className="my-2" />
             {/* Weetoo Market */}
-            <WeetooMarketDialog />
+            {/* <WeetooMarketDialog /> */}
             {/* KOR Coins Recharge*/}
-            <KorCoinsRechargeDialog />
+            {/* <KorCoinsRechargeDialog /> */}
             {/* Customer Support */}
-            <CustomerSupportDialog />
+            {/* <CustomerSupportDialog /> */}
             <DropdownMenuSeparator className="my-2" />
             <DropdownMenuItem
               onClick={handleLogout}

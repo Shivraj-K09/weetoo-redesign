@@ -342,7 +342,7 @@ export function UserDropdown() {
             {/* <KorCoinsRechargeDialog /> */}
             {/* Customer Support */}
             {/* <CustomerSupportDialog /> */}
-            <DropdownMenuSeparator className="my-2" />
+            {/* <DropdownMenuSeparator className="my-2" /> */}
             <DropdownMenuItem
               onClick={handleLogout}
               disabled={loggingOut}

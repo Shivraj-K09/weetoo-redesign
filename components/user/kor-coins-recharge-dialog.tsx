@@ -10,18 +10,87 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icons } from "../icons";
 
 export function KorCoinsRechargeDialog() {
   const [korCoinsAmount, setKorCoinsAmount] = useState("");
+  const [userKorCoins, setUserKorCoins] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const lastSessionId = useRef<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const supabase = createClient();
+    setLoading(true);
+    supabase.auth.getSession().then(({ data }) => {
+      const sessionId = data.session?.user?.id || null;
+      if (lastSessionId.current === sessionId && userKorCoins !== null) {
+        setLoading(false);
+        return;
+      }
+      lastSessionId.current = sessionId;
+      if (!sessionId) {
+        if (mounted) setLoading(false);
+        setUserKorCoins(null);
+        return;
+      }
+      supabase
+        .from("users")
+        .select("id, kor_coins")
+        .eq("id", sessionId)
+        .single()
+        .then(({ data, error }) => {
+          if (mounted) {
+            setUserKorCoins(error ? 0 : data?.kor_coins ?? 0);
+            setLoading(false);
+          }
+        });
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        const sessionId = session?.user?.id || null;
+        if (lastSessionId.current === sessionId && userKorCoins !== null) {
+          setLoading(false);
+          return;
+        }
+        lastSessionId.current = sessionId;
+        if (!sessionId) {
+          setUserKorCoins(null);
+          setLoading(false);
+          return;
+        }
+        setLoading(true);
+        supabase
+          .from("users")
+          .select("id, kor_coins")
+          .eq("id", sessionId)
+          .single()
+          .then(({ data, error }) => {
+            setUserKorCoins(error ? 0 : data?.kor_coins ?? 0);
+            setLoading(false);
+          });
+      }
+    );
+    return () => {
+      mounted = false;
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Define threshold for low balance
+  const LOW_BALANCE_THRESHOLD = 0;
+  const isLow = (userKorCoins ?? 0) <= LOW_BALANCE_THRESHOLD;
+  const isZero = (userKorCoins ?? 0) === 0;
 
   return (
     <Dialog>
@@ -31,13 +100,33 @@ export function KorCoinsRechargeDialog() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="flex items-center gap-2">
-                  <Icons.coins className="w-5 h-5 text-muted-foreground" />
+                  {loading ? (
+                    <Skeleton className="w-6 h-6 rounded-full" />
+                  ) : (
+                    <div className="relative">
+                      {isZero ? (
+                        <Icons.coins className="w-6 h-6 text-muted-foreground opacity-50" />
+                      ) : isLow ? (
+                        <Icons.lowCoins className="w-6 h-6" />
+                      ) : (
+                        <Icons.coins className="w-6 h-6 text-yellow-400 drop-shadow-[0_0_2px_rgba(255,215,0,0.5)]" />
+                      )}
+                      {/* Blinking red dot for low balance */}
+                      {isLow && !isZero && (
+                        <div className="absolute -top-0 -right-0 w-2 h-2 bg-red-600 rounded-full animate-pulse" />
+                      )}
+                    </div>
+                  )}
                   <span className="whitespace-nowrap sr-only">
                     KOR Coins Recharge
                   </span>
                 </span>
               </TooltipTrigger>
-              <TooltipContent side="bottom">KOR Coins Recharge</TooltipContent>
+              <TooltipContent side="bottom">
+                {loading
+                  ? "Loading..."
+                  : `KOR Coins: ${(userKorCoins ?? 0).toLocaleString()}`}
+              </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </Button>
@@ -47,7 +136,16 @@ export function KorCoinsRechargeDialog() {
           <div className="overflow-y-auto px-6 pt-6 pb-2 flex-1">
             <DialogHeader className="flex gap-0">
               <DialogTitle className="text-lg font-bold flex items-center gap-1.5">
-                <Icons.coins className="w-5 h-5 text-muted-foreground" />
+                {/* Icon and balance inside dialog */}
+                {loading ? (
+                  <Skeleton className="w-5 h-5 rounded-full" />
+                ) : isZero ? (
+                  <Icons.coins className="w-5 h-5 text-muted-foreground opacity-50" />
+                ) : isLow ? (
+                  <Icons.lowCoins className="w-5 h-5" />
+                ) : (
+                  <Icons.coins className="w-5 h-5 text-yellow-400 drop-shadow-[0_0_2px_rgba(255,215,0,0.5)]" />
+                )}
                 KOR Coins Recharge
               </DialogTitle>
               <DialogDescription>

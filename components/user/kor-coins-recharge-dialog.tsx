@@ -87,10 +87,8 @@ export function KorCoinsRechargeDialog() {
     };
   }, []);
 
-  // Define threshold for low balance
+  // Define threshold for low balance (easy to change in the future)
   const LOW_BALANCE_THRESHOLD = 0;
-  const isLow = (userKorCoins ?? 0) <= LOW_BALANCE_THRESHOLD;
-  const isZero = (userKorCoins ?? 0) === 0;
 
   return (
     <Dialog>
@@ -104,16 +102,13 @@ export function KorCoinsRechargeDialog() {
                     <Skeleton className="w-6 h-6 rounded-full" />
                   ) : (
                     <div className="relative">
-                      {isZero ? (
-                        <Icons.coins className="w-6 h-6 text-muted-foreground opacity-50" />
-                      ) : isLow ? (
+                      {(userKorCoins ?? 0) <= LOW_BALANCE_THRESHOLD ? (
                         <Icons.lowCoins className="w-6 h-6" />
                       ) : (
                         <Icons.coins className="w-6 h-6 text-yellow-400 drop-shadow-[0_0_2px_rgba(255,215,0,0.5)]" />
                       )}
-                      {/* Blinking red dot for low balance */}
-                      {isLow && !isZero && (
-                        <div className="absolute -top-0 -right-0 w-2 h-2 bg-red-600 rounded-full animate-pulse" />
+                      {(userKorCoins ?? 0) <= LOW_BALANCE_THRESHOLD && (
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                       )}
                     </div>
                   )}
@@ -139,12 +134,17 @@ export function KorCoinsRechargeDialog() {
                 {/* Icon and balance inside dialog */}
                 {loading ? (
                   <Skeleton className="w-5 h-5 rounded-full" />
-                ) : isZero ? (
-                  <Icons.coins className="w-5 h-5 text-muted-foreground opacity-50" />
-                ) : isLow ? (
-                  <Icons.lowCoins className="w-5 h-5" />
                 ) : (
-                  <Icons.coins className="w-5 h-5 text-yellow-400 drop-shadow-[0_0_2px_rgba(255,215,0,0.5)]" />
+                  <div className="relative">
+                    {(userKorCoins ?? 0) <= LOW_BALANCE_THRESHOLD ? (
+                      <Icons.lowCoins className="w-5 h-5 mr-1" />
+                    ) : (
+                      <Icons.coins className="w-5 h-5 mr-1 text-yellow-400 drop-shadow-[0_0_2px_rgba(255,215,0,0.5)]" />
+                    )}
+                    {(userKorCoins ?? 0) <= LOW_BALANCE_THRESHOLD && (
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    )}
+                  </div>
                 )}
                 KOR Coins Recharge
               </DialogTitle>

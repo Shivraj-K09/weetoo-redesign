@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/lib/supabase/client";
 import { Crown, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface Participant {
@@ -36,67 +36,147 @@ export function ParticipantsList({
 }) {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const supabaseRef = useRef(createClient());
 
   useEffect(() => {
-    const supabase = createClient();
+    const supabase = supabaseRef.current;
     supabase.auth.getUser().then(({ data }) => {
       setCurrentUserId(data.user?.id || null);
     });
   }, []);
 
-  useEffect(() => {
-    async function fetchParticipants() {
-      const supabase = createClient();
-      // Get all participants for this room (who haven't left)
-      const { data: participantRows, error } = await supabase
-        .from("trading_room_participants")
-        .select("user_id, left_at")
-        .eq("room_id", roomId)
-        .is("left_at", null);
-      console.log(
-        "[ParticipantsList] participantRows:",
-        participantRows,
-        error
-      );
-      if (error || !participantRows) {
-        setParticipants([]);
-        return;
-      }
-      const userIds = (participantRows as ParticipantRow[]).map(
-        (p) => p.user_id
-      );
-      if (userIds.length === 0) {
-        setParticipants([]);
-        return;
-      }
-      const { data: users, error: userError } = await supabase
-        .from("users")
-        .select("id, first_name, last_name, avatar_url, role, status")
-        .in("id", userIds);
-      console.log("[ParticipantsList] users:", users, userError);
-      if (userError || !users) {
-        setParticipants([]);
-        return;
-      }
+  // Helper to map user row or payload to Participant
+  function mapUser(user: any): Participant {
+    return {
+      id: user.id || user.user_id,
+      name:
+        [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+        user.name ||
+        "-",
+      avatar: user.avatar_url || user.avatar || "",
+      isOnline: user.status === "Active" || user.isOnline || true,
+      role: user.role || "member",
+    };
+  }
 
-      let mapped = (users as UserRow[]).map((user) => ({
-        id: user.id,
-        name:
-          [user.first_name, user.last_name].filter(Boolean).join(" ") || "-",
-        avatar: user.avatar_url || "",
-        isOnline: user.status === "Active",
-        role: user.role || "member",
-      }));
-      // Sort so host is at the top
-      mapped = mapped.sort((a, b) => {
-        if (a.id === hostId) return -1;
-        if (b.id === hostId) return 1;
-        return 0;
-      });
-      setParticipants(mapped);
+  // Fetch participants function for initial load
+  async function fetchParticipants() {
+    const supabase = supabaseRef.current;
+    const { data: participantRows, error } = await supabase
+      .from("trading_room_participants")
+      .select("user_id, left_at")
+      .eq("room_id", roomId)
+      .is("left_at", null);
+    if (error || !participantRows) {
+      setParticipants([]);
+      return;
     }
-    fetchParticipants();
-  }, [roomId]);
+    const userIds = (participantRows as ParticipantRow[]).map((p) => p.user_id);
+    if (userIds.length === 0) {
+      setParticipants([]);
+      return;
+    }
+    const { data: users, error: userError } = await supabase
+      .from("users")
+      .select("id, first_name, last_name, avatar_url, role, status")
+      .in("id", userIds);
+    if (userError || !users) {
+      setParticipants([]);
+      return;
+    }
+    let mapped = (users as UserRow[]).map(mapUser);
+    // Sort so host is at the top
+    mapped = mapped.sort((a, b) => {
+      if (a.id === hostId) return -1;
+      if (b.id === hostId) return 1;
+      return 0;
+    });
+    setParticipants(mapped);
+  }
+
+  useEffect(() => {
+    fetchParticipants(); // Only on mount/roomId change
+    // Subscribe to realtime changes
+    const channel = supabaseRef.current
+      .channel("room-participants-" + roomId)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "trading_room_participants",
+          filter: `room_id=eq.${roomId}`,
+        },
+        async (payload) => {
+          setParticipants((prev) => {
+            if (payload.eventType === "INSERT") {
+              // Fetch user info for the new participant
+              const userId = payload.new.user_id;
+              supabaseRef.current
+                .from("users")
+                .select("id, first_name, last_name, avatar_url, role, status")
+                .eq("id", userId)
+                .single()
+                .then(({ data: user }) => {
+                  if (user) {
+                    setParticipants((current) => {
+                      // Avoid duplicates
+                      if (current.some((p) => p.id === userId)) return current;
+                      let updated = [...current, mapUser(user)];
+                      // Sort so host is at the top
+                      updated = updated.sort((a, b) => {
+                        if (a.id === hostId) return -1;
+                        if (b.id === hostId) return 1;
+                        return 0;
+                      });
+                      return updated;
+                    });
+                  }
+                });
+              return prev;
+            }
+            if (payload.eventType === "UPDATE") {
+              // If left_at is set, remove participant
+              if (payload.new.left_at) {
+                return prev.filter((p) => p.id !== payload.new.user_id);
+              }
+              // Otherwise, update participant info
+              const userId = payload.new.user_id;
+              supabaseRef.current
+                .from("users")
+                .select("id, first_name, last_name, avatar_url, role, status")
+                .eq("id", userId)
+                .single()
+                .then(({ data: user }) => {
+                  if (user) {
+                    setParticipants((current) => {
+                      let updated = current.map((p) =>
+                        p.id === userId ? mapUser(user) : p
+                      );
+                      // Sort so host is at the top
+                      updated = updated.sort((a, b) => {
+                        if (a.id === hostId) return -1;
+                        if (b.id === hostId) return 1;
+                        return 0;
+                      });
+                      return updated;
+                    });
+                  }
+                });
+              return prev;
+            }
+            if (payload.eventType === "DELETE") {
+              return prev.filter((p) => p.id !== payload.old.user_id);
+            }
+            return prev;
+          });
+        }
+      )
+      .subscribe();
+    return () => {
+      supabaseRef.current.removeChannel(channel);
+    };
+  }, [roomId, hostId]);
 
   const handleJoinRoom = () => {
     if (!currentUserId) {

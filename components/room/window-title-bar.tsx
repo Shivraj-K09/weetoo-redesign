@@ -150,7 +150,7 @@ export function WindowTitleBar({
         {currentUserId && currentUserId !== hostId && showLateJoinWarning && (
           <div className="flex-1 mx-4 bg-yellow-50 border border-yellow-200 text-yellow-800 px-3 py-1 rounded text-sm flex items-center justify-between">
             <span className="truncate">
-              🔊 Having trouble hearing the host? Ask them to toggle their
+              🔊 Having trouble hearing the host? Ask Host to toggle their
               microphone off and on again
             </span>
             <button

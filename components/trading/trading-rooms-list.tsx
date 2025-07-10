@@ -22,7 +22,7 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import {
   ChevronDownIcon,
   ChevronFirstIcon,
@@ -169,12 +169,19 @@ function CreatedAtCell({ value }: { value: string }) {
 
   useEffect(() => {
     const date = new Date(value);
-    setRelative(formatDistanceToNow(date, { addSuffix: true }));
+    if (!isNaN(date.getTime())) {
+      setRelative(formatDistanceToNow(date, { addSuffix: true }));
+    } else {
+      setRelative("-");
+    }
   }, [value]);
 
   const dateObj = new Date(value);
-  const fullDate = dateObj.toLocaleDateString();
-  const fullTime = dateObj.toLocaleTimeString();
+  const isValidDate = !isNaN(dateObj.getTime());
+  // Fixed format: DD-MM-YYYY HH:mm:ss
+  const fixedFormat = isValidDate
+    ? format(dateObj, "dd-MM-yyyy HH:mm:ss")
+    : "-";
 
   return (
     <TooltipProvider>
@@ -184,10 +191,9 @@ function CreatedAtCell({ value }: { value: string }) {
         </TooltipTrigger>
         <TooltipContent
           side="bottom"
-          className="w-[130px] flex items-center flex-col font-mono"
+          className="w-[180px] flex items-center flex-col font-mono"
         >
-          <span>{fullDate}</span>
-          <span>{fullTime}</span>
+          <span>{fixedFormat}</span>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

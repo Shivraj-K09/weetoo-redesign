@@ -147,21 +147,24 @@ export function WindowTitleBar({
         </div>
 
         {/* Late join audio warning for participants */}
-        {currentUserId && currentUserId !== hostId && showLateJoinWarning && (
-          <div className="flex-1 mx-4 bg-yellow-50 border border-yellow-200 text-yellow-800 px-3 py-1 rounded text-sm flex items-center justify-between">
-            <span className="truncate">
-              🔊 Having trouble hearing the host? Ask Host to toggle their
-              microphone off and on again
-            </span>
-            <button
-              onClick={() => setShowLateJoinWarning(false)}
-              className="ml-2 text-yellow-700 hover:text-yellow-900 font-bold flex-shrink-0 cursor-pointer"
-              aria-label="Dismiss"
-            >
-              ×
-            </button>
-          </div>
-        )}
+        {roomType === "voice" &&
+          currentUserId &&
+          currentUserId !== hostId &&
+          showLateJoinWarning && (
+            <div className="flex-1 mx-4 bg-yellow-50 border border-yellow-200 text-yellow-800 px-3 py-1 rounded text-sm flex items-center justify-between">
+              <span className="truncate">
+                🔊 Having trouble hearing the host? Ask Host to toggle their
+                microphone off and on again
+              </span>
+              <button
+                onClick={() => setShowLateJoinWarning(false)}
+                className="ml-2 text-yellow-700 hover:text-yellow-900 font-bold flex-shrink-0 cursor-pointer"
+                aria-label="Dismiss"
+              >
+                ×
+              </button>
+            </div>
+          )}
 
         {/* Window Controls */}
         <div className="flex items-center gap-4 pointer-events-auto">

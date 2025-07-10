@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
   if (include === "orderbook" || include === "all") {
     fetches.push(
-      fetch(`https://api.binance.com/api/v3/depth?symbol=${symbol}&limit=6`)
+      fetch(`https://api.binance.us/api/v3/depth?symbol=${symbol}&limit=6`)
         .then(async (res) => {
           if (!res.ok) throw new Error("Failed to fetch order book");
           orderBook = await res.json();
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
 
   if (include === "trades" || include === "all") {
     fetches.push(
-      fetch(`https://api.binance.com/api/v3/trades?symbol=${symbol}&limit=30`)
+      fetch(`https://api.binance.us/api/v3/trades?symbol=${symbol}&limit=30`)
         .then(async (res) => {
           if (!res.ok) throw new Error("Failed to fetch trades");
           trades = await res.json();
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
 
   if (include === "ticker" || include === "all") {
     fetches.push(
-      fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`)
+      fetch(`https://api.binance.us/api/v3/ticker/24hr?symbol=${symbol}`)
         .then(async (res) => {
           if (!res.ok) throw new Error("Failed to fetch ticker");
           const t = await res.json();
@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
 
   if (include === "openInterest" || include === "all") {
     fetches.push(
-      fetch(`https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol}`)
+      fetch(`https://fapi.binance.us/fapi/v1/openInterest?symbol=${symbol}`)
         .then(async (res) => {
           if (!res.ok) throw new Error("Failed to fetch open interest");
           const oi = await res.json();
@@ -106,7 +106,7 @@ export async function GET(req: NextRequest) {
 
   if (include === "all" || include === "funding") {
     fetches.push(
-      fetch(`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${symbol}`)
+      fetch(`https://fapi.binance.us/fapi/v1/premiumIndex?symbol=${symbol}`)
         .then(async (res) => {
           if (!res.ok) throw new Error("Failed to fetch funding rate");
           const premium = await res.json();

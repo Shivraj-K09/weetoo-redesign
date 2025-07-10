@@ -1,26 +1,26 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
-import { Menu as MenuIcon } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { Menu } from "./menu";
-import { ThemeToggle } from "./theme-toggle";
-import { Button } from "./ui/button";
+import { Menu } from "@/components/menu";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "./ui/sheet";
-import { UserDropdown } from "./user/user-dropdown";
+} from "@/components/ui/sheet";
+import { UserDropdown } from "@/components/user/user-dropdown";
+import { createClient } from "@/lib/supabase/client";
+import { Menu as MenuIcon } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
+import { CustomerSupportDialog } from "@/components/user/customer-support-dialog";
+import { KorCoinsRechargeDialog } from "@/components/user/kor-coins-recharge-dialog";
+import { WeetooMarketDialog } from "@/components/user/weetoo-market-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { WeetooMarketDialog } from "./user/weetoo-market-dialog";
-import { KorCoinsRechargeDialog } from "./user/kor-coins-recharge-dialog";
-import { CustomerSupportDialog } from "./user/customer-support-dialog";
 
 export function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -59,7 +59,7 @@ export function Header() {
         <Button variant="outline" className="cursor-pointer shadow-none h-8">
           <Link href="/login">Login</Link>
         </Button>
-        <Button className="cursor-pointer shadow-none h-8">
+        <Button className="cursor-pointer shadow-none h-8 hidden md:block">
           <Link href="/register">Register</Link>
         </Button>
       </>

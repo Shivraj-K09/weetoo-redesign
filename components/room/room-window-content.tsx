@@ -1,25 +1,86 @@
 "use client";
 
-import { TradingViewWidget } from "./trading-view-widget";
-import { OrderBook } from "./order-book";
-import { TradingForm } from "./trading-form";
-import { ParticipantsList } from "./participants-list";
-import { Chat } from "./chat";
-import { TradeHistoryTabs } from "./trade-history-tabs";
+import { Chat } from "@/components/room/chat";
+import { LivektParticipantAudio } from "@/components/room/livekit-participant-audio";
+import { MarketOverview } from "@/components/room/market-overview";
+import { OrderBook } from "@/components/room/order-book";
+import { ParticipantsList } from "@/components/room/participants-list";
+import { TradeHistoryTabs } from "@/components/room/trade-history-tabs";
+import { TradingForm } from "@/components/room/trading-form";
+import { TradingOverview } from "@/components/room/trading-overview";
+import { TradingViewWidget } from "@/components/room/trading-view-widget";
 import { Separator } from "@/components/ui/separator";
-import { MarketOverview } from "./market-overview";
-import { TradingOverview } from "./trading-overview";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect } from "react";
+import useSWR from "swr";
 
-export default function RoomWindowContent() {
+function RoomJoiner({ roomId }: { roomId: string }) {
+  useEffect(() => {
+    async function joinRoom() {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      console.log("[RoomJoiner] Current user:", user);
+      if (!user) return;
+      const { data: existing, error: checkError } = await supabase
+        .from("trading_room_participants")
+        .select("id")
+        .eq("room_id", roomId)
+        .eq("user_id", user.id)
+        .is("left_at", null)
+        .maybeSingle();
+      console.log("[RoomJoiner] Existing participant:", existing, checkError);
+      if (!existing) {
+        const { error: insertError } = await supabase
+          .from("trading_room_participants")
+          .insert({
+            room_id: roomId,
+            user_id: user.id,
+          });
+        console.log("[RoomJoiner] Insert participant error:", insertError);
+      }
+    }
+    joinRoom();
+  }, [roomId]);
+  return null;
+}
+
+export function RoomWindowContent({
+  symbol,
+  roomId,
+  hostId,
+  virtualBalance,
+}: {
+  symbol: string;
+  roomId: string;
+  hostId: string;
+  virtualBalance: number;
+}) {
+  const fetcher = (url: string) => fetch(url).then((res) => res.json());
+  const { data } = useSWR(
+    `/api/market-data?symbol=${symbol}&include=all`,
+    fetcher,
+    { refreshInterval: 1000 }
+  );
+  // Fetch today/total stats for the room
+  const { data: stats } = useSWR(
+    roomId ? `/api/rooms/stats?roomId=${roomId}` : null,
+    fetcher,
+    { refreshInterval: 10000 }
+  );
   return (
     <div className="h-[calc(100%-3rem)] bg-background flex flex-col gap-2 px-3 py-2">
+      <RoomJoiner roomId={roomId} />
+      {/* LiveKit participant audio playback */}
+      <LivektParticipantAudio roomId={roomId} hostId={hostId} />
       <div className="border h-[80px] w-full flex">
         <div className="w-full flex-[1]">
-          <MarketOverview />
+          <MarketOverview symbol={symbol} data={data} />
         </div>
         <Separator className="h-full" orientation="vertical" />
         <div className="w-full flex-1">
-          <TradingOverview />
+          <TradingOverview stats={stats} />
         </div>
       </div>
       <div className="grid grid-cols-6 gap-2 h-full w-full">
@@ -27,27 +88,36 @@ export default function RoomWindowContent() {
           <div className="flex flex-col gap-2 w-full h-full">
             <div className="flex w-full h-[550px] gap-2">
               <div className="flex-[3.5] border-border h-full w-full bg-background">
-                <TradingViewWidget symbol="BTCUSDT" />
+                <TradingViewWidget symbol={symbol} />
               </div>
               <div className="flex-1 border border-border h-full w-full bg-background p-2">
-                <OrderBook />
+                <OrderBook symbol={symbol} data={data} />
               </div>
               <div className="flex-1 border border-border h-full w-full bg-background p-2">
-                <TradingForm />
+                <TradingForm
+                  currentPrice={data?.ticker?.lastPrice}
+                  virtualBalance={virtualBalance}
+                  hostId={hostId}
+                  roomId={roomId}
+                  symbol={symbol}
+                />
               </div>
             </div>
-            <div className="flex flex-1 w-full gap-2 border">
-              <TradeHistoryTabs />
+            <div className="flex flex-1 w-full border">
+              <TradeHistoryTabs
+                roomId={roomId}
+                currentPrice={data?.ticker?.lastPrice}
+              />
             </div>
           </div>
         </div>
         <div className="col-span-1 w-full h-full">
           <div className="flex w-full h-full flex-col gap-2">
             <div className="w-full h-[300px] border border-border bg-background">
-              <ParticipantsList />
+              <ParticipantsList roomId={roomId} hostId={hostId} />
             </div>
             <div className="w-full h-[515px] border border-border bg-background">
-              <Chat />
+              <Chat roomId={roomId} creatorId={hostId} />
             </div>
           </div>
         </div>

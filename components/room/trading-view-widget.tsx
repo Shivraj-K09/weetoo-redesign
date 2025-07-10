@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
 
 declare global {
@@ -30,9 +31,19 @@ interface TradingViewWidgetProps {
 
 export function TradingViewWidget({ symbol }: TradingViewWidgetProps) {
   const container = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
+    // Remove previous widget if exists
+    if (container.current) {
+      container.current.innerHTML = "";
+    }
+    // Remove previous script if exists
+    const prevScript = document.getElementById(`tradingview-script-${symbol}`);
+    if (prevScript) prevScript.remove();
+
     const script = document.createElement("script");
+    script.id = `tradingview-script-${symbol}`;
     script.src = "https://s3.tradingview.com/tv.js";
     script.async = true;
     script.onload = () => {
@@ -42,10 +53,10 @@ export function TradingViewWidget({ symbol }: TradingViewWidgetProps) {
           symbol: symbol,
           interval: "D",
           timezone: "Asia/Seoul",
-          theme: "dark",
+          theme: theme === "light" ? "light" : "dark",
           style: "1",
           locale: "kr",
-          backgroundColor: "rgba(0, 0, 0, 1)",
+          backgroundColor: theme === "light" ? "#fff" : "rgba(0, 0, 0, 1)",
           hide_top_toolbar: true,
           save_image: false,
           height: "100%",
@@ -57,9 +68,15 @@ export function TradingViewWidget({ symbol }: TradingViewWidgetProps) {
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      if (container.current) {
+        container.current.innerHTML = "";
+      }
+      const prevScript = document.getElementById(
+        `tradingview-script-${symbol}`
+      );
+      if (prevScript) prevScript.remove();
     };
-  }, [symbol]);
+  }, [symbol, theme]);
 
   return (
     <div

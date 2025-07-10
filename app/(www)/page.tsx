@@ -10,12 +10,12 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import { createClient } from "@/lib/supabase/client";
 import Autoplay from "embla-carousel-autoplay";
 import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 
 export default function Home() {
   const { theme } = useTheme();
@@ -596,36 +596,88 @@ export default function Home() {
                                         "0 6px 28px 0 rgba(0,0,0,0.15)",
                                     }}
                                     whileTap={{ scale: 0.97 }}
-                                    className="flex flex-col justify-between min-w-[320px] max-w-[320px] h-[190px] rounded-2xl border border-gray-300/20 dark:border-gray-700/40 bg-gradient-to-b from-gray-900/60 to-gray-800/80 dark:from-gray-900/80 dark:to-gray-900/60 shadow-lg relative overflow-hidden p-6 transition-all duration-200"
+                                    className={`flex flex-col justify-between min-w-[320px] max-w-[320px] h-[190px] rounded-2xl border transition-all duration-200 relative overflow-hidden p-6 shadow-lg 
+                                      ${
+                                        theme === "light"
+                                          ? "bg-gradient-to-b from-white/90 to-blue-50/80 border-gray-200 text-gray-900"
+                                          : "bg-gradient-to-b from-gray-900/60 to-gray-800/80 dark:from-gray-900/80 dark:to-gray-900/60 border-gray-700/40 text-white"
+                                      }
+                                    `}
                                   >
                                     <div className="flex items-center justify-between w-full mb-3">
                                       <span className="text-sm font-bold px-3 py-1.5 rounded-full bg-red-500 text-white">
                                         LIVE
                                       </span>
-                                      <span className="text-sm font-semibold px-3 py-1.5 rounded-full bg-gray-800/80 text-gray-100 dark:bg-gray-700/80 dark:text-gray-200">
+                                      <span
+                                        className={`text-sm font-semibold px-3 py-1.5 rounded-full 
+                                        ${
+                                          theme === "light"
+                                            ? "bg-gray-100 text-gray-700"
+                                            : "bg-gray-800/80 text-gray-100 dark:bg-gray-700/80 dark:text-gray-200"
+                                        }`}
+                                      >
                                         {room.participants} participants
                                       </span>
                                     </div>
                                     <div className="flex flex-col flex-1 justify-start items-start text-left">
-                                      <div className="text-xl font-bold text-white leading-tight mb-1 truncate w-full">
+                                      <div
+                                        className={`text-xl font-bold leading-tight mb-1 truncate w-full 
+                                        ${
+                                          theme === "light"
+                                            ? "text-gray-900"
+                                            : "text-white"
+                                        }`}
+                                      >
                                         {room.name}
                                       </div>
-                                      <div className="text-sm text-gray-400 mb-3 truncate w-full">
+                                      <div
+                                        className={`text-sm mb-3 truncate w-full 
+                                        ${
+                                          theme === "light"
+                                            ? "text-gray-500"
+                                            : "text-gray-400"
+                                        }`}
+                                      >
                                         by {room.creator.name}
                                       </div>
-                                      <div className="flex flex-wrap gap-2 mt-auto pt-2 border-t border-gray-700/30">
-                                        <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-600/20 text-blue-400 tracking-wide">
+                                      <div
+                                        className={`flex flex-wrap gap-2 mt-auto pt-2 border-t ${
+                                          theme === "light"
+                                            ? "border-gray-200"
+                                            : "border-gray-700/30"
+                                        }`}
+                                      >
+                                        <span
+                                          className={`text-xs font-medium px-3 py-1 rounded-full tracking-wide 
+                                          ${
+                                            theme === "light"
+                                              ? "bg-blue-100 text-blue-700"
+                                              : "bg-blue-600/20 text-blue-400"
+                                          }`}
+                                        >
                                           {room.symbol}
                                         </span>
-                                        <span className="text-xs font-medium px-3 py-1 rounded-full bg-purple-600/20 text-purple-300 tracking-wide">
+                                        <span
+                                          className={`text-xs font-medium px-3 py-1 rounded-full tracking-wide 
+                                          ${
+                                            theme === "light"
+                                              ? "bg-purple-100 text-purple-700"
+                                              : "bg-purple-600/20 text-purple-300"
+                                          }`}
+                                        >
                                           {room.category}
                                         </span>
                                         <span
-                                          className={`text-xs font-medium px-3 py-1 rounded-full ${
+                                          className={`text-xs font-medium px-3 py-1 rounded-full tracking-wide 
+                                          ${
                                             room.isPublic
-                                              ? "bg-green-600/20 text-green-300"
+                                              ? theme === "light"
+                                                ? "bg-green-100 text-green-700"
+                                                : "bg-green-600/20 text-green-300"
+                                              : theme === "light"
+                                              ? "bg-yellow-100 text-yellow-700"
                                               : "bg-yellow-600/20 text-yellow-200"
-                                          } tracking-wide`}
+                                          }`}
                                         >
                                           {room.isPublic ? "Public" : "Private"}
                                         </span>

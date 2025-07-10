@@ -1,40 +1,220 @@
 "use client";
 
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useRef, useState } from "react";
+import useSWR from "swr";
 
-export function TradingForm() {
+export function TradingForm({
+  currentPrice,
+  virtualBalance,
+  roomId,
+  hostId,
+  symbol,
+}: {
+  currentPrice?: number;
+  virtualBalance: number;
+  roomId: string;
+  hostId: string;
+  symbol: string;
+}) {
   const [orderType, setOrderType] = useState("limit"); // 'limit' or 'market'
   const [marginMode, setMarginMode] = useState("cross"); // 'cross' or 'isolated'
   const [leverage, setLeverage] = useState(1); // Default leverage
   const [showMarginModal, setShowMarginModal] = useState(false);
   const [showLeverageModal, setShowLeverageModal] = useState(false);
-  const [orderPrice, setOrderPrice] = useState("50000");
-  const [orderQuantity, setOrderQuantity] = useState("0");
+  // Set default value to empty string for orderQuantity and orderPrice, but treat as 0 in calculations
+  const [orderQuantity, setOrderQuantity] = useState("");
+  const [orderPrice, setOrderPrice] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Constants
+  const FEE_RATE = 0.0005; // Taker fee (0.05%)
+  const MAINTENANCE_MARGIN_RATE = 0.005; // 0.5% (can adjust as needed)
+
+  // Calculated values for display
+  const price =
+    orderType === "market"
+      ? Number(currentPrice) || 0
+      : Number(orderPrice) || 0;
+  const quantity = Number(orderQuantity) || 0;
+  const positionSize = price * quantity;
+  const fee = positionSize * FEE_RATE;
+  const initialMargin = leverage > 0 ? positionSize / leverage : 0;
+  const leverageValue = initialMargin > 0 ? positionSize / initialMargin : 0;
+  // Liquidation price formulas (Binance style)
+  const lev = leverage;
+  const mmr = MAINTENANCE_MARGIN_RATE;
+  const liqPriceLong = lev > 0 ? price * (lev / (lev + 1 - mmr * lev)) : 0;
+  const liqPriceShort = lev > 1 ? price * (lev / (lev - 1 + mmr * lev)) : 0;
+
+  // Fetch default virtual balance from app-settings
+  const fetcher = (url: string) => fetch(url).then((res) => res.json());
+  const { data: settings, isLoading: isSettingsLoading } = useSWR(
+    "/api/app-settings",
+    fetcher
+  );
+  const defaultVirtualBalance =
+    typeof settings?.startingBalance === "number"
+      ? settings.startingBalance
+      : 100000;
+
+  // Prefill limit order price with current price if empty
+  useEffect(() => {
+    if (orderType === "limit" && !orderPrice && currentPrice) {
+      setOrderPrice(Number(currentPrice).toFixed(2));
+    }
+  }, [orderType, currentPrice]);
+
+  // Handle % buttons
+  const handlePercentClick = (percent: number) => {
+    // Use the default virtual balance from app-settings
+    const availableBalance = defaultVirtualBalance;
+    const price =
+      orderType === "market"
+        ? Number(currentPrice) || 0
+        : Number(orderPrice) || 0;
+    if (!price || !leverage) return;
+    const maxPositionValue = availableBalance * leverage;
+    const value = (maxPositionValue * percent) / 100;
+    const quantity = value / price;
+    setOrderQuantity(quantity.toFixed(6));
+  };
+
+  // Margin Mode Dialog state
+  const [pendingMarginMode, setPendingMarginMode] = useState(marginMode);
+  // Leverage Dialog state
+  const [pendingLeverage, setPendingLeverage] = useState(leverage);
+
+  // Remove lastConfirmedMargin state and useEffect
+  // Use a ref to store the margin snapshot when opening the leverage dialog
+  const marginSnapshotRef = useRef<number | null>(null);
+
+  // Error state for insufficient balance
+  const [orderAmountError, setOrderAmountError] = useState<string | null>(null);
+
+  // Validate order amount against virtual balance
+  useEffect(() => {
+    if (positionSize > virtualBalance) {
+      setOrderAmountError(
+        "Order amount exceeds your available virtual balance."
+      );
+    } else {
+      setOrderAmountError(null);
+    }
+  }, [positionSize, virtualBalance]);
+
+  // Add state for order confirmation dialog
+  const [showOrderDialog, setShowOrderDialog] = useState(false);
+  const [orderSide, setOrderSide] = useState<"long" | "short">("long");
+
+  // Add a function to open the dialog with the correct side
+  const handleOpenOrderDialog = (side: "long" | "short") => {
+    setOrderSide(side);
+    setShowOrderDialog(true);
+  };
+
+  // Get current user id on mount
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUserId(data?.user?.id || null);
+    });
+  }, []);
+
+  // Confirm order handler
+  const handleConfirmOrder = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!currentUserId || currentUserId !== hostId) {
+        setError("Only the room creator can trade in this room.");
+        setLoading(false);
+        return;
+      }
+      const supabase = createClient();
+      const entry_price = price;
+      const quantityNum = Number(orderQuantity);
+      const size = entry_price * quantityNum;
+      const initial_margin = size / leverage;
+      const fee = size * FEE_RATE;
+      const mmr = MAINTENANCE_MARGIN_RATE;
+      let liquidation_price = 0;
+      if (orderSide === "long") {
+        liquidation_price =
+          entry_price * (leverage / (leverage + 1 - mmr * leverage));
+      } else {
+        liquidation_price =
+          entry_price * (leverage / (leverage - 1 + mmr * leverage));
+      }
+      // Use the new RPC for atomic insert and balance update
+      const { error: rpcError } = await supabase.rpc(
+        "open_position_and_update_balance",
+        {
+          p_room_id: roomId,
+          p_user_id: currentUserId,
+          p_symbol: symbol,
+          p_side: orderSide,
+          p_quantity: quantityNum,
+          p_entry_price: entry_price,
+          p_leverage: leverage,
+          p_fee: fee,
+          p_initial_margin: initial_margin,
+          p_liquidation_price: liquidation_price,
+        }
+      );
+      if (rpcError) {
+        setError(rpcError.message);
+      } else {
+        setShowOrderDialog(false);
+        setOrderQuantity("");
+        setOrderPrice("");
+      }
+    } catch (e: unknown) {
+      if (
+        e &&
+        typeof e === "object" &&
+        "message" in e &&
+        typeof (e as { message?: unknown }).message === "string"
+      ) {
+        setError((e as { message: string }).message);
+      } else {
+        setError("An error occurred.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="flex flex-col h-full bg-background text-xs text-foreground p-2 overflow-y-auto custom-scrollbar">
+    <div className="flex flex-col h-full bg-background text-xs text-foreground p-2 overflow-y-auto custom-scrollbar select-none">
       {/* Top Controls: Margin Mode and Leverage */}
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center">
         <div className="relative w-1/2 pr-1">
           <Button
             variant="secondary"
-            onClick={() => setShowMarginModal(true)}
+            onClick={() => {
+              setPendingMarginMode(marginMode);
+              setShowMarginModal(true);
+            }}
             className="flex items-center justify-between gap-1 py-1.5 px-3 w-full text-xs font-medium"
           >
-            Cross <span className="text-muted-foreground">▼</span>
+            {marginMode === "cross" ? "Cross" : "Isolated"}{" "}
+            <span className="text-muted-foreground">▼</span>
           </Button>
           <Dialog open={showMarginModal} onOpenChange={setShowMarginModal}>
             <DialogContent className="sm:max-w-lg">
@@ -42,24 +222,24 @@ export function TradingForm() {
                 <DialogTitle>Choose Margin Mode</DialogTitle>
                 <DialogDescription>
                   Make changes to your margin mode here. Click confirm when
-                  you&apso;re done.
+                  you&apos;re done.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <RadioGroup
-                  defaultValue={marginMode}
+                  value={pendingMarginMode}
                   onValueChange={(value: "cross" | "isolated") =>
-                    setMarginMode(value)
+                    setPendingMarginMode(value)
                   }
                   className="flex flex-row space-x-4"
                 >
                   <div
                     className={`flex-1 flex items-center justify-center p-3 border rounded-md cursor-pointer ${
-                      marginMode === "cross"
+                      pendingMarginMode === "cross"
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-secondary text-muted-foreground border-border"
                     }`}
-                    onClick={() => setMarginMode("cross")}
+                    onClick={() => setPendingMarginMode("cross")}
                   >
                     <RadioGroupItem
                       value="cross"
@@ -72,11 +252,11 @@ export function TradingForm() {
                   </div>
                   <div
                     className={`flex-1 flex items-center justify-center p-3 border rounded-md cursor-pointer ${
-                      marginMode === "isolated"
+                      pendingMarginMode === "isolated"
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-secondary text-muted-foreground border-border"
                     }`}
-                    onClick={() => setMarginMode("isolated")}
+                    onClick={() => setPendingMarginMode("isolated")}
                   >
                     <RadioGroupItem
                       value="isolated"
@@ -104,7 +284,12 @@ export function TradingForm() {
                 >
                   Cancel
                 </Button>
-                <Button onClick={() => setShowMarginModal(false)}>
+                <Button
+                  onClick={() => {
+                    setMarginMode(pendingMarginMode);
+                    setShowMarginModal(false);
+                  }}
+                >
                   Confirm
                 </Button>
               </DialogFooter>
@@ -115,7 +300,21 @@ export function TradingForm() {
         <div className="relative w-1/2 pl-1">
           <Button
             variant="secondary"
-            onClick={() => setShowLeverageModal(true)}
+            onClick={() => {
+              setPendingLeverage(leverage);
+              setShowLeverageModal(true);
+              // Snapshot margin at dialog open
+              const price =
+                orderType === "market"
+                  ? Number(currentPrice) || 0
+                  : Number(orderPrice) || 0;
+              const quantity = Number(orderQuantity) || 0;
+              const margin =
+                leverage > 0 && price > 0 && quantity > 0
+                  ? (price * quantity) / leverage
+                  : null;
+              marginSnapshotRef.current = margin;
+            }}
             className="flex items-center justify-between gap-1 py-1.5 px-3 w-full text-xs font-medium"
           >
             {leverage}x <span className="text-muted-foreground">▼</span>
@@ -135,17 +334,19 @@ export function TradingForm() {
                 </label>
                 <Input
                   type="number"
-                  value={leverage}
-                  onChange={(e) => setLeverage(Number(e.target.value))}
+                  value={pendingLeverage}
+                  onChange={(e) => setPendingLeverage(Number(e.target.value))}
                   className="w-full text-center text-lg mb-4"
                   min="1"
                   max="100"
                 />
                 <Slider
-                  defaultValue={[leverage]}
+                  defaultValue={[pendingLeverage]}
                   max={100}
                   step={1}
-                  onValueChange={(value: number[]) => setLeverage(value[0])}
+                  onValueChange={(value: number[]) =>
+                    setPendingLeverage(value[0])
+                  }
                   className="w-full"
                 />
                 <div className="flex justify-between text-muted-foreground text-xs mt-2">
@@ -180,7 +381,27 @@ export function TradingForm() {
                 >
                   Cancel
                 </Button>
-                <Button onClick={() => setShowLeverageModal(false)}>
+                <Button
+                  onClick={() => {
+                    setLeverage(pendingLeverage);
+                    setShowLeverageModal(false);
+                    // On confirm, auto-update quantity to keep margin constant
+                    const price =
+                      orderType === "market"
+                        ? Number(currentPrice) || 0
+                        : Number(orderPrice) || 0;
+                    if (
+                      marginSnapshotRef.current !== null &&
+                      pendingLeverage > 0 &&
+                      price > 0
+                    ) {
+                      const newQuantity =
+                        (marginSnapshotRef.current * pendingLeverage) / price;
+                      setOrderQuantity(newQuantity.toFixed(6));
+                    }
+                    marginSnapshotRef.current = null;
+                  }}
+                >
                   Confirm
                 </Button>
               </DialogFooter>
@@ -217,32 +438,46 @@ export function TradingForm() {
       <div className="flex flex-col gap-3 mb-3">
         <div>
           <label className="block text-muted-foreground mb-1 text-xs">
-            {orderType === "limit" ? "Price (USDT)" : "Price (USDT)"}
+            Order Price (USDT)
           </label>
-          <div className="flex items-center bg-secondary border border-border rounded-md px-3 py-1.5">
+          <div className="flex items-center bg-secondary border border-border rounded-md px-3 py-1.5 relative">
             <Input
-              type={orderType === "limit" ? "number" : "text"}
-              value={orderType === "limit" ? orderPrice : "Market Price"}
+              type="number"
+              value={
+                orderType === "market"
+                  ? currentPrice
+                    ? Number(currentPrice).toFixed(2)
+                    : "0"
+                  : orderPrice
+              }
               onChange={(e) => setOrderPrice(e.target.value)}
               readOnly={orderType === "market"}
-              className="w-full bg-transparent border-0 p-0 h-6 text-xs focus-visible:ring-0"
+              className="w-full bg-transparent border-0 p-0 h-6 text-xs focus-visible:ring-0 pr-16 no-spinner"
             />
             <span className="text-muted-foreground text-xs">USDT</span>
+            {orderType === "limit" && currentPrice && (
+              <button
+                type="button"
+                className="absolute right-12 top-1/2 -translate-y-1/2 text-primary text-xs font-semibold px-2 py-0.5 rounded hover:bg-primary/10 border border-primary/20"
+                onClick={() => setOrderPrice(Number(currentPrice).toFixed(2))}
+                tabIndex={-1}
+              >
+                Current Price
+              </button>
+            )}
           </div>
         </div>
 
         <div>
           <label className="block text-muted-foreground mb-1 text-xs">
-            {orderType === "limit"
-              ? "Quantity (BTCUSDT)"
-              : "Quantity (BTCUSDT)"}
+            Order Quantity (BTCUSDT)
           </label>
           <div className="flex items-center bg-secondary border border-border rounded-md px-3 py-1.5">
             <Input
               type="number"
               value={orderQuantity}
               onChange={(e) => setOrderQuantity(e.target.value)}
-              className="w-full bg-transparent border-0 p-0 h-6 text-xs focus-visible:ring-0"
+              className="w-full bg-transparent border-0 p-0 h-6 text-xs focus-visible:ring-0 no-spinner"
             />
             <span className="text-muted-foreground text-xs">BTCUSDT</span>
           </div>
@@ -251,89 +486,215 @@ export function TradingForm() {
         {orderType === "limit" && (
           <div>
             <label className="block text-muted-foreground mb-1 text-xs">
-              Amount (USDT)
+              Order Amount (USDT)
             </label>
-            <div className="flex items-center bg-secondary border border-border rounded-md px-3 py-1.5">
+            <div
+              className={`flex items-center bg-secondary border rounded-md px-3 py-1.5 ${
+                orderAmountError ? "border-red-500" : "border-border"
+              }`}
+            >
               <Input
                 type="number"
-                defaultValue="0"
-                className="w-full bg-transparent border-0 p-0 h-6 text-xs focus-visible:ring-0"
+                value={positionSize ? positionSize.toFixed(2) : "0"}
+                readOnly
+                className="w-full bg-transparent border-0 p-0 h-6 text-xs focus-visible:ring-0 no-spinner"
               />
               <span className="text-muted-foreground text-xs">USDT</span>
             </div>
+            {orderAmountError && (
+              <div className="text-xs text-red-500 mt-1">
+                {orderAmountError}
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Percentage Buttons */}
       <div className="grid grid-cols-5 gap-2 mb-3">
-        {[10, 25, 50, 75, 100].map((percent) => (
-          <Button
-            key={percent}
-            variant="outline"
-            size="sm"
-            className="w-full text-xs py-1 h-7"
-          >
-            {percent}%
-          </Button>
-        ))}
+        {isSettingsLoading
+          ? Array.from({ length: 5 }).map((_, i) => (
+              <Button
+                key={i}
+                variant="outline"
+                size="sm"
+                className="w-full text-xs py-1 h-7 animate-pulse bg-muted"
+                disabled
+              >
+                ...
+              </Button>
+            ))
+          : [10, 25, 50, 75, 100].map((percent) => (
+              <Button
+                key={percent}
+                variant="outline"
+                size="sm"
+                className="w-full text-xs py-1 h-7"
+                onClick={() => handlePercentClick(percent)}
+              >
+                {percent}%
+              </Button>
+            ))}
       </div>
 
       {/* Trading Info */}
       <div className="flex flex-col gap-1.5 mb-3 text-xs">
         <div className="flex justify-between text-muted-foreground">
           <span>Fee:</span>
-          <span>0.05%</span>
+          <span>{fee.toFixed(2)} USDT</span>
         </div>
         <div className="flex justify-between text-muted-foreground">
           <span>Leverage:</span>
-          <span>{leverage}x</span>
+          <span>{leverageValue.toFixed(2)}x</span>
         </div>
         <div className="flex justify-between text-muted-foreground">
-          <span>Position Size (BTCUSDT):</span>
-          <span>0.000000</span>
+          <span>Position Size (USDT):</span>
+          <span>{positionSize.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-muted-foreground">
           <span>Initial Margin (USDT):</span>
-          <span>0.00</span>
+          <span>{initialMargin.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-muted-foreground">
-          <span>Estimated Liquidation (Long):</span>
-          <span className="text-red-500">30000.00</span>
+          <span>Est. Liq. Price (Long):</span>
+          <span className="text-red-500">
+            {liqPriceLong > 0 ? liqPriceLong.toFixed(2) : "-"}
+          </span>
         </div>
         <div className="flex justify-between text-muted-foreground">
-          <span>Estimated Liquidation (Short):</span>
-          <span className="text-green-500">70000.00</span>
-        </div>
-      </div>
-
-      {/* Account Summary */}
-      <div className="flex flex-col gap-1.5 mb-3 text-xs">
-        <div className="flex justify-between text-muted-foreground">
-          <span>Total Asset Value (USDT):</span>
-          <span>100000.00</span>
-        </div>
-        <div className="flex justify-between text-muted-foreground">
-          <span>Total Balance (USDT):</span>
-          <span>100000.00</span>
-        </div>
-        <div className="flex justify-between text-muted-foreground">
-          <span>Available Balance (USDT):</span>
-          <span>99000.00</span>
+          <span>Est. Liq. Price (Short):</span>
+          <span className="text-green-500">
+            {liqPriceShort > 0 ? liqPriceShort.toFixed(2) : "-"}
+          </span>
         </div>
       </div>
 
       {/* Action Buttons - Fixed at bottom */}
       <div className="sticky bottom-0 left-0 right-0 bg-background pt-2 mt-auto border-t border-border">
         <div className="flex gap-2">
-          <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white h-9 text-xs font-medium">
+          <Button
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white h-9 text-xs font-medium"
+            onClick={() => handleOpenOrderDialog("long")}
+          >
             Buy / Long
           </Button>
-          <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white h-9 text-xs font-medium">
+          <Button
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white h-9 text-xs font-medium"
+            onClick={() => handleOpenOrderDialog("short")}
+          >
             Sell / Short
           </Button>
         </div>
       </div>
+
+      {/* Order Confirmation Dialog */}
+      <Dialog open={showOrderDialog} onOpenChange={setShowOrderDialog}>
+        <DialogContent className="sm:max-w-md rounded-xl border border-border bg-background p-0">
+          <div className="px-6 pt-5 pb-2">
+            <DialogTitle className="text-lg font-semibold mb-2">
+              {orderSide === "long"
+                ? "Confirm Buy / Long Order"
+                : "Confirm Sell / Short Order"}
+            </DialogTitle>
+            <p className="text-muted-foreground text-sm mb-4">
+              Please review your order before submitting.
+            </p>
+            <div className="rounded-md border border-border bg-muted/50 px-4 py-3 mb-2">
+              <div className="grid gap-2.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground font-medium text-[15px]">
+                    Trading Pair
+                  </span>
+                  <span className="font-semibold text-[15px]">BTCUSDT</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground font-medium text-[15px]">
+                    Order Direction
+                  </span>
+                  <span
+                    className={`font-semibold text-[15px] ${
+                      orderSide === "long" ? "text-success" : "text-red-400"
+                    }`}
+                  >
+                    {orderSide === "long" ? "Buy / Long" : "Sell / Short"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground font-medium text-[15px]">
+                    Order Type
+                  </span>
+                  <span className="font-semibold text-[15px]">
+                    {orderType === "market" ? "Market" : "Limit"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground font-medium text-[15px]">
+                    Quantity
+                  </span>
+                  <span className="font-semibold text-[15px]">
+                    {orderQuantity || "0"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground font-medium text-[15px]">
+                    Price
+                  </span>
+                  <span className="font-semibold text-[15px]">
+                    {orderType === "market"
+                      ? (currentPrice || 0).toLocaleString("en-US", {
+                          maximumFractionDigits: 2,
+                        })
+                      : orderPrice}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground font-medium text-[15px]">
+                    Leverage
+                  </span>
+                  <span className="font-semibold text-[15px]">{leverage}x</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-between items-center mt-5 pt-4 border-t border-border bg-muted/30 rounded-md px-4 py-2">
+              <span className="text-base font-semibold text-muted-foreground">
+                Total
+              </span>
+              <span
+                className={`text-2xl font-bold tracking-tight ${
+                  orderSide === "long" ? "text-success" : "text-red-400"
+                }`}
+              >
+                $
+                {positionSize.toLocaleString("en-US", {
+                  maximumFractionDigits: 2,
+                })}
+              </span>
+            </div>
+          </div>
+          <DialogFooter className="px-6 pb-5 pt-5">
+            <Button
+              variant="secondary"
+              className="w-28 h-10"
+              onClick={() => setShowOrderDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={orderSide === "long" ? "success" : "destructive"}
+              className="w-28 h-10"
+              onClick={handleConfirmOrder}
+              disabled={loading}
+            >
+              {loading ? "Confirming..." : "Confirm"}
+            </Button>
+          </DialogFooter>
+          {error && (
+            <div className="text-xs text-red-500 mt-2 px-4 py-2 rounded-md bg-red-50">
+              {error}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

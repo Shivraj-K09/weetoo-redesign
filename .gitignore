@@ -42,3 +42,18 @@ next-env.d.ts
 
 schema.txt
 important.txt
+
+# Ignore database schemas, docs, notes, test, and important.txt
+/db-schemas
+@/db-schemas
+/docs
+@/docs
+notes
+@notes
+test
+@test
+important.txt
+@important.txt
+
+# Ignore database schema files
+/db-schemas/

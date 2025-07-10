@@ -7,9 +7,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { PlusIcon, Eye, EyeOff, Coins, Wallet } from "lucide-react";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { createClient } from "@/lib/supabase/client";
+import { Coins, Eye, EyeOff, PlusIcon, Wallet } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -17,15 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
-import { useState, useEffect, useRef, useMemo } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { Skeleton } from "../ui/skeleton";
 
 interface UserData {
   id: string;
@@ -42,7 +42,11 @@ export function CreateRoom() {
   const [loading, setLoading] = useState(true);
   const lastSessionId = useRef<string | null>(null);
 
-  // Fetch user data including KOR coins
+  const [roomName, setRoomName] = useState("");
+  const [roomPassword, setRoomPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const supabase = createClient();
+
   useEffect(() => {
     let mounted = true;
     const supabase = createClient();
@@ -112,12 +116,10 @@ export function CreateRoom() {
     };
   }, []);
 
-  // Get user KOR coins with fallback
   const userKorCoins = useMemo(() => {
     return user?.kor_coins ?? 0;
   }, [user?.kor_coins]);
 
-  // Format number with K suffix for display
   const formatNumber = (num: number) => {
     if (num >= 1000) {
       return `${(num / 1000).toFixed(1)}K`;
@@ -125,7 +127,6 @@ export function CreateRoom() {
     return num.toString();
   };
 
-  // Cost calculation based on room category
   const getRoomCost = (category: string) => {
     switch (category) {
       case "voice":
@@ -138,6 +139,52 @@ export function CreateRoom() {
 
   const roomCost = getRoomCost(category);
   const canAfford = userKorCoins >= roomCost;
+
+  async function handleCreateRoom(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user || !roomName.trim()) return;
+    setSubmitting(true);
+    const { data: settings } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "default_virtual_balance")
+      .single();
+    const defaultVirtualBalance = settings?.value ?? 100000;
+    const { data, error } = await supabase
+      .from("trading_rooms")
+      .insert([
+        {
+          name: roomName.trim(),
+          creator_id: user.id,
+          symbol,
+          category,
+          privacy,
+          password: privacy === "private" ? roomPassword : null,
+          // participants_count: 1,
+          max_participants: 100,
+          room_status: "active",
+          is_active: true,
+          virtual_balance: defaultVirtualBalance,
+        },
+      ])
+      .select()
+      .single();
+    if (error || !data) {
+      setSubmitting(false);
+      alert("Failed to create room. Please try again.");
+      return;
+    }
+    // Add creator as participant
+    await supabase.from("trading_room_participants").insert([
+      {
+        room_id: data.id,
+        user_id: user.id,
+      },
+    ]);
+    setSubmitting(false);
+    setOpen(false);
+    window.open(`/room/${data.id}`, "_blank");
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -157,7 +204,10 @@ export function CreateRoom() {
           </DialogDescription>
         </DialogHeader>
         <div className="border-b border-border mx-6" />
-        <form className="px-6 py-6 flex flex-col gap-5">
+        <form
+          className="px-6 py-6 flex flex-col gap-5"
+          onSubmit={handleCreateRoom}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="flex flex-col gap-1">
               <Label
@@ -171,6 +221,8 @@ export function CreateRoom() {
                 placeholder="Enter room name"
                 required
                 className="text-sm h-10"
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -204,6 +256,8 @@ export function CreateRoom() {
                   placeholder="Enter room password"
                   required
                   className="text-sm pr-10 h-10"
+                  value={roomPassword}
+                  onChange={(e) => setRoomPassword(e.target.value)}
                 />
                 <button
                   type="button"
@@ -328,8 +382,12 @@ export function CreateRoom() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || !canAfford}>
-              {loading ? "Loading..." : "Create Room"}
+            <Button type="submit" disabled={loading || submitting}>
+              {submitting
+                ? "Creating..."
+                : loading
+                ? "Loading..."
+                : "Create Room"}
             </Button>
           </div>
         </form>

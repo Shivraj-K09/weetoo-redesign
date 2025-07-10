@@ -1,5 +1,12 @@
 "use client";
 
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -15,6 +22,7 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
+import { formatDistanceToNow } from "date-fns";
 import {
   ChevronDownIcon,
   ChevronFirstIcon,
@@ -23,10 +31,11 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
   CircleXIcon,
-  ClockIcon,
   Columns3Icon,
   Crown,
   DoorOpenIcon,
+  Eye,
+  EyeOff,
   FilterIcon,
   GlobeIcon,
   ListFilterIcon,
@@ -35,7 +44,8 @@ import {
   MicIcon,
   UsersIcon,
 } from "lucide-react";
-import { useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -67,6 +77,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -75,10 +86,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { CreateRoom } from "./create-room";
 
-// Types
 interface TradingRoom {
   id: string;
   name: string;
@@ -94,15 +105,39 @@ interface TradingRoom {
   isPublic: boolean;
   isHosted: boolean;
   participants: number;
-  pnlPercentage?: number;
+  pnlPercentage: number | null;
 }
 
-// Custom filter function for multi-column searching
-const multiColumnFilterFn: FilterFn<TradingRoom> = (
-  row,
-  columnId,
-  filterValue
-) => {
+interface TradingRoomDb {
+  id: string;
+  name: string;
+  creator_id: string;
+  symbol: string;
+  category: "regular" | "voice";
+  privacy: "public" | "private";
+  pnl_percentage: number | null;
+  created_at: string;
+  room_status: string;
+}
+
+interface UserDb {
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string;
+}
+
+interface ParticipantCountDb {
+  room_id: string;
+  user_id: string;
+}
+
+interface TradeDb {
+  room_id: string;
+  pnl: number | null;
+}
+
+const multiColumnFilterFn: FilterFn<TradingRoom> = (row, filterValue) => {
   const searchableRowContent =
     `${row.original.name} ${row.original.symbol} ${row.original.creator.name}`.toLowerCase();
   const searchTerm = (filterValue ?? "").toLowerCase();
@@ -129,349 +164,35 @@ const accessFilterFn: FilterFn<TradingRoom> = (
   return filterValue.includes(isPublic ? "public" : "private");
 };
 
-// Mock data
-const mockTradingRooms: TradingRoom[] = [
-  {
-    id: "1",
-    name: "BTC Strategy Discussion",
-    creator: {
-      id: "user1",
-      name: "Alex Thompson",
-      avatar: "",
-    },
-    symbol: "BTC/USDT",
-    category: "regular",
-    createdAt: "2h ago",
-    createdAtTimestamp: Date.now() - 2 * 60 * 60 * 1000, // 2 hours ago
-    isPublic: true,
-    isHosted: true,
-    participants: 24,
-    pnlPercentage: 5.2,
-  },
-  {
-    id: "2",
-    name: "ETH Technical Analysis",
-    creator: {
-      id: "user2",
-      name: "Sarah Kim",
-      avatar: "",
-    },
-    symbol: "ETH/USDT",
-    category: "voice",
-    createdAt: "3h ago",
-    createdAtTimestamp: Date.now() - 3 * 60 * 60 * 1000, // 3 hours ago
-    isPublic: true,
-    isHosted: false,
-    participants: 18,
-    pnlPercentage: -2.1,
-  },
-  {
-    id: "3",
-    name: "Private Altcoin Signals",
-    creator: {
-      id: "user3",
-      name: "Michael Chen",
-      avatar: "",
-    },
-    symbol: "SOL/USDT",
-    category: "regular",
-    createdAt: "5h ago",
-    createdAtTimestamp: Date.now() - 5 * 60 * 60 * 1000, // 5 hours ago
-    isPublic: false,
-    isHosted: false,
-    participants: 7,
-    pnlPercentage: 0.0,
-  },
-  {
-    id: "4",
-    name: "Korean Market Analysis",
-    creator: {
-      id: "user4",
-      name: "Ji-Hoon Park",
-      avatar: "",
-    },
-    symbol: "XRP/KRW",
-    category: "voice",
-    createdAt: "6h ago",
-    createdAtTimestamp: Date.now() - 6 * 60 * 60 * 1000, // 6 hours ago
-    isPublic: true,
-    isHosted: false,
-    participants: 32,
-    pnlPercentage: 1.7,
-  },
-  {
-    id: "5",
-    name: "Futures Trading Strategies",
-    creator: {
-      id: "user5",
-      name: "Emma Wilson",
-      avatar: "",
-    },
-    symbol: "BTC/USDT",
-    category: "regular",
-    createdAt: "8h ago",
-    createdAtTimestamp: Date.now() - 8 * 60 * 60 * 1000, // 8 hours ago
-    isPublic: true,
-    isHosted: false,
-    participants: 15,
-    pnlPercentage: -3.4,
-  },
-  {
-    id: "6",
-    name: "VIP Trading Signals",
-    creator: {
-      id: "user6",
-      name: "David Lee",
-      avatar: "",
-    },
-    symbol: "DOGE/USDT",
-    category: "voice",
-    createdAt: "10h ago",
-    createdAtTimestamp: Date.now() - 10 * 60 * 60 * 1000, // 10 hours ago
-    isPublic: false,
-    isHosted: true,
-    participants: 9,
-    pnlPercentage: 2.9,
-  },
-  {
-    id: "7",
-    name: "Beginner's Trading Circle",
-    creator: {
-      id: "user7",
-      name: "Sophia Garcia",
-      avatar: "",
-    },
-    symbol: "ADA/USDT",
-    category: "regular",
-    createdAt: "12h ago",
-    createdAtTimestamp: Date.now() - 12 * 60 * 60 * 1000, // 12 hours ago
-    isPublic: true,
-    isHosted: false,
-    participants: 41,
-    pnlPercentage: 0.8,
-  },
-  {
-    id: "8",
-    name: "Institutional Trading",
-    creator: {
-      id: "user8",
-      name: "Robert Johnson",
-      avatar: "",
-    },
-    symbol: "ETH/BTC",
-    category: "voice",
-    createdAt: "1d ago",
-    createdAtTimestamp: Date.now() - 24 * 60 * 60 * 1000, // 1 day ago
-    isPublic: false,
-    isHosted: false,
-    participants: 5,
-    pnlPercentage: -1.2,
-  },
-  {
-    id: "9",
-    name: "Swing Trading Group",
-    creator: {
-      id: "user9",
-      name: "Olivia Brown",
-      avatar: "",
-    },
-    symbol: "LINK/USDT",
-    category: "regular",
-    createdAt: "1d ago",
-    createdAtTimestamp: Date.now() - 24 * 60 * 60 * 1000, // 1 day ago
-    isPublic: true,
-    isHosted: false,
-    participants: 27,
-    pnlPercentage: 4.5,
-  },
-  {
-    id: "10",
-    name: "Day Trading Strategies",
-    creator: {
-      id: "user10",
-      name: "William Taylor",
-      avatar: "",
-    },
-    symbol: "BNB/USDT",
-    category: "voice",
-    createdAt: "2d ago",
-    createdAtTimestamp: Date.now() - 2 * 24 * 60 * 60 * 1000, // 2 days ago
-    isPublic: true,
-    isHosted: false,
-    participants: 19,
-    pnlPercentage: -0.7,
-  },
-  {
-    id: "11",
-    name: "Options Trading Talk",
-    creator: {
-      id: "user11",
-      name: "Nina Patel",
-      avatar: "",
-    },
-    symbol: "BTC/USDT",
-    category: "voice",
-    createdAt: "3d ago",
-    createdAtTimestamp: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3 days ago
-    isPublic: true,
-    isHosted: true,
-    participants: 11,
-    pnlPercentage: 3.1,
-  },
-  {
-    id: "12",
-    name: "Scalping Tactics",
-    creator: {
-      id: "user12",
-      name: "Ethan Wright",
-      avatar: "",
-    },
-    symbol: "ETH/USDT",
-    category: "regular",
-    createdAt: "2d ago",
-    createdAtTimestamp: Date.now() - 2 * 24 * 60 * 60 * 1000, // 2 days ago
-    isPublic: false,
-    isHosted: false,
-    participants: 14,
-    pnlPercentage: -2.8,
-  },
-  {
-    id: "13",
-    name: "High Frequency Traders",
-    creator: {
-      id: "user13",
-      name: "Liam Martin",
-      avatar: "",
-    },
-    symbol: "BTC/USD",
-    category: "voice",
-    createdAt: "4d ago",
-    createdAtTimestamp: Date.now() - 4 * 24 * 60 * 60 * 1000, // 4 days ago
-    isPublic: false,
-    isHosted: true,
-    participants: 6,
-    pnlPercentage: 1.2,
-  },
-  {
-    id: "14",
-    name: "Crypto Arbitrage",
-    creator: {
-      id: "user14",
-      name: "Amelia Evans",
-      avatar: "",
-    },
-    symbol: "USDT/USD",
-    category: "regular",
-    createdAt: "5d ago",
-    createdAtTimestamp: Date.now() - 5 * 24 * 60 * 60 * 1000, // 5 days ago
-    isPublic: true,
-    isHosted: false,
-    participants: 8,
-    pnlPercentage: 2.3,
-  },
-  {
-    id: "15",
-    name: "DeFi Farming Discussion",
-    creator: {
-      id: "user15",
-      name: "Carlos Diaz",
-      avatar: "",
-    },
-    symbol: "UNI/USDT",
-    category: "regular",
-    createdAt: "6d ago",
-    createdAtTimestamp: Date.now() - 6 * 24 * 60 * 60 * 1000, // 6 days ago
-    isPublic: true,
-    isHosted: false,
-    participants: 17,
-    pnlPercentage: -1.9,
-  },
-  {
-    id: "16",
-    name: "Korean Whale Watch",
-    creator: {
-      id: "user16",
-      name: "Min-Jae Lee",
-      avatar: "",
-    },
-    symbol: "XRP/KRW",
-    category: "voice",
-    createdAt: "1w ago",
-    createdAtTimestamp: Date.now() - 7 * 24 * 60 * 60 * 1000, // 1 week ago
-    isPublic: false,
-    isHosted: false,
-    participants: 12,
-    pnlPercentage: 0.6,
-  },
-  {
-    id: "17",
-    name: "Morning Crypto Brief",
-    creator: {
-      id: "user17",
-      name: "Grace Hall",
-      avatar: "",
-    },
-    symbol: "ETH/USD",
-    category: "regular",
-    createdAt: "1w ago",
-    createdAtTimestamp: Date.now() - 7 * 24 * 60 * 60 * 1000, // 1 week ago
-    isPublic: true,
-    isHosted: true,
-    participants: 21,
-    pnlPercentage: 5.0,
-  },
-  {
-    id: "18",
-    name: "Asia Market Movers",
-    creator: {
-      id: "user18",
-      name: "Kenji Yamamoto",
-      avatar: "",
-    },
-    symbol: "BTC/JPY",
-    category: "voice",
-    createdAt: "1w ago",
-    createdAtTimestamp: Date.now() - 7 * 24 * 60 * 60 * 1000, // 1 week ago
-    isPublic: true,
-    isHosted: false,
-    participants: 23,
-    pnlPercentage: -4.2,
-  },
-  {
-    id: "19",
-    name: "Altcoin Daily Wrap",
-    creator: {
-      id: "user19",
-      name: "Isla Moore",
-      avatar: "",
-    },
-    symbol: "AVAX/USDT",
-    category: "regular",
-    createdAt: "2w ago",
-    createdAtTimestamp: Date.now() - 14 * 24 * 60 * 60 * 1000, // 2 weeks ago
-    isPublic: false,
-    isHosted: true,
-    participants: 10,
-    pnlPercentage: 3.7,
-  },
-  {
-    id: "20",
-    name: "Community Token Picks",
-    creator: {
-      id: "user20",
-      name: "Daniel Green",
-      avatar: "",
-    },
-    symbol: "MATIC/USDT",
-    category: "voice",
-    createdAt: "2w ago",
-    createdAtTimestamp: Date.now() - 14 * 24 * 60 * 60 * 1000, // 2 weeks ago
-    isPublic: true,
-    isHosted: false,
-    participants: 26,
-    pnlPercentage: -0.5,
-  },
-];
+function CreatedAtCell({ value }: { value: string }) {
+  const [relative, setRelative] = useState<string>("");
+
+  useEffect(() => {
+    const date = new Date(value);
+    setRelative(formatDistanceToNow(date, { addSuffix: true }));
+  }, [value]);
+
+  const dateObj = new Date(value);
+  const fullDate = dateObj.toLocaleDateString();
+  const fullTime = dateObj.toLocaleTimeString();
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span>{relative}</span>
+        </TooltipTrigger>
+        <TooltipContent
+          side="bottom"
+          className="w-[130px] flex items-center flex-col font-mono"
+        >
+          <span>{fullDate}</span>
+          <span>{fullTime}</span>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 export function TradingRoomsList() {
   const id = useId();
@@ -485,10 +206,148 @@ export function TradingRoomsList() {
 
   const [sorting, setSorting] = useState<SortingState>([
     {
-      id: "name",
-      desc: false,
+      id: "createdAt",
+      desc: true,
     },
   ]);
+
+  const [rooms, setRooms] = useState<TradingRoom[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  const [passwordDialog, setPasswordDialog] = useState<{
+    open: boolean;
+    roomId: string | null;
+    roomName: string;
+    password: string;
+    loading: boolean;
+  }>({ open: false, roomId: null, roomName: "", password: "", loading: false });
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data }) => {
+      setCurrentUserId(data.session?.user?.id || null);
+    });
+  }, []);
+
+  useEffect(() => {
+    async function fetchRoomsAndCreators() {
+      setLoading(true);
+      const supabase = createClient();
+      const { data: roomsData, error: roomsError } = await supabase
+        .from("trading_rooms")
+        .select(
+          "id, name, creator_id, symbol, category, privacy, pnl_percentage, created_at, room_status"
+        )
+        .eq("room_status", "active")
+        .order("created_at", { ascending: false });
+      if (roomsError || !roomsData) {
+        setRooms([]);
+        setLoading(false);
+        return;
+      }
+      const creatorIds = Array.from(
+        new Set((roomsData as TradingRoomDb[]).map((room) => room.creator_id))
+      );
+      let creatorsMap: Record<string, { name: string; avatar: string }> = {};
+
+      if (creatorIds.length > 0) {
+        const { data: usersData, error: usersError } = await supabase
+          .from("users")
+          .select("id, first_name, last_name, avatar_url")
+          .in("id", creatorIds);
+        if (!usersError && usersData) {
+          creatorsMap = (usersData as UserDb[]).reduce((acc, user) => {
+            const fullName =
+              [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+              "-";
+            acc[user.id] = { name: fullName, avatar: user.avatar_url || "" };
+            return acc;
+          }, {} as Record<string, { name: string; avatar: string }>);
+        }
+      }
+
+      const roomIds = (roomsData as TradingRoomDb[]).map((room) => room.id);
+      let countsMap: Record<string, number> = {};
+      if (roomIds.length > 0) {
+        const { data: countsData } = await supabase
+          .from("trading_room_participants")
+          .select("room_id, user_id")
+          .in("room_id", roomIds);
+        countsMap = {};
+        (roomIds || []).forEach((id) => {
+          countsMap[id] = 0;
+        });
+        ((countsData || []) as ParticipantCountDb[]).forEach((row) => {
+          countsMap[row.room_id] = (countsMap[row.room_id] || 0) + 1;
+        });
+      }
+
+      let pnlMap: Record<string, number> = {};
+      if (roomIds.length > 0) {
+        const { data: tradesData } = await supabase
+          .from("trading_room_positions")
+          .select("room_id, pnl")
+          .in("room_id", roomIds);
+        pnlMap = {};
+        (roomIds || []).forEach((id) => {
+          pnlMap[id] = 0;
+        });
+        ((tradesData || []) as TradeDb[]).forEach((row) => {
+          pnlMap[row.room_id] =
+            (pnlMap[row.room_id] || 0) + Number(row.pnl || 0);
+        });
+      }
+
+      // Fetch starting virtual balance from app_settings
+      let startingBalance = 100000;
+      try {
+        const res = await fetch("/api/app-settings");
+        if (res.ok) {
+          const json = await res.json();
+          if (typeof json.startingBalance === "number") {
+            startingBalance = json.startingBalance;
+          }
+        }
+      } catch (e) {
+        // fallback to 100000
+        console.error("Failed to fetch app settings:", e);
+        toast.error("Failed to load app settings. Using default balance.");
+      }
+
+      const mapped = (roomsData as TradingRoomDb[]).map((room) => {
+        const creator = creatorsMap[room.creator_id] || {
+          name: "-",
+          avatar: "",
+        };
+        const totalPnl = pnlMap[room.id] || 0;
+        const pnlPercent = startingBalance
+          ? (totalPnl / startingBalance) * 100
+          : 0;
+        return {
+          id: room.id,
+          name: room.name,
+          creator: {
+            id: room.creator_id,
+            name: creator.name,
+            avatar: creator.avatar,
+          },
+          symbol: room.symbol,
+          category: room.category,
+          createdAt: new Date(room.created_at).toLocaleString(),
+          createdAtTimestamp: new Date(room.created_at).getTime(),
+          isPublic: room.privacy === "public",
+          isHosted: currentUserId === room.creator_id,
+          participants: countsMap[room.id] ?? 0,
+          pnlPercentage: pnlPercent,
+        };
+      });
+      setRooms(mapped);
+      setLoading(false);
+    }
+    fetchRoomsAndCreators();
+  }, [currentUserId]);
 
   const columns = useMemo<ColumnDef<TradingRoom>[]>(
     () => [
@@ -536,6 +395,8 @@ export function TradingRoomsList() {
           );
         },
         size: 180,
+        headerProps: { className: "text-left" },
+        cellProps: { className: "text-left" },
       },
       {
         header: "P&L %",
@@ -546,7 +407,7 @@ export function TradingRoomsList() {
             <span
               className={cn(
                 "font-medium",
-                pnl === undefined
+                pnl == null
                   ? "text-muted-foreground"
                   : pnl > 0
                   ? "text-green-500"
@@ -555,9 +416,7 @@ export function TradingRoomsList() {
                   : "text-muted-foreground"
               )}
             >
-              {pnl !== undefined
-                ? `${pnl > 0 ? "+" : ""}${pnl.toFixed(2)}%`
-                : "-"}
+              {pnl == null ? "-" : `${pnl > 0 ? "+" : ""}${pnl.toFixed(2)}%`}
             </span>
           );
         },
@@ -636,14 +495,7 @@ export function TradingRoomsList() {
       {
         header: "Created",
         accessorKey: "createdAt",
-        cell: ({ row }) => {
-          return (
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <ClockIcon className="h-3.5 w-3.5" />
-              {row.original.createdAt}
-            </div>
-          );
-        },
+        cell: ({ row }) => <CreatedAtCell value={row.original.createdAt} />,
         size: 140,
         enableSorting: true,
         sortingFn: (rowA, rowB) => {
@@ -660,10 +512,7 @@ export function TradingRoomsList() {
             <Button
               size="sm"
               className="px-4 h-9 font-medium cursor-pointer"
-              onClick={() => {
-                const url = `/room/${row.original.id}`;
-                window.open(url, "_blank");
-              }}
+              onClick={() => handleJoinRoom(row.original)}
             >
               <DoorOpenIcon />
               Join Room
@@ -674,11 +523,11 @@ export function TradingRoomsList() {
         enableHiding: false,
       },
     ],
-    []
+    [currentUserId]
   );
 
   const table = useReactTable({
-    data: mockTradingRooms,
+    data: rooms,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -698,7 +547,6 @@ export function TradingRoomsList() {
     },
   });
 
-  // Get unique category values
   const uniqueCategoryValues = useMemo(() => {
     const categoryColumn = table.getColumn("category");
     if (!categoryColumn) return [];
@@ -706,7 +554,6 @@ export function TradingRoomsList() {
     return values.sort();
   }, [table.getColumn("category")?.getFacetedUniqueValues()]);
 
-  // Get counts for each category
   const categoryCounts = useMemo(() => {
     const categoryColumn = table.getColumn("category");
     if (!categoryColumn) return new Map();
@@ -740,7 +587,6 @@ export function TradingRoomsList() {
       ?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
   };
 
-  // Access type filter options
   const accessOptions = [
     { value: "public", label: "Public" },
     { value: "private", label: "Private" },
@@ -773,404 +619,545 @@ export function TradingRoomsList() {
       ?.setFilterValue(newFilterValue.length ? newFilterValue : undefined);
   };
 
+  const handleJoinRoom = (room: TradingRoom) => {
+    if (!currentUserId) {
+      toast.warning("Please log in to join the room.");
+      return;
+    }
+    if (room.isPublic || room.isHosted) {
+      window.open(`/room/${room.id}`, "_blank");
+    } else {
+      setPasswordDialog({
+        open: true,
+        roomId: room.id,
+        roomName: room.name,
+        password: "",
+        loading: false,
+      });
+    }
+  };
+
+  const handlePasswordSubmit = async () => {
+    if (!passwordDialog.roomId) return;
+    setPasswordDialog((d) => ({ ...d, loading: true }));
+    const supabase = createClient();
+
+    const { data: room, error } = await supabase
+      .from("trading_rooms")
+      .select("password")
+      .eq("id", passwordDialog.roomId)
+      .single();
+    if (error) {
+      toast.error("Failed to verify password. Please try again.");
+      setPasswordDialog((d) => ({ ...d, loading: false }));
+      return;
+    }
+    if (room?.password === passwordDialog.password) {
+      toast.success("Password correct! Joining room...");
+      setPasswordDialog({
+        open: false,
+        roomId: null,
+        roomName: "",
+        password: "",
+        loading: false,
+      });
+      window.open(`/room/${passwordDialog.roomId}`, "_blank");
+    } else {
+      toast.error("Incorrect password. Please try again.");
+      setPasswordDialog((d) => ({ ...d, loading: false }));
+    }
+  };
+
   return (
-    <div className="space-y-4">
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-          {/* Filter by name or symbol */}
-          <div className="relative flex-1 w-full sm:w-auto">
-            <Input
-              id={`${id}-input`}
-              ref={inputRef}
-              className={cn(
-                "peer w-full sm:w-[300px] ps-9",
-                Boolean(table.getColumn("name")?.getFilterValue()) && "pe-9"
-              )}
-              value={
-                (table.getColumn("name")?.getFilterValue() ?? "") as string
-              }
-              onChange={(e) =>
-                table.getColumn("name")?.setFilterValue(e.target.value)
-              }
-              placeholder="Filter by name, symbol, or creator..."
-              type="text"
-              aria-label="Filter by name, symbol, or creator"
-            />
-            <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
-              <ListFilterIcon size={16} aria-hidden="true" />
+    <>
+      {/* Password Dialog */}
+      <Dialog
+        open={passwordDialog.open}
+        onOpenChange={(open) => setPasswordDialog((d) => ({ ...d, open }))}
+      >
+        <DialogContent className="max-w-md w-full rounded-2xl shadow-2xl border border-border p-0 overflow-hidden">
+          <div className="flex flex-col items-center justify-center px-8 py-8 gap-4">
+            <div className="w-full text-center">
+              <DialogTitle className="text-2xl font-bold mb-1 tracking-tight">
+                Private Room
+              </DialogTitle>
+              <p className="text-muted-foreground text-sm mb-2">
+                Enter the password to join{" "}
+                <span className="font-semibold text-primary">
+                  {passwordDialog.roomName}
+                </span>
+              </p>
             </div>
-            {Boolean(table.getColumn("name")?.getFilterValue()) && (
-              <button
-                className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Clear filter"
-                onClick={() => {
-                  table.getColumn("name")?.setFilterValue("");
-                  if (inputRef.current) {
-                    inputRef.current.focus();
+            <div className="w-full flex flex-col gap-2">
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Room password"
+                  className="h-10 pr-12 text-base"
+                  value={passwordDialog.password}
+                  onChange={(e) =>
+                    setPasswordDialog((d) => ({
+                      ...d,
+                      password: e.target.value,
+                    }))
                   }
-                }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handlePasswordSubmit();
+                  }}
+                  disabled={passwordDialog.loading}
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none cursor-pointer"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  disabled={passwordDialog.loading}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+              <Button
+                onClick={handlePasswordSubmit}
+                disabled={passwordDialog.loading || !passwordDialog.password}
+                className="w-full h-10 mt-2 text-base font-semibold"
               >
-                <CircleXIcon size={16} aria-hidden="true" />
-              </button>
-            )}
+                {passwordDialog.loading ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
+                    Joining...
+                  </span>
+                ) : (
+                  "Join Room"
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      <div className="space-y-4">
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 w-full sm:w-auto">
+              <Input
+                id={`${id}-input`}
+                ref={inputRef}
+                className={cn(
+                  "peer w-full sm:w-[300px] ps-9",
+                  Boolean(table.getColumn("name")?.getFilterValue()) && "pe-9"
+                )}
+                value={
+                  (table.getColumn("name")?.getFilterValue() ?? "") as string
+                }
+                onChange={(e) =>
+                  table.getColumn("name")?.setFilterValue(e.target.value)
+                }
+                placeholder="Filter by name, symbol, or creator..."
+                type="text"
+                aria-label="Filter by name, symbol, or creator"
+              />
+              <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+                <ListFilterIcon size={16} aria-hidden="true" />
+              </div>
+              {Boolean(table.getColumn("name")?.getFilterValue()) && (
+                <button
+                  className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                  aria-label="Clear filter"
+                  onClick={() => {
+                    table.getColumn("name")?.setFilterValue("");
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }}
+                >
+                  <CircleXIcon size={16} aria-hidden="true" />
+                </button>
+              )}
+            </div>
+
+            {/* Filter by type */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-36 cursor-pointer"
+                >
+                  <FilterIcon
+                    className="-ms-1 opacity-60"
+                    size={16}
+                    aria-hidden="true"
+                  />
+                  Type
+                  {selectedCategories.length > 0 && (
+                    <span className="bg-background text-muted-foreground/70 -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium">
+                      {selectedCategories.length}
+                    </span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto min-w-36 p-3" align="start">
+                <div className="space-y-3">
+                  <div className="text-muted-foreground text-xs font-medium">
+                    Filters
+                  </div>
+                  <div className="space-y-3">
+                    {uniqueCategoryValues.map((value, i) => (
+                      <div key={value} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`${id}-category-${i}`}
+                          checked={selectedCategories.includes(value)}
+                          onCheckedChange={(checked: boolean) =>
+                            handleCategoryChange(checked, value)
+                          }
+                        />
+                        <Label
+                          htmlFor={`${id}-category-${i}`}
+                          className="flex grow justify-between gap-2 font-normal"
+                        >
+                          {value === "voice" ? "Voice" : "Chat"}{" "}
+                          <span className="text-muted-foreground ms-2 text-xs">
+                            {categoryCounts.get(value)}
+                          </span>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Filter by access */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-36 cursor-pointer"
+                >
+                  <FilterIcon
+                    className="-ms-1 opacity-60"
+                    size={16}
+                    aria-hidden="true"
+                  />
+                  Access
+                  {selectedAccess.length > 0 && (
+                    <span className="bg-background text-muted-foreground/70 -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium">
+                      {selectedAccess.length}
+                    </span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto min-w-36 p-3" align="start">
+                <div className="space-y-3">
+                  <div className="text-muted-foreground text-xs font-medium">
+                    Filters
+                  </div>
+                  <div className="space-y-3">
+                    {accessOptions.map((option, i) => (
+                      <div
+                        key={option.value}
+                        className="flex items-center gap-2"
+                      >
+                        <Checkbox
+                          id={`${id}-access-${i}`}
+                          checked={selectedAccess.includes(option.value)}
+                          onCheckedChange={(checked: boolean) =>
+                            handleAccessChange(checked, option.value)
+                          }
+                        />
+                        <Label
+                          htmlFor={`${id}-access-${i}`}
+                          className="flex grow justify-between gap-2 font-normal"
+                        >
+                          {option.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Toggle columns visibility */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-32 cursor-pointer"
+                >
+                  <Columns3Icon
+                    className="-ms-1 opacity-60"
+                    size={16}
+                    aria-hidden="true"
+                  />
+                  View
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                          column.toggleVisibility(!!value)
+                        }
+                        onSelect={(event) => event.preventDefault()}
+                      >
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          {/* Filter by type */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full sm:w-36 cursor-pointer"
-              >
-                <FilterIcon
-                  className="-ms-1 opacity-60"
-                  size={16}
-                  aria-hidden="true"
-                />
-                Type
-                {selectedCategories.length > 0 && (
-                  <span className="bg-background text-muted-foreground/70 -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium">
-                    {selectedCategories.length}
-                  </span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto min-w-36 p-3" align="start">
-              <div className="space-y-3">
-                <div className="text-muted-foreground text-xs font-medium">
-                  Filters
-                </div>
-                <div className="space-y-3">
-                  {uniqueCategoryValues.map((value, i) => (
-                    <div key={value} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`${id}-category-${i}`}
-                        checked={selectedCategories.includes(value)}
-                        onCheckedChange={(checked: boolean) =>
-                          handleCategoryChange(checked, value)
-                        }
-                      />
-                      <Label
-                        htmlFor={`${id}-category-${i}`}
-                        className="flex grow justify-between gap-2 font-normal"
-                      >
-                        {value === "voice" ? "Voice" : "Chat"}{" "}
-                        <span className="text-muted-foreground ms-2 text-xs">
-                          {categoryCounts.get(value)}
-                        </span>
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-
-          {/* Filter by access */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full sm:w-36 cursor-pointer"
-              >
-                <FilterIcon
-                  className="-ms-1 opacity-60"
-                  size={16}
-                  aria-hidden="true"
-                />
-                Access
-                {selectedAccess.length > 0 && (
-                  <span className="bg-background text-muted-foreground/70 -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium">
-                    {selectedAccess.length}
-                  </span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto min-w-36 p-3" align="start">
-              <div className="space-y-3">
-                <div className="text-muted-foreground text-xs font-medium">
-                  Filters
-                </div>
-                <div className="space-y-3">
-                  {accessOptions.map((option, i) => (
-                    <div key={option.value} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`${id}-access-${i}`}
-                        checked={selectedAccess.includes(option.value)}
-                        onCheckedChange={(checked: boolean) =>
-                          handleAccessChange(checked, option.value)
-                        }
-                      />
-                      <Label
-                        htmlFor={`${id}-access-${i}`}
-                        className="flex grow justify-between gap-2 font-normal"
-                      >
-                        {option.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-
-          {/* Toggle columns visibility */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full sm:w-32 cursor-pointer"
-              >
-                <Columns3Icon
-                  className="-ms-1 opacity-60"
-                  size={16}
-                  aria-hidden="true"
-                />
-                View
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                      onSelect={(event) => event.preventDefault()}
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-3 w-full sm:w-auto mt-3 sm:mt-0">
+            <CreateRoom />
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto mt-3 sm:mt-0">
-          {/* Create room button */}
-          <CreateRoom />
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="bg-background overflow-x-auto rounded-md border">
-        <Table className="table-fixed min-w-[800px]">
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      style={{ width: `${header.getSize()}px` }}
-                      className="h-11"
-                    >
-                      {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                        <div
-                          className={cn(
-                            header.column.getCanSort() &&
-                              "flex h-full cursor-pointer items-center justify-between gap-2 select-none"
-                          )}
-                          onClick={header.column.getToggleSortingHandler()}
-                          onKeyDown={(e) => {
-                            if (
+        {/* Table */}
+        <div className="bg-background overflow-x-auto rounded-md border">
+          <Table className="table-fixed min-w-[800px]">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead
+                        key={header.id}
+                        style={{ width: `${header.getSize()}px` }}
+                        className="h-11 pl-5"
+                      >
+                        {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                          <div
+                            className={cn(
                               header.column.getCanSort() &&
-                              (e.key === "Enter" || e.key === " ")
-                            ) {
-                              e.preventDefault();
-                              header.column.getToggleSortingHandler()?.(e);
+                                "flex h-full cursor-pointer items-center justify-start gap-2 select-none"
+                            )}
+                            onClick={header.column.getToggleSortingHandler()}
+                            onKeyDown={(e) => {
+                              if (
+                                header.column.getCanSort() &&
+                                (e.key === "Enter" || e.key === " ")
+                              ) {
+                                e.preventDefault();
+                                header.column.getToggleSortingHandler()?.(e);
+                              }
+                            }}
+                            tabIndex={
+                              header.column.getCanSort() ? 0 : undefined
                             }
-                          }}
-                          tabIndex={header.column.getCanSort() ? 0 : undefined}
-                        >
-                          {flexRender(
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                            {header.column.getIsSorted() === "asc" ? (
+                              <ChevronUpIcon
+                                className="shrink-0 opacity-80 text-primary"
+                                size={16}
+                                aria-hidden="true"
+                              />
+                            ) : header.column.getIsSorted() === "desc" ? (
+                              <ChevronDownIcon
+                                className="shrink-0 opacity-80 text-primary"
+                                size={16}
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              <span className="flex flex-col items-center opacity-40">
+                                <ChevronUpIcon size={12} />
+                                <ChevronDownIcon
+                                  size={12}
+                                  style={{ marginTop: -4 }}
+                                />
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          flexRender(
                             header.column.columnDef.header,
                             header.getContext()
-                          )}
-                          {header.column.getIsSorted() === "asc" ? (
-                            <ChevronUpIcon
-                              className="shrink-0 opacity-80 text-primary"
-                              size={16}
-                              aria-hidden="true"
-                            />
-                          ) : header.column.getIsSorted() === "desc" ? (
-                            <ChevronDownIcon
-                              className="shrink-0 opacity-80 text-primary"
-                              size={16}
-                              aria-hidden="true"
-                            />
-                          ) : (
-                            <span className="flex flex-col items-center opacity-40">
-                              <ChevronUpIcon size={12} />
-                              <ChevronDownIcon
-                                size={12}
-                                style={{ marginTop: -4 }}
-                              />
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )
-                      )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="h-16">
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="pl-5 py-5">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                          )
+                        )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No trading rooms found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-8">
-        {/* Results per page */}
-        <div className="flex items-center gap-3">
-          <Label htmlFor={id} className="max-sm:sr-only">
-            Rows per page
-          </Label>
-          <Select
-            value={table.getState().pagination.pageSize.toString()}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
-          >
-            <SelectTrigger id={id} className="w-fit whitespace-nowrap">
-              <SelectValue placeholder="Select number of results" />
-            </SelectTrigger>
-            <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-              {[5, 10, 25, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Page number information */}
-        <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
-          <p
-            className="text-muted-foreground text-sm whitespace-nowrap"
-            aria-live="polite"
-          >
-            <span className="text-foreground">
-              {table.getState().pagination.pageIndex *
-                table.getState().pagination.pageSize +
-                1}
-              -
-              {Math.min(
-                Math.max(
-                  table.getState().pagination.pageIndex *
-                    table.getState().pagination.pageSize +
-                    table.getState().pagination.pageSize,
-                  0
-                ),
-                table.getRowCount()
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                [...Array(8)].map((_, i) => (
+                  <TableRow key={i} className="h-16">
+                    {columns.map((col, j) => (
+                      <TableCell key={j} className="pl-5 py-5">
+                        <Skeleton className="h-6 w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} className="h-16">
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="pl-5 py-5">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No trading rooms found.
+                  </TableCell>
+                </TableRow>
               )}
-            </span>{" "}
-            of{" "}
-            <span className="text-foreground">
-              {table.getRowCount().toString()}
-            </span>
-          </p>
+            </TableBody>
+          </Table>
         </div>
 
-        {/* Pagination buttons */}
-        <div>
-          <Pagination>
-            <PaginationContent>
-              {/* First page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.firstPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to first page"
-                >
-                  <ChevronFirstIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Previous page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to previous page"
-                >
-                  <ChevronLeftIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Next page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to next page"
-                >
-                  <ChevronRightIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Last page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.lastPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to last page"
-                >
-                  <ChevronLastIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-8">
+          <div className="flex items-center gap-3">
+            <Label htmlFor={id} className="max-sm:sr-only">
+              Rows per page
+            </Label>
+            <Select
+              value={table.getState().pagination.pageSize.toString()}
+              onValueChange={(value) => {
+                table.setPageSize(Number(value));
+              }}
+            >
+              <SelectTrigger id={id} className="w-fit whitespace-nowrap">
+                <SelectValue placeholder="Select number of results" />
+              </SelectTrigger>
+              <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
+                {[5, 10, 25, 50].map((pageSize) => (
+                  <SelectItem key={pageSize} value={pageSize.toString()}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
+            <p
+              className="text-muted-foreground text-sm whitespace-nowrap"
+              aria-live="polite"
+            >
+              <span className="text-foreground">
+                {table.getState().pagination.pageIndex *
+                  table.getState().pagination.pageSize +
+                  1}
+                -
+                {Math.min(
+                  Math.max(
+                    table.getState().pagination.pageIndex *
+                      table.getState().pagination.pageSize +
+                      table.getState().pagination.pageSize,
+                    0
+                  ),
+                  table.getRowCount()
+                )}
+              </span>{" "}
+              of{" "}
+              <span className="text-foreground">
+                {table.getRowCount().toString()}
+              </span>
+            </p>
+          </div>
+
+          <div>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="disabled:pointer-events-none disabled:opacity-50"
+                    onClick={() => table.firstPage()}
+                    disabled={!table.getCanPreviousPage()}
+                    aria-label="Go to first page"
+                  >
+                    <ChevronFirstIcon size={16} aria-hidden="true" />
+                  </Button>
+                </PaginationItem>
+                <PaginationItem>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="disabled:pointer-events-none disabled:opacity-50"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                    aria-label="Go to previous page"
+                  >
+                    <ChevronLeftIcon size={16} aria-hidden="true" />
+                  </Button>
+                </PaginationItem>
+                <PaginationItem>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="disabled:pointer-events-none disabled:opacity-50"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                    aria-label="Go to next page"
+                  >
+                    <ChevronRightIcon size={16} aria-hidden="true" />
+                  </Button>
+                </PaginationItem>
+                <PaginationItem>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="disabled:pointer-events-none disabled:opacity-50"
+                    onClick={() => table.lastPage()}
+                    disabled={!table.getCanNextPage()}
+                    aria-label="Go to last page"
+                  >
+                    <ChevronLastIcon size={16} aria-hidden="true" />
+                  </Button>
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

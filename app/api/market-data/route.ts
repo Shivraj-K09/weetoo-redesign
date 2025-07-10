@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  let orderBook, trades, ticker, openInterest, fundingRate, nextFundingTime;
+  let orderBook, trades, ticker;
   const responses: MarketDataResponse = {};
   const fetches = [];
 
@@ -85,38 +85,6 @@ export async function GET(req: NextRequest) {
         })
         .catch((err) => {
           responses.tickerError = err.message;
-        })
-    );
-  }
-
-  if (include === "openInterest" || include === "all") {
-    fetches.push(
-      fetch(`https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol}`)
-        .then(async (res) => {
-          if (!res.ok) throw new Error("Failed to fetch open interest");
-          const oi = await res.json();
-          openInterest = oi.openInterest;
-          responses.openInterest = openInterest;
-        })
-        .catch((err) => {
-          responses.openInterestError = err.message;
-        })
-    );
-  }
-
-  if (include === "all" || include === "funding") {
-    fetches.push(
-      fetch(`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${symbol}`)
-        .then(async (res) => {
-          if (!res.ok) throw new Error("Failed to fetch funding rate");
-          const premium = await res.json();
-          fundingRate = premium.lastFundingRate;
-          nextFundingTime = premium.nextFundingTime;
-          responses.lastFundingRate = fundingRate;
-          responses.nextFundingTime = nextFundingTime;
-        })
-        .catch((err) => {
-          responses.fundingError = err.message;
         })
     );
   }

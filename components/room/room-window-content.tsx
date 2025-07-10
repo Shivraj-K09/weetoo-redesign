@@ -7,12 +7,13 @@ import { OrderBook } from "@/components/room/order-book";
 import { ParticipantsList } from "@/components/room/participants-list";
 import { TradeHistoryTabs } from "@/components/room/trade-history-tabs";
 import { TradingForm } from "@/components/room/trading-form";
-import { TradingOverview } from "@/components/room/trading-overview";
 import { TradingViewWidget } from "@/components/room/trading-view-widget";
 import { Separator } from "@/components/ui/separator";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect } from "react";
 import useSWR from "swr";
+import { TradingOverviewContainer } from "./trading-overview-container";
+import { useBinanceFutures } from "@/hooks/use-binance-futures";
 
 function RoomJoiner({ roomId }: { roomId: string }) {
   useEffect(() => {
@@ -63,12 +64,17 @@ export function RoomWindowContent({
     fetcher,
     { refreshInterval: 1000 }
   );
-  // Fetch today/total stats for the room
-  const { data: stats } = useSWR(
-    roomId ? `/api/rooms/stats?roomId=${roomId}` : null,
-    fetcher,
-    { refreshInterval: 10000 }
-  );
+
+  // Fetch open interest and funding data from binance futures directly (client-side)
+  const { openInterest, fundingRate, nextFundingTime } =
+    useBinanceFutures(symbol);
+  // Merge with existing data
+  const mergedData = {
+    ...data,
+    openInterest,
+    lastFundingRate: fundingRate,
+    nextFundingTime,
+  };
   return (
     <div className="h-[calc(100%-3rem)] bg-background flex flex-col gap-2 px-3 py-2">
       <RoomJoiner roomId={roomId} />
@@ -76,11 +82,11 @@ export function RoomWindowContent({
       <LivektParticipantAudio roomId={roomId} hostId={hostId} />
       <div className="border h-[80px] w-full flex">
         <div className="w-full flex-[1]">
-          <MarketOverview symbol={symbol} data={data} />
+          <MarketOverview symbol={symbol} data={mergedData} />
         </div>
         <Separator className="h-full" orientation="vertical" />
         <div className="w-full flex-1">
-          <TradingOverview stats={stats} />
+          <TradingOverviewContainer roomId={roomId} key={roomId} />
         </div>
       </div>
       <div className="grid grid-cols-6 gap-2 h-full w-full">

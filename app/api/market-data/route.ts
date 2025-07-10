@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
 
   if (include === "openInterest" || include === "all") {
     fetches.push(
-      fetch(`https://fapi.binance.us/fapi/v1/openInterest?symbol=${symbol}`)
+      fetch(`https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol}`)
         .then(async (res) => {
           if (!res.ok) throw new Error("Failed to fetch open interest");
           const oi = await res.json();
@@ -106,7 +106,7 @@ export async function GET(req: NextRequest) {
 
   if (include === "all" || include === "funding") {
     fetches.push(
-      fetch(`https://fapi.binance.us/fapi/v1/premiumIndex?symbol=${symbol}`)
+      fetch(`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${symbol}`)
         .then(async (res) => {
           if (!res.ok) throw new Error("Failed to fetch funding rate");
           const premium = await res.json();

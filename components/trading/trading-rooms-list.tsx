@@ -325,6 +325,14 @@ export function TradingRoomsList() {
         const pnlPercent = startingBalance
           ? (totalPnl / startingBalance) * 100
           : 0;
+        // Defensive check for invalid created_at
+        const dateObj = new Date(room.created_at);
+        const isValidDate = !isNaN(dateObj.getTime());
+        const createdAt = isValidDate ? dateObj.toLocaleString() : "-";
+        const createdAtTimestamp = isValidDate ? dateObj.getTime() : 0;
+        if (!isValidDate) {
+          console.warn("Invalid created_at value for room:", room);
+        }
         return {
           id: room.id,
           name: room.name,
@@ -335,8 +343,8 @@ export function TradingRoomsList() {
           },
           symbol: room.symbol,
           category: room.category,
-          createdAt: new Date(room.created_at).toLocaleString(),
-          createdAtTimestamp: new Date(room.created_at).getTime(),
+          createdAt,
+          createdAtTimestamp,
           isPublic: room.privacy === "public",
           isHosted: currentUserId === room.creator_id,
           participants: countsMap[room.id] ?? 0,

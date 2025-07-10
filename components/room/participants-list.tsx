@@ -46,16 +46,24 @@ export function ParticipantsList({
   }, []);
 
   // Helper to map user row or payload to Participant
-  function mapUser(user: any): Participant {
+  function mapUser(user: UserRow | ParticipantRow): Participant {
+    if ("id" in user) {
+      return {
+        id: user.id,
+        name:
+          [user.first_name, user.last_name].filter(Boolean).join(" ") || "-",
+        avatar: user.avatar_url || "",
+        isOnline: user.status === "Active",
+        role: user.role || "member",
+      };
+    }
+    // Fallback for ParticipantRow (should not be used for display)
     return {
-      id: user.id || user.user_id,
-      name:
-        [user.first_name, user.last_name].filter(Boolean).join(" ") ||
-        user.name ||
-        "-",
-      avatar: user.avatar_url || user.avatar || "",
-      isOnline: user.status === "Active" || user.isOnline || true,
-      role: user.role || "member",
+      id: user.user_id,
+      name: "-",
+      avatar: "",
+      isOnline: true,
+      role: "member",
     };
   }
 
@@ -122,7 +130,7 @@ export function ParticipantsList({
                     setParticipants((current) => {
                       // Avoid duplicates
                       if (current.some((p) => p.id === userId)) return current;
-                      let updated = [...current, mapUser(user)];
+                      let updated = [...current, mapUser(user as UserRow)];
                       // Sort so host is at the top
                       updated = updated.sort((a, b) => {
                         if (a.id === hostId) return -1;
@@ -151,7 +159,7 @@ export function ParticipantsList({
                   if (user) {
                     setParticipants((current) => {
                       let updated = current.map((p) =>
-                        p.id === userId ? mapUser(user) : p
+                        p.id === userId ? mapUser(user as UserRow) : p
                       );
                       // Sort so host is at the top
                       updated = updated.sort((a, b) => {

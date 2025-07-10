@@ -4,7 +4,6 @@ import Link from "next/link";
 import type React from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,13 +18,12 @@ import {
   MinusIcon,
   SendIcon,
   Star,
-  Users,
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { ChatMessage } from "./chat-message";
-import { mockMessages, mockOnlineUsers } from "./mock-data";
 
 // Add UserData interface for user state
 interface UserData {
@@ -40,34 +38,95 @@ interface UserData {
   kor_coins?: number;
 }
 
+// Add Message interface for chat messages
+interface Message {
+  id: string;
+  sender: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
+  content: string;
+  timestamp: string;
+  isCurrentUser: boolean;
+  pending?: boolean;
+  failed?: boolean;
+}
+
+// Add this at the very top of the file, outside the component
+const handledMessageIds = new Set<string>();
+
+// Add a hook to calculate time until next UTC midnight
+function getTimeUntilNextUTCMidnight() {
+  const now = new Date();
+  const nextMidnight = new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() + 1, // next day
+      0,
+      0,
+      0,
+      0
+    )
+  );
+  return nextMidnight.getTime() - now.getTime();
+}
+
+function useTimeUntilReset() {
+  const [timeLeft, setTimeLeft] = useState(getTimeUntilNextUTCMidnight());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft(getTimeUntilNextUTCMidnight());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Format as HH:MM:SS
+  const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+  const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
+  const seconds = Math.floor((timeLeft / 1000) % 60);
+
+  return `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+}
+
 export function FloatingChat() {
   const isRoomOpen = useRoomStore(
     (state: { isRoomOpen: boolean }) => state.isRoomOpen
   );
-  const [isOpen, setIsOpen] = useState(() => {
+  const [isOpen, setIsOpen] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       const savedState = localStorage.getItem("chatState");
       return savedState ? JSON.parse(savedState).isOpen : false;
     }
     return false;
   });
-  const [isMinimized, setIsMinimized] = useState(() => {
+  const [isMinimized, setIsMinimized] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       const savedState = localStorage.getItem("chatState");
       return savedState ? JSON.parse(savedState).isMinimized : false;
     }
     return false;
   });
-  const [showUsersList, setShowUsersList] = useState(false);
-  const [messages, setMessages] = useState(mockMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [unreadCount, setUnreadCount] = useState(2);
+  const [unreadCount, setUnreadCount] = useState(0);
   const chatRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<UserData | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
   const lastSessionId = useRef<string | null>(null);
+  const [lastSeenMessageId, setLastSeenMessageId] = useState<string | null>(
+    null
+  );
+  const lastSeenMessageIdRef = useRef(lastSeenMessageId);
+  useEffect(() => {
+    lastSeenMessageIdRef.current = lastSeenMessageId;
+  }, [lastSeenMessageId]);
 
   const EXP_PER_LEVEL = 10000;
   const exp = user?.exp ?? 0;
@@ -77,6 +136,20 @@ export function FloatingChat() {
     0,
     Math.min(100, (expThisLevel / EXP_PER_LEVEL) * 100)
   );
+
+  const isOpenRef = useRef(isOpen);
+  const isMinimizedRef = useRef(isMinimized);
+  const userRef = useRef(user);
+
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
+  useEffect(() => {
+    isMinimizedRef.current = isMinimized;
+  }, [isMinimized]);
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   // Save state to localStorage whenever it changes
   useEffect(() => {
@@ -105,29 +178,156 @@ export function FloatingChat() {
     }
   }, [isOpen, isMinimized]);
 
-  // Simulate receiving a new message every 30 seconds
+  // Update lastSeenMessageId when chat is opened and messages are available
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isOpen || isMinimized) {
-        const randomUser =
-          mockOnlineUsers[Math.floor(Math.random() * mockOnlineUsers.length)];
-        const newMsg = {
-          id: `msg-${Date.now()}`,
-          sender: {
-            id: randomUser.id,
-            name: randomUser.name,
-            avatar: randomUser.avatar,
-          },
-          content: `Hey everyone! Just checking in. What's happening in the markets today?`,
-          timestamp: new Date().toISOString(),
-        };
-        setMessages((prev) => [...prev, newMsg]);
-        setUnreadCount((prev) => prev + 1);
-      }
-    }, 30000); // Every 30 seconds
+    if (isOpen && !isMinimized && messages.length > 0) {
+      setLastSeenMessageId(messages[messages.length - 1].id);
+    }
+  }, [isOpen, isMinimized, messages]);
 
-    return () => clearInterval(interval);
-  }, [isOpen, isMinimized]);
+  const timeUntilReset = useTimeUntilReset();
+
+  // Fetch messages from Supabase on mount
+  useEffect(() => {
+    const supabase = createClient();
+    async function fetchMessages() {
+      // Calculate today's UTC midnight
+      const todayMidnightUTC = new Date();
+      todayMidnightUTC.setUTCHours(0, 0, 0, 0);
+      const { data: msgs } = await supabase
+        .from("global_chat_messages")
+        .select("*, user:users(id, first_name, last_name, avatar_url)")
+        .gte("created_at", todayMidnightUTC.toISOString())
+        .order("created_at", { ascending: true })
+        .limit(50);
+      setMessages(
+        (msgs || []).map(
+          (msg): Message => ({
+            id: msg.id,
+            sender: {
+              id: msg.user?.id || msg.user_id,
+              name:
+                `${msg.user?.first_name || ""} ${
+                  msg.user?.last_name || ""
+                }`.trim() || "User",
+              avatar: msg.user?.avatar_url || "",
+            },
+            content: msg.content,
+            timestamp: msg.created_at,
+            isCurrentUser: !!(user && msg.user_id === user.id),
+          })
+        )
+      );
+    }
+    fetchMessages();
+  }, [user]);
+
+  // Real-time subscription to new messages
+  useEffect(() => {
+    console.log("Subscribed!");
+    const supabase = createClient();
+    const channel = supabase
+      .channel("global-chat")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "global_chat_messages",
+        },
+        (payload) => {
+          console.log(
+            "Subscription handler fired for message:",
+            payload.new.id
+          );
+          const newMsg = payload.new;
+          // GUARD: Only process if not already handled (move to top, before async)
+          if (handledMessageIds.has(newMsg.id)) {
+            console.log("Already handled message:", newMsg.id);
+            return;
+          }
+          handledMessageIds.add(newMsg.id);
+          console.log("New message event:", newMsg);
+          supabase
+            .from("users")
+            .select("id, first_name, last_name, avatar_url")
+            .eq("id", newMsg.user_id)
+            .single()
+            .then(({ data: userData }) => {
+              setMessages((prev) => {
+                // Find pending optimistic message
+                const pendingIdx = prev.findIndex(
+                  (m) =>
+                    m.pending &&
+                    m.sender.id === newMsg.user_id &&
+                    m.content === newMsg.content
+                );
+                let isCurrentUser: boolean = false;
+                if (pendingIdx !== -1) {
+                  // If replacing a pending message, it must be from the current user
+                  isCurrentUser = true;
+                } else {
+                  // For new messages, use the standard check
+                  isCurrentUser = Boolean(
+                    userRef.current && newMsg.user_id === userRef.current.id
+                  );
+                }
+                const msgObj: Message = {
+                  id: newMsg.id,
+                  sender: {
+                    id: userData?.id || newMsg.user_id,
+                    name:
+                      `${userData?.first_name || ""} ${
+                        userData?.last_name || ""
+                      }`.trim() || "User",
+                    avatar: userData?.avatar_url || "",
+                  },
+                  content: newMsg.content,
+                  timestamp: newMsg.created_at,
+                  isCurrentUser,
+                  pending: false, // real message is never pending
+                };
+                let updated;
+                let isNewMessage = false;
+                if (pendingIdx !== -1) {
+                  // Replace optimistic with real
+                  updated = [...prev];
+                  updated[pendingIdx] = msgObj;
+                } else {
+                  // Guard: Only process if message is not already in state
+                  if (prev.some((m) => m.id === newMsg.id)) return prev;
+                  updated = [...prev, msgObj];
+                  isNewMessage = true;
+                }
+                // Calculate if message is from another user
+                const isFromOtherUser =
+                  !!userRef.current && newMsg.user_id !== userRef.current.id;
+                const isChatInactive =
+                  !isOpenRef.current || isMinimizedRef.current;
+                // Only increment unreadCount for real (non-pending) messages from others, not already seen, and not already in the array
+                if (isFromOtherUser && isChatInactive && isNewMessage) {
+                  setUnreadCount((prevCount) => prevCount + 1);
+                }
+                // Deduplicate messages by id (final safety net)
+                const unique = [];
+                const seen = new Set();
+                for (const m of updated) {
+                  if (!seen.has(m.id)) {
+                    unique.push(m);
+                    seen.add(m.id);
+                  }
+                }
+                return unique;
+              });
+            });
+        }
+      )
+      .subscribe();
+    return () => {
+      console.log("Unsubscribed!");
+      supabase.removeChannel(channel);
+    };
+  }, []); // <--- subscribe only once on mount
 
   useEffect(() => {
     let mounted = true;
@@ -208,22 +408,40 @@ export function FloatingChat() {
     };
   }, []);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newMessage.trim()) {
-      const message = {
-        id: `msg-${Date.now()}`,
-        sender: {
-          id: "current-user",
-          name: "You",
-          avatar: "",
-        },
-        content: newMessage.trim(),
-        timestamp: new Date().toISOString(),
-        isCurrentUser: true,
-      };
-      setMessages((prev) => [...prev, message]);
-      setNewMessage("");
+    if (!newMessage.trim() || !user) return;
+    const tempId = "temp-" + uuidv4();
+    const optimisticMsg = {
+      id: tempId,
+      sender: {
+        id: user.id,
+        name:
+          `${user.first_name || ""} ${user.last_name || ""}`.trim() || "User",
+        avatar: user.avatar_url || "",
+      },
+      content: newMessage.trim(),
+      timestamp: new Date().toISOString(),
+      isCurrentUser: true,
+      pending: true,
+    };
+    setMessages((prev) => [...prev, optimisticMsg]);
+    setNewMessage("");
+    setTimeout(
+      () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
+      100
+    );
+    const supabase = createClient();
+    const { error } = await supabase.from("global_chat_messages").insert({
+      user_id: user.id,
+      content: optimisticMsg.content,
+    });
+    if (error) {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === tempId ? { ...m, pending: false, failed: true } : m
+        )
+      );
     }
   };
 
@@ -252,10 +470,6 @@ export function FloatingChat() {
     setIsMinimized(true);
   };
 
-  const toggleUsersList = () => {
-    setShowUsersList(!showUsersList);
-  };
-
   if (!authChecked) {
     return null;
   }
@@ -279,12 +493,7 @@ export function FloatingChat() {
                 <MessageSquare className="h-4 w-4 text-white sm:h-5 sm:w-5" />
                 <span className="font-medium text-white">Chat</span>
                 {unreadCount > 0 && (
-                  <Badge
-                    className="absolute -top-1 -right-1 bg-red-500 text-white border-2 border-background h-5 w-5 p-0 flex items-center justify-center rounded-full text-[10px] sm:h-6 sm:w-6 sm:text-xs"
-                    variant="secondary"
-                  >
-                    {unreadCount}
-                  </Badge>
+                  <span className="absolute -top-1 -right-1 bg-red-500 h-5 w-5 rounded-full border-2 border-background" />
                 )}
               </Button>
             </div>
@@ -320,23 +529,12 @@ export function FloatingChat() {
                 <h3 className="font-medium text-xs truncate sm:text-sm">
                   Global Chat
                 </h3>
-                <Badge
-                  variant="outline"
-                  className="bg-green-500/10 text-green-600 border-green-200 text-[10px] px-1 py-0.5 sm:text-xs sm:px-2 sm:py-0.5"
-                >
-                  {mockOnlineUsers.length} online
-                </Badge>
+                <span className="ml-2 flex items-center gap-1 text-[0.8rem] font-semibold text-primary">
+                  <span className="opacity-60 font-normal">|</span>
+                  <span>Resets in {timeUntilReset} (UTC)</span>
+                </span>
               </div>
               <div className="flex items-center gap-1 min-w-0 flex-shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 sm:h-7 sm:w-7"
-                  onClick={toggleUsersList}
-                  disabled={isMinimized}
-                >
-                  <Users className="h-3.5 w-3.5 text-muted-foreground sm:h-4 sm:w-4" />
-                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -490,49 +688,6 @@ export function FloatingChat() {
                     </Button>
                   </form>
                 </div>
-
-                {/* Online Users Sidebar */}
-                <AnimatePresence>
-                  {showUsersList && (
-                    <motion.div
-                      initial={{ opacity: 0, x: "100%" }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: "100%" }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute top-[38px] right-0 bottom-0 w-[110px] bg-background border-l border-border overflow-y-auto text-xs p-0 min-w-0 sm:top-[46px] sm:w-[140px] sm:text-xs sm:p-0"
-                    >
-                      <div className="p-2 sm:p-3">
-                        <h4 className="font-medium text-[10px] text-muted-foreground mb-2 sm:text-xs sm:mb-3">
-                          Online Users
-                        </h4>
-                        <div className="space-y-1 sm:space-y-2">
-                          {mockOnlineUsers.map((user) => (
-                            <div
-                              key={user.id}
-                              className="flex items-center gap-1 sm:gap-2"
-                            >
-                              <div className="relative">
-                                <Avatar className="h-5 w-5 sm:h-6 sm:w-6">
-                                  <AvatarImage
-                                    src={user.avatar || ""}
-                                    alt={user.name}
-                                  />
-                                  <AvatarFallback className="text-[10px] sm:text-xs">
-                                    {user.name[0]}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <span className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-green-500 rounded-full border border-background sm:w-2 sm:h-2"></span>
-                              </div>
-                              <span className="truncate text-[10px] sm:text-xs">
-                                {user.name}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </>
             )}
 
@@ -540,27 +695,25 @@ export function FloatingChat() {
             {isMinimized && (
               <div className="p-2 flex items-center justify-between gap-1 min-w-0 sm:p-3">
                 <div className="flex items-center gap-1 min-w-0 flex-1 sm:gap-2">
-                  <Badge className="bg-green-500 text-white border-0 h-4 w-4 p-0 flex items-center justify-center rounded-full text-[10px] sm:h-5 sm:w-5 sm:text-xs">
-                    {mockOnlineUsers.length}
-                  </Badge>
                   <span className="text-xs truncate sm:text-sm">
                     Global Chat
                   </span>
                 </div>
                 <div className="flex items-center gap-1 min-w-0 flex-shrink-0">
-                  {unreadCount > 0 && (
-                    <Badge className="bg-red-500 text-white border-0 text-[10px] px-1 py-0.5 sm:text-xs sm:px-2 sm:py-0.5">
-                      {unreadCount} new
-                    </Badge>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsMinimized(false)}
-                    className="h-6 w-6 p-0 sm:h-7 sm:w-7"
-                  >
-                    <ChevronUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  </Button>
+                  {/* Wrap the red dot and Button in a fragment to fix linter error */}
+                  <>
+                    {unreadCount > 0 && (
+                      <span className="bg-red-500 h-5 w-5 rounded-full border-2 border-background mr-1" />
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsMinimized(false)}
+                      className="h-6 w-6 p-0 sm:h-7 sm:w-7"
+                    >
+                      <ChevronUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    </Button>
+                  </>
                 </div>
               </div>
             )}

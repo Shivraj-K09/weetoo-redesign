@@ -15,6 +15,7 @@ interface ChatMessageProps {
     timestamp: string;
     pending?: boolean;
     failed?: boolean;
+    isCurrentUser?: boolean;
   };
 }
 
@@ -22,12 +23,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const formattedTime = format(new Date(message.timestamp), "hh:mm a");
 
   return (
-    <div
-      className={`flex gap-3 items-start mb-4 ${
-        message.pending ? "opacity-50" : ""
-      } ${message.failed ? "text-red-500" : ""}`}
-    >
-      <Avatar className="h-10 w-10 flex-shrink-0">
+    <div className="flex items-start mb-3">
+      <Avatar className="h-10 w-10 flex-shrink-0 mr-2">
         <AvatarImage
           className="rounded-full"
           src={message.sender.avatar || ""}
@@ -38,23 +35,28 @@ export function ChatMessage({ message }: ChatMessageProps) {
         </AvatarFallback>
       </Avatar>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="font-semibold text-xs leading-tight">
-            {message.sender.name}
-          </span>
-          <span className="text-xs text-muted-foreground font-normal">
-            • {formattedTime}
-          </span>
+        <div className="text-xs text-muted-foreground font-semibold flex items-center gap-1">
+          {message.sender.name}
+          {message.isCurrentUser && (
+            <span className="bg-primary text-[10px] text-muted rounded px-2 ml-1">
+              You
+            </span>
+          )}
         </div>
-        <div className="relative w-fit max-w-full">
-          <div
-            className="bg-background border border-border rounded-2xl shadow-sm p-3 text-[0.8rem] text-foreground font-normal min-w-[120px] max-w-[480px] whitespace-pre-line"
-            style={{ wordBreak: "break-word" }}
+        <div className="flex items-center justify-between rounded">
+          <span
+            className={`text-sm break-words ${
+              message.isCurrentUser
+                ? "text-primary font-medium"
+                : "text-foreground"
+            }`}
           >
             {message.content}
-          </div>
+          </span>
+          <span className="text-xs text-muted-foreground ml-2 whitespace-nowrap">
+            {formattedTime}
+          </span>
         </div>
-        {message.failed && <span className="text-xs">Failed to send</span>}
       </div>
     </div>
   );

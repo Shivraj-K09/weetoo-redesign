@@ -65,10 +65,7 @@ export function TradingForm({
 
   // Fetch default virtual balance from app-settings
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
-  const { data: settings, isLoading: isSettingsLoading } = useSWR(
-    "/api/app-settings",
-    fetcher
-  );
+  const { isLoading: isSettingsLoading } = useSWR("/api/app-settings", fetcher);
 
   // When currentPrice becomes available, if orderType is 'limit' and orderPrice is blank, set to currentPrice
   useEffect(() => {

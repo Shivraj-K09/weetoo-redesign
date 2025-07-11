@@ -179,31 +179,9 @@ export function Menu() {
       </Collapsible>
 
       {/* Exchange Section */}
-      <Collapsible
-        open={openSections.exchange}
-        onOpenChange={() => toggleSection("exchange")}
-      >
-        <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium">
-          Broker
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 transition-transform duration-200",
-              openSections.broker ? "transform rotate-180" : ""
-            )}
-          />
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pl-4 space-y-2">
-          {broker.map((item) => (
-            <Link
-              key={item.title}
-              href={item.href}
-              className="block py-2 text-sm"
-            >
-              {item.title}
-            </Link>
-          ))}
-        </CollapsibleContent>
-      </Collapsible>
+      <Link href={broker[0].href} className="py-2 text-sm font-medium">
+        Broker
+      </Link>
     </div>
   );
 
@@ -212,8 +190,8 @@ export function Menu() {
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger>Trading</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+          <NavigationMenuContent className="left-1/2 -translate-x-1/2">
+            <ul className="grid gap-2 p-2 w-[300px]">
               <ListItem href="/trading" title="Start Trading">
                 Begin live trading with real-time market data and advanced tools
               </ListItem>
@@ -229,8 +207,8 @@ export function Menu() {
 
         <NavigationMenuItem>
           <NavigationMenuTrigger>Community</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+          <NavigationMenuContent className="left-1/2 -translate-x-1/2">
+            <ul className="grid gap-2 p-2 w-[300px]">
               {community.map((item) => (
                 <ListItem key={item.title} title={item.title} href={item.href}>
                   {item.description}
@@ -253,7 +231,7 @@ export function Menu() {
 
         <NavigationMenuItem>
           <NavigationMenuTrigger>Information</NavigationMenuTrigger>
-          <NavigationMenuContent>
+          <NavigationMenuContent className="left-1/2 -translate-x-1/2">
             <ul className="w-[300px] p-2">
               {information.map((item) => (
                 <ListItem key={item.title} title={item.title} href={item.href}>
@@ -265,16 +243,14 @@ export function Menu() {
         </NavigationMenuItem>
 
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Broker</NavigationMenuTrigger>
-          <NavigationMenuContent className="w-full ">
-            <ul className="grid p-2 grid-cols-1 w-[300px]">
-              {broker.map((item) => (
-                <ListItem key={item.title} title={item.title} href={item.href}>
-                  {item.description}
-                </ListItem>
-              ))}
-            </ul>
-          </NavigationMenuContent>
+          <NavigationMenuLink asChild>
+            <Link
+              href={broker[0].href}
+              className={navigationMenuTriggerStyle()}
+            >
+              Broker
+            </Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>

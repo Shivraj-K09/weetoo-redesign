@@ -120,30 +120,36 @@ export function PostPreview({
         {/* Images Carousel */}
         {images.length > 0 && (
           <div className="mb-4">
-            <Carousel
-              opts={{ loop: true }}
-              className="w-full"
-              orientation="horizontal"
-              setApi={setCarouselApi}
-            >
-              <CarouselContent>
-                {images.map((img, idx) => (
-                  <CarouselItem key={idx}>
-                    <img
-                      src={img}
-                      alt={`Image ${idx + 1}`}
-                      className="aspect-video w-full object-cover rounded-xl border border-border"
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              {images.length > 1 && (
-                <>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </>
-              )}
-            </Carousel>
+            <div className="relative w-full">
+              <Carousel
+                opts={{ loop: true }}
+                className="w-full"
+                orientation="horizontal"
+                setApi={setCarouselApi}
+              >
+                <CarouselContent>
+                  {images.map((img, idx) => (
+                    <CarouselItem key={idx}>
+                      <img
+                        src={img}
+                        alt={`Image ${idx + 1}`}
+                        className="aspect-video w-full object-cover rounded-xl border border-border"
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {images.length > 1 && (
+                  <>
+                    <div className="absolute top-1/2 left-6 -translate-y-1/2 z-10">
+                      <CarouselPrevious />
+                    </div>
+                    <div className="absolute top-1/2 right-6 -translate-y-1/2 z-10">
+                      <CarouselNext />
+                    </div>
+                  </>
+                )}
+              </Carousel>
+            </div>
             {images.length > 1 && (
               <div className="flex gap-2 mt-2 justify-center">
                 {images.map((img, idx) => (
@@ -165,7 +171,7 @@ export function PostPreview({
         )}
         {/* Content */}
         {content && (
-          <div className="prose prose-neutral dark:prose-invert max-w-full text-base mt-2 break-words whitespace-pre-wrap">
+          <div className="prose prose-neutral dark:prose-invert max-w-full text-base mt-2 break-words whitespace-pre-wrap overflow-y-auto h-[250px] scrollbar-hide">
             {content.split("\n").map((line, idx) => (
               <p key={idx} className="mb-2 last:mb-0">
                 {line}

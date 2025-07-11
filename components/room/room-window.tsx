@@ -42,6 +42,7 @@ export function TradingRoomWindow({
           roomId={roomId}
           hostId={hostId}
           virtualBalance={virtualBalance ?? 0}
+          roomType={roomType}
         />
       </div>
     </div>

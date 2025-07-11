@@ -196,7 +196,7 @@ export function CreatePostForm({ board }: { board?: string }) {
         </Tabs>
       </div>
       {/* Desktop: Side-by-side layout */}
-      <div className="hidden md:flex min-h-[calc(100vh-80px)] flex-row gap-2 container mx-auto py-10">
+      <div className="hidden md:flex min-h-[calc(100vh-80px)] flex-row gap-2 container mx-auto pb-12 pt-5">
         {/* Form Card */}
         <div className="w-full md:w-1/2 flex flex-col bg-card border border-border rounded-2xl shadow-lg p-8 mx-auto md:mx-0">
           {boardLabel}

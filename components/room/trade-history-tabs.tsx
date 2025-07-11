@@ -17,6 +17,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePositions } from "@/hooks/use-positions";
 import { Info } from "lucide-react";
 import { useState } from "react";
+import { useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 interface OpenPosition {
   id: string;
@@ -44,9 +46,11 @@ interface ClosedPosition {
 export function TradeHistoryTabs({
   roomId,
   currentPrice,
+  hostId,
 }: {
   roomId: string;
   currentPrice?: number;
+  hostId: string;
 }) {
   const { openPositions, closedPositions, closePosition, closeAllPositions } =
     usePositions(roomId) as {
@@ -56,6 +60,16 @@ export function TradeHistoryTabs({
       closeAllPositions: (price: number) => Promise<void>;
     };
   const [showCloseAllDialog, setShowCloseAllDialog] = useState(false);
+
+  // Get current user id
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUserId(data?.user?.id || null);
+    });
+  }, []);
+  const isHost = currentUserId === hostId;
 
   // Helper to calculate live PNL with percent for open positions
   const unrealizedPnlWithPercent = (position: OpenPosition) => {
@@ -91,13 +105,13 @@ export function TradeHistoryTabs({
         <TabsList className="grid w-fit grid-cols-2 h-auto p-0 bg-transparent rounded-none">
           <TabsTrigger
             value="positions"
-            className="relative data-[state=active]:text-red-500 data-[state=inactive]:text-gray-400 data-[state=active]:bg-transparent data-[state=inactive]:bg-transparent text-xs font-medium transition-all duration-200 px-2 py-2 border-b-2 border-transparent data-[state=active]:border-red-500 rounded-none shadow-none select-none"
+            className="relative data-[state=active]:text-red-500 data-[state=inactive]:text-gray-400 data-[state=active]:bg-transparent data-[state=inactive]:bg-transparent text-xs font-medium transition-all duration-200 px-2 py-2 border-b-2 border-transparent data-[state=active]:border-red-500 rounded-none shadow-none select-none cursor-pointer"
           >
             Positions
           </TabsTrigger>
           <TabsTrigger
             value="trade-history"
-            className="relative data-[state=active]:text-red-500 data-[state=inactive]:text-gray-400 data-[state=active]:bg-transparent data-[state=inactive]:bg-transparent text-xs font-medium transition-all duration-200 px-2 py-2 border-b-2 border-transparent data-[state=active]:border-red-500 rounded-none shadow-none select-none"
+            className="relative data-[state=active]:text-red-500 data-[state=inactive]:text-gray-400 data-[state=active]:bg-transparent data-[state=inactive]:bg-transparent text-xs font-medium transition-all duration-200 px-2 py-2 border-b-2 border-transparent data-[state=active]:border-red-500 rounded-none shadow-none select-none cursor-pointer"
           >
             Trade History
           </TabsTrigger>
@@ -107,6 +121,12 @@ export function TradeHistoryTabs({
           size="sm"
           className="px-3 py-1 text-xs rounded-sm select-none"
           onClick={() => setShowCloseAllDialog(true)}
+          disabled={!isHost}
+          title={
+            !isHost
+              ? "Only the room creator can close all positions."
+              : undefined
+          }
         >
           Close All Positions
         </Button>
@@ -289,6 +309,12 @@ export function TradeHistoryTabs({
                             variant="destructive"
                             size="sm"
                             className="px-3 py-1 text-xs h-auto rounded-sm"
+                            disabled={!isHost}
+                            title={
+                              !isHost
+                                ? "Only the room creator can close positions."
+                                : undefined
+                            }
                           >
                             Close
                           </Button>

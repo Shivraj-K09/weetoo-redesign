@@ -52,11 +52,13 @@ export function RoomWindowContent({
   roomId,
   hostId,
   virtualBalance,
+  roomType,
 }: {
   symbol: string;
   roomId: string;
   hostId: string;
   virtualBalance: number;
+  roomType: "regular" | "voice";
 }) {
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
   const { data } = useSWR(
@@ -79,7 +81,9 @@ export function RoomWindowContent({
     <div className="h-[calc(100%-3rem)] bg-background flex flex-col gap-2 px-3 py-2">
       <RoomJoiner roomId={roomId} />
       {/* LiveKit participant audio playback */}
-      <LivektParticipantAudio roomId={roomId} hostId={hostId} />
+      {roomType === "voice" && (
+        <LivektParticipantAudio roomId={roomId} hostId={hostId} />
+      )}
       <div className="border h-[80px] w-full flex">
         <div className="w-full flex-[1]">
           <MarketOverview symbol={symbol} data={mergedData} />
@@ -113,6 +117,7 @@ export function RoomWindowContent({
               <TradeHistoryTabs
                 roomId={roomId}
                 currentPrice={data?.ticker?.lastPrice}
+                hostId={hostId}
               />
             </div>
           </div>

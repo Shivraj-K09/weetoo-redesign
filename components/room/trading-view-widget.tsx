@@ -15,8 +15,10 @@ declare global {
         style: string;
         locale: string;
         backgroundColor: string;
+        hide_side_toolbar: boolean;
         hide_top_toolbar: boolean;
         save_image: boolean;
+        withdateranges: boolean;
         height: string;
         width: string;
         support_host: string;
@@ -57,8 +59,10 @@ export function TradingViewWidget({ symbol }: TradingViewWidgetProps) {
           style: "1",
           locale: "kr",
           backgroundColor: theme === "light" ? "#fff" : "rgba(0, 0, 0, 1)",
-          hide_top_toolbar: true,
+          hide_side_toolbar: false,
+          hide_top_toolbar: false,
           save_image: false,
+          withdateranges: true,
           height: "100%",
           width: "100%",
           support_host: "https://www.tradingview.com",

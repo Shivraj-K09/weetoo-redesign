@@ -225,7 +225,7 @@ export function WindowTitleBar({
           {/* Virtual Currency */}
           <div className="flex items-center gap-1">
             <span className="text-sm font-medium text-muted-foreground">
-              Virtual Currency:
+              Virtual Balance:
             </span>
             <span className="text-sm font-semibold">
               ${virtualBalance?.toLocaleString("en-US") ?? "-"}

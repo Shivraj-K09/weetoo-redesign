@@ -136,6 +136,9 @@ export function TradingForm({
     });
   }, []);
 
+  // Determine if the current user is the host
+  const isHost = currentUserId === hostId;
+
   // Confirm order handler
   const handleConfirmOrder = async () => {
     setLoading(true);
@@ -575,12 +578,24 @@ export function TradingForm({
           <Button
             className="flex-1 bg-green-600 hover:bg-green-700 text-white h-9 text-xs font-medium"
             onClick={() => handleOpenOrderDialog("long")}
+            disabled={!isHost}
+            title={
+              !isHost
+                ? "Only the room creator can trade in this room."
+                : undefined
+            }
           >
             Buy / Long
           </Button>
           <Button
             className="flex-1 bg-red-600 hover:bg-red-700 text-white h-9 text-xs font-medium"
             onClick={() => handleOpenOrderDialog("short")}
+            disabled={!isHost}
+            title={
+              !isHost
+                ? "Only the room creator can trade in this room."
+                : undefined
+            }
           >
             Sell / Short
           </Button>

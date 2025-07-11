@@ -112,9 +112,7 @@ export function TradingForm({
   // Validate order amount against virtual balance
   useEffect(() => {
     if (positionSize > safeVirtualBalance) {
-      setOrderAmountError(
-        "Order amount exceeds your available virtual balance."
-      );
+      setOrderAmountError("Insufficient balance.");
     } else {
       setOrderAmountError(null);
     }
@@ -206,7 +204,7 @@ export function TradingForm({
   };
 
   return (
-    <div className="flex flex-col h-full bg-background text-xs text-foreground p-2 overflow-y-auto custom-scrollbar select-none">
+    <div className="flex flex-col h-full bg-background text-xs text-foreground p-2 overflow-y-auto scrollbar-none select-none">
       {/* Top Controls: Margin Mode and Leverage */}
       <div className="flex justify-between items-center">
         <div className="relative w-1/2 pr-1">
@@ -591,10 +589,12 @@ export function TradingForm({
           <Button
             className="flex-1 bg-green-600 hover:bg-green-700 text-white h-9 text-xs font-medium"
             onClick={() => handleOpenOrderDialog("long")}
-            disabled={!isHost}
+            disabled={!isHost || !!orderAmountError}
             title={
               !isHost
                 ? "Only the room creator can trade in this room."
+                : orderAmountError
+                ? orderAmountError
                 : undefined
             }
           >
@@ -603,10 +603,12 @@ export function TradingForm({
           <Button
             className="flex-1 bg-red-600 hover:bg-red-700 text-white h-9 text-xs font-medium"
             onClick={() => handleOpenOrderDialog("short")}
-            disabled={!isHost}
+            disabled={!isHost || !!orderAmountError}
             title={
               !isHost
                 ? "Only the room creator can trade in this room."
+                : orderAmountError
+                ? orderAmountError
                 : undefined
             }
           >

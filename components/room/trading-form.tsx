@@ -69,10 +69,6 @@ export function TradingForm({
     "/api/app-settings",
     fetcher
   );
-  const defaultVirtualBalance =
-    typeof settings?.startingBalance === "number"
-      ? settings.startingBalance
-      : 100000;
 
   // When currentPrice becomes available, if orderType is 'limit' and orderPrice is blank, set to currentPrice
   useEffect(() => {

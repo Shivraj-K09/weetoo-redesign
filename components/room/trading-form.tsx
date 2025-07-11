@@ -84,8 +84,8 @@ export function TradingForm({
 
   // Handle % buttons
   const handlePercentClick = (percent: number) => {
-    // Use the default virtual balance from app-settings
-    const availableBalance = defaultVirtualBalance;
+    // Use the current available virtual balance
+    const availableBalance = safeVirtualBalance;
     const price =
       orderType === "market"
         ? Number(currentPrice) || 0

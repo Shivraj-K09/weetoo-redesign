@@ -52,6 +52,7 @@
     "input-otp": "^1.4.2",
     "latest": "^0.2.0",
     "lexical": "^0.32.1",
+    "lightweight-charts": "^5.0.8",
     "livekit-client": "^2.15.2",
     "livekit-server-sdk": "^2.13.1",
     "lucide-react": "^0.511.0",

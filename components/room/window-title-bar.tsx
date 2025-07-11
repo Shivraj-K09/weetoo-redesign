@@ -3,7 +3,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import type React from "react";
+import React from "react";
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 
@@ -27,6 +27,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useLivektHostAudio } from "@/hooks/use-livekt-host-audio";
+import { usePositions } from "@/hooks/use-positions";
 import { cn } from "@/lib/utils";
 import {
   GlobeIcon,
@@ -45,6 +46,7 @@ interface WindowTitleBarProps {
   virtualBalance: number;
   hostId: string;
   roomId: string;
+  currentPrice?: number;
 }
 
 export function WindowTitleBar({
@@ -56,6 +58,7 @@ export function WindowTitleBar({
   virtualBalance,
   hostId,
   roomId,
+  currentPrice,
 }: WindowTitleBarProps) {
   const { isMicOn, toggleMic, currentUserId, roomConnected } =
     useLivektHostAudio({ roomType, hostId, roomId });
@@ -87,6 +90,33 @@ export function WindowTitleBar({
   const router = useRouter();
   const supabase = useRef(createClient());
   const [showLateJoinWarning, setShowLateJoinWarning] = useState(true);
+
+  // Fetch open and closed positions for PNL calculation
+  const { openPositions, closedPositions } = usePositions(roomId);
+
+  // Memoized calculation of unrealized and realized PNL
+  const { unrealizedPnl, realizedPnl } = React.useMemo(() => {
+    let unrealized = 0;
+    let realized = 0;
+    if (Array.isArray(openPositions) && typeof currentPrice === "number") {
+      for (const pos of openPositions) {
+        const entry = Number(pos.entry_price);
+        const qty = Number(pos.quantity);
+        const side = (pos.side ?? "").toLowerCase();
+        if (side === "long") {
+          unrealized += (currentPrice - entry) * qty;
+        } else if (side === "short") {
+          unrealized += (entry - currentPrice) * qty;
+        }
+      }
+    }
+    if (Array.isArray(closedPositions)) {
+      for (const pos of closedPositions) {
+        realized += Number(pos.pnl ?? 0);
+      }
+    }
+    return { unrealizedPnl: unrealized, realizedPnl: realized };
+  }, [openPositions, closedPositions, currentPrice]);
 
   useEffect(() => {
     if (!roomId) return;
@@ -227,9 +257,83 @@ export function WindowTitleBar({
             <span className="text-sm font-medium text-muted-foreground">
               Virtual Balance:
             </span>
-            <span className="text-sm font-semibold">
-              ${virtualBalance?.toLocaleString("en-US") ?? "-"}
-            </span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-sm font-semibold cursor-help">
+                    $
+                    {Math.max(0, virtualBalance)?.toLocaleString("en-US") ??
+                      "-"}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  align="center"
+                  className="select-none"
+                >
+                  <div className="flex flex-col gap-1 min-w-[220px]">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs">Unrealized PNL</span>
+                      <span
+                        className={`text-xs font-semibold ${
+                          unrealizedPnl > 0
+                            ? "text-green-600"
+                            : unrealizedPnl < 0
+                            ? "text-red-600"
+                            : ""
+                        }`}
+                      >
+                        {unrealizedPnl >= 0 ? "+" : ""}
+                        {unrealizedPnl.toLocaleString("en-US", {
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        USDT
+                        {isStartingBalanceLoaded &&
+                          settings.startingBalance > 0 && (
+                            <>
+                              {" ("}
+                              {unrealizedPnl >= 0 ? "+" : "-"}
+                              {Math.abs(
+                                (unrealizedPnl / settings.startingBalance) * 100
+                              ).toFixed(2)}
+                              %{")"}
+                            </>
+                          )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs">Realized PNL</span>
+                      <span
+                        className={`text-xs font-semibold ${
+                          realizedPnl > 0
+                            ? "text-green-600"
+                            : realizedPnl < 0
+                            ? "text-red-600"
+                            : ""
+                        }`}
+                      >
+                        {realizedPnl >= 0 ? "+" : ""}
+                        {realizedPnl.toLocaleString("en-US", {
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        USDT
+                        {isStartingBalanceLoaded &&
+                          settings.startingBalance > 0 && (
+                            <>
+                              {" ("}
+                              {realizedPnl >= 0 ? "+" : "-"}
+                              {Math.abs(
+                                (realizedPnl / settings.startingBalance) * 100
+                              ).toFixed(2)}
+                              %{")"}
+                            </>
+                          )}
+                      </span>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Cummulative Profit rate*/}

@@ -14,6 +14,7 @@ import { useEffect } from "react";
 import useSWR from "swr";
 import { TradingOverviewContainer } from "./trading-overview-container";
 import { useBinanceFutures } from "@/hooks/use-binance-futures";
+import React from "react";
 
 function RoomJoiner({ roomId }: { roomId: string }) {
   useEffect(() => {
@@ -53,12 +54,14 @@ export function RoomWindowContent({
   hostId,
   virtualBalance,
   roomType,
+  onCurrentPrice,
 }: {
   symbol: string;
   roomId: string;
   hostId: string;
   virtualBalance: number;
   roomType: "regular" | "voice";
+  onCurrentPrice?: (price: number | undefined) => void;
 }) {
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
   const { data } = useSWR(
@@ -66,6 +69,13 @@ export function RoomWindowContent({
     fetcher,
     { refreshInterval: 1000 }
   );
+
+  // Notify parent of current price
+  React.useEffect(() => {
+    if (onCurrentPrice) {
+      onCurrentPrice(data?.ticker?.lastPrice);
+    }
+  }, [data?.ticker?.lastPrice, onCurrentPrice]);
 
   // Fetch open interest and funding data from binance futures directly (client-side)
   const { openInterest, fundingRate, nextFundingTime } =

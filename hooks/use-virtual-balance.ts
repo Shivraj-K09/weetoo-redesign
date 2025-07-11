@@ -36,5 +36,5 @@ export function useVirtualBalance(roomId: string) {
     };
   }, [roomId]);
 
-  return balance;
+  return balance !== null ? Math.max(0, balance) : balance;
 }

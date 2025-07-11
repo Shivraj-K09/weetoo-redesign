@@ -3,6 +3,7 @@
 import { useVirtualBalance } from "@/hooks/use-virtual-balance";
 import { RoomWindowContent } from "./room-window-content";
 import { WindowTitleBar } from "./window-title-bar";
+import React from "react";
 
 interface TradingRoomWindowProps {
   roomName: string;
@@ -24,6 +25,9 @@ export function TradingRoomWindow({
   virtualBalance: _virtualBalance, // ignore static prop
 }: TradingRoomWindowProps) {
   const virtualBalance = useVirtualBalance(roomId);
+  const [currentPrice, setCurrentPrice] = React.useState<number | undefined>(
+    undefined
+  );
   return (
     <div className="w-full min-h-screen bg-background flex flex-col">
       <WindowTitleBar
@@ -35,6 +39,7 @@ export function TradingRoomWindow({
         virtualBalance={virtualBalance ?? 0}
         hostId={hostId}
         roomId={roomId}
+        currentPrice={currentPrice}
       />
       <div className="flex-1">
         <RoomWindowContent
@@ -43,6 +48,7 @@ export function TradingRoomWindow({
           hostId={hostId}
           virtualBalance={virtualBalance ?? 0}
           roomType={roomType}
+          onCurrentPrice={setCurrentPrice}
         />
       </div>
     </div>

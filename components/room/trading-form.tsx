@@ -46,7 +46,8 @@ export function TradingForm({
   const FEE_RATE = 0.0005; // Taker fee (0.05%)
   const MAINTENANCE_MARGIN_RATE = 0.005; // 0.5% (can adjust as needed)
 
-  // Calculated values for display
+  // Clamp virtualBalance to 0 or above for all calculations and display
+  const safeVirtualBalance = Math.max(0, virtualBalance);
   const price =
     orderType === "market"
       ? Number(currentPrice) || 0
@@ -73,12 +74,13 @@ export function TradingForm({
       ? settings.startingBalance
       : 100000;
 
-  // Prefill limit order price with current price if empty
+  // When currentPrice becomes available, if orderType is 'limit' and orderPrice is blank, set to currentPrice
   useEffect(() => {
     if (orderType === "limit" && !orderPrice && currentPrice) {
       setOrderPrice(Number(currentPrice).toFixed(2));
     }
-  }, [orderType, currentPrice]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPrice]);
 
   // Handle % buttons
   const handlePercentClick = (percent: number) => {
@@ -109,14 +111,14 @@ export function TradingForm({
 
   // Validate order amount against virtual balance
   useEffect(() => {
-    if (positionSize > virtualBalance) {
+    if (positionSize > safeVirtualBalance) {
       setOrderAmountError(
         "Order amount exceeds your available virtual balance."
       );
     } else {
       setOrderAmountError(null);
     }
-  }, [positionSize, virtualBalance]);
+  }, [positionSize, safeVirtualBalance]);
 
   // Add state for order confirmation dialog
   const [showOrderDialog, setShowOrderDialog] = useState(false);
@@ -211,10 +213,12 @@ export function TradingForm({
           <Button
             variant="secondary"
             onClick={() => {
+              if (!isHost) return;
               setPendingMarginMode(marginMode);
               setShowMarginModal(true);
             }}
             className="flex items-center justify-between gap-1 py-1.5 px-3 w-full text-xs font-medium"
+            disabled={!isHost}
           >
             {marginMode === "cross" ? "Cross" : "Isolated"}{" "}
             <span className="text-muted-foreground">▼</span>
@@ -284,6 +288,7 @@ export function TradingForm({
                 <Button
                   variant="secondary"
                   onClick={() => setShowMarginModal(false)}
+                  disabled={!isHost}
                 >
                   Cancel
                 </Button>
@@ -292,6 +297,7 @@ export function TradingForm({
                     setMarginMode(pendingMarginMode);
                     setShowMarginModal(false);
                   }}
+                  disabled={!isHost}
                 >
                   Confirm
                 </Button>
@@ -304,6 +310,7 @@ export function TradingForm({
           <Button
             variant="secondary"
             onClick={() => {
+              if (!isHost) return;
               setPendingLeverage(leverage);
               setShowLeverageModal(true);
               // Snapshot margin at dialog open
@@ -319,6 +326,7 @@ export function TradingForm({
               marginSnapshotRef.current = margin;
             }}
             className="flex items-center justify-between gap-1 py-1.5 px-3 w-full text-xs font-medium"
+            disabled={!isHost}
           >
             {leverage}x <span className="text-muted-foreground">▼</span>
           </Button>
@@ -381,6 +389,7 @@ export function TradingForm({
                 <Button
                   variant="secondary"
                   onClick={() => setShowLeverageModal(false)}
+                  disabled={!isHost}
                 >
                   Cancel
                 </Button>
@@ -404,6 +413,7 @@ export function TradingForm({
                     }
                     marginSnapshotRef.current = null;
                   }}
+                  disabled={!isHost}
                 >
                   Confirm
                 </Button>
@@ -454,7 +464,7 @@ export function TradingForm({
                   : orderPrice
               }
               onChange={(e) => setOrderPrice(e.target.value)}
-              readOnly={orderType === "market"}
+              readOnly={orderType === "market" || !isHost}
               className="w-full bg-transparent border-0 p-0 h-6 text-xs focus-visible:ring-0 pr-16 no-spinner"
             />
             <span className="text-muted-foreground text-xs">USDT</span>
@@ -464,6 +474,7 @@ export function TradingForm({
                 className="absolute right-12 top-1/2 -translate-y-1/2 text-primary text-xs font-semibold px-2 py-0.5 rounded hover:bg-primary/10 border border-primary/20"
                 onClick={() => setOrderPrice(Number(currentPrice).toFixed(2))}
                 tabIndex={-1}
+                disabled={!isHost}
               >
                 Current Price
               </button>
@@ -481,6 +492,7 @@ export function TradingForm({
               value={orderQuantity}
               onChange={(e) => setOrderQuantity(e.target.value)}
               className="w-full bg-transparent border-0 p-0 h-6 text-xs focus-visible:ring-0 no-spinner"
+              readOnly={!isHost}
             />
             <span className="text-muted-foreground text-xs">BTCUSDT</span>
           </div>
@@ -534,6 +546,7 @@ export function TradingForm({
                 size="sm"
                 className="w-full text-xs py-1 h-7"
                 onClick={() => handlePercentClick(percent)}
+                disabled={!isHost}
               >
                 {percent}%
               </Button>

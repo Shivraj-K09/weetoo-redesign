@@ -137,7 +137,11 @@ interface TradeDb {
   pnl: number | null;
 }
 
-const multiColumnFilterFn: FilterFn<TradingRoom> = (row, filterValue) => {
+const multiColumnFilterFn: FilterFn<TradingRoom> = (
+  row,
+  columnId,
+  filterValue
+) => {
   const searchableRowContent =
     `${row.original.name} ${row.original.symbol} ${row.original.creator.name}`.toLowerCase();
   const searchTerm = (filterValue ?? "").toLowerCase();

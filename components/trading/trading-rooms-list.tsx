@@ -193,7 +193,7 @@ export function TradingRoomsList() {
   ]);
 
   const [rooms, setRooms] = useState<TradingRoom[] | null>(null);
-  const [total, setTotal] = useState<number>(0);
+  const [, setTotal] = useState<number>(0);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 

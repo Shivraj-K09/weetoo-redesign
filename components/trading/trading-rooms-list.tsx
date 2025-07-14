@@ -158,6 +158,12 @@ function CreatedAtCell({ value }: { value: string }) {
     ? format(dateObj, "dd-MM-yyyy HH:mm:ss")
     : "-";
 
+  // Split the fixedFormat into date and time
+  const [fixedDate, fixedTime] =
+    isValidDate && fixedFormat.includes(" ")
+      ? fixedFormat.split(" ")
+      : [fixedFormat, ""];
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -166,9 +172,10 @@ function CreatedAtCell({ value }: { value: string }) {
         </TooltipTrigger>
         <TooltipContent
           side="bottom"
-          className="w-[180px] flex items-center flex-col font-mono"
+          className="w-[180px] flex flex-col items-center font-mono"
         >
-          <span>{fixedFormat}</span>
+          <span>{fixedDate}</span>
+          <span>{fixedTime}</span>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

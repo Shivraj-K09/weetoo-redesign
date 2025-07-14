@@ -14,8 +14,9 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import { createClient } from "@/lib/supabase/client";
+import { MinusIcon, PlusIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
 export function TradingForm({
   currentPrice,
@@ -30,7 +31,8 @@ export function TradingForm({
   hostId: string;
   symbol: string;
 }) {
-  const [orderType, setOrderType] = useState("limit"); // 'limit' or 'market'
+  // Ensure orderType is typed as 'limit' | 'market' for correct comparison
+  const [orderType, setOrderType] = useState<"limit" | "market">("limit");
   const [marginMode, setMarginMode] = useState("cross"); // 'cross' or 'isolated'
   const [leverage, setLeverage] = useState(1); // Default leverage
   const [showMarginModal, setShowMarginModal] = useState(false);
@@ -77,34 +79,47 @@ export function TradingForm({
 
   // Handle % buttons
   const handlePercentClick = (percent: number) => {
-    // Use the current available virtual balance
     const availableBalance = safeVirtualBalance;
     const price =
       orderType === "market"
         ? Number(currentPrice) || 0
         : Number(orderPrice) || 0;
     if (!price || !leverage) return;
-    const maxPositionValue = availableBalance * leverage;
-    const value = (maxPositionValue * percent) / 100;
-    const quantity = value / price;
+    const amount = ((availableBalance * percent) / 100).toFixed(2);
+    setOrderAmount(amount);
+    const quantity = (Number(amount) * leverage) / price;
     setOrderQuantity(quantity.toFixed(6));
+    setOrderPrice(price.toFixed(2));
+  };
+
+  // When user changes quantity, update order amount
+  const handleQuantityChange = (value: string) => {
+    setOrderQuantity(value);
+    const price =
+      orderType === "market"
+        ? Number(currentPrice) || 0
+        : Number(orderPrice) || 0;
+    if (!price || !leverage) {
+      setOrderAmount("");
+      return;
+    }
+    const amount = ((Number(value) * price) / leverage).toFixed(2);
+    setOrderAmount(amount);
   };
 
   const [pendingMarginMode, setPendingMarginMode] = useState(marginMode);
   const [pendingLeverage, setPendingLeverage] = useState(leverage);
 
-  const marginSnapshotRef = useRef<number | null>(null);
+  // Ref to snapshot position size (amount) when opening leverage dialog
+  const positionSizeSnapshotRef = useRef<number | null>(null);
+  // Flag to trigger quantity update after leverage changes
+  const [
+    shouldUpdateQuantityAfterLeverage,
+    setShouldUpdateQuantityAfterLeverage,
+  ] = useState(false);
 
-  const [orderAmountError, setOrderAmountError] = useState<string | null>(null);
-
-  // Validate order amount against virtual balance
-  useEffect(() => {
-    if (positionSize > safeVirtualBalance) {
-      setOrderAmountError("Insufficient balance.");
-    } else {
-      setOrderAmountError(null);
-    }
-  }, [positionSize, safeVirtualBalance]);
+  // Add state for order amount (USDT)
+  const [orderAmount, setOrderAmount] = useState("");
 
   // Add state for order confirmation dialog
   const [showOrderDialog, setShowOrderDialog] = useState(false);
@@ -138,11 +153,11 @@ export function TradingForm({
         return;
       }
       const supabase = createClient();
+      // Use the same calculation as UI
+      const marginRequired = Number(orderAmount);
+      const quantityToTrade = Number(orderQuantity);
       const entry_price = price;
-      const quantityNum = Number(orderQuantity);
-      const size = entry_price * quantityNum;
-      const initial_margin = size / leverage;
-      const fee = size * FEE_RATE;
+      const fee = marginRequired * FEE_RATE; // or your fee logic
       const mmr = MAINTENANCE_MARGIN_RATE;
       let liquidation_price = 0;
       if (orderSide === "long") {
@@ -160,11 +175,11 @@ export function TradingForm({
           p_user_id: currentUserId,
           p_symbol: symbol,
           p_side: orderSide,
-          p_quantity: quantityNum,
+          p_quantity: quantityToTrade,
           p_entry_price: entry_price,
           p_leverage: leverage,
           p_fee: fee,
-          p_initial_margin: initial_margin,
+          p_initial_margin: marginRequired,
           p_liquidation_price: liquidation_price,
         }
       );
@@ -174,6 +189,9 @@ export function TradingForm({
         setShowOrderDialog(false);
         setOrderQuantity("");
         setOrderPrice("");
+        // Force SWR to re-fetch positions instantly
+        mutate(["open-positions", roomId]);
+        mutate(["closed-positions", roomId]);
       }
     } catch (e: unknown) {
       if (
@@ -190,6 +208,53 @@ export function TradingForm({
       setLoading(false);
     }
   };
+
+  // Update orderQuantity after leverage changes if flag is set
+  useEffect(() => {
+    if (shouldUpdateQuantityAfterLeverage) {
+      const price =
+        orderType === "market"
+          ? Number(currentPrice) || 0
+          : Number(orderPrice) || 0;
+      if (
+        positionSizeSnapshotRef.current !== null &&
+        price > 0 &&
+        leverage > 0
+      ) {
+        // quantity = (orderAmount / price) * leverage
+        const orderAmount = positionSizeSnapshotRef.current;
+        const quantity = (orderAmount / price) * leverage;
+        setOrderQuantity(quantity.toFixed(6));
+        // Do NOT update orderAmount here
+      }
+      positionSizeSnapshotRef.current = null;
+      setShouldUpdateQuantityAfterLeverage(false);
+    }
+  }, [
+    leverage,
+    shouldUpdateQuantityAfterLeverage,
+    orderType,
+    currentPrice,
+    orderPrice,
+  ]);
+
+  // Add EPSILON for floating point comparison
+  const EPSILON = 0.01;
+  // If you do not have isUsingUsdtInput, default to using orderAmount as margin
+  const marginRequired = Number(orderAmount) || 0;
+  const actualAvailableBalance = safeVirtualBalance;
+  const hasEnoughBalance = actualAvailableBalance - marginRequired >= -EPSILON;
+  // Always log for debugging
+  console.log(
+    "[DEBUG] actualAvailableBalance:",
+    actualAvailableBalance,
+    "marginRequired:",
+    marginRequired,
+    "orderAmount:",
+    orderAmount,
+    "hasEnoughBalance:",
+    hasEnoughBalance
+  );
 
   return (
     <div className="flex flex-col h-full bg-background text-xs text-foreground p-2 overflow-y-auto scrollbar-none select-none">
@@ -299,17 +364,14 @@ export function TradingForm({
               if (!isHost) return;
               setPendingLeverage(leverage);
               setShowLeverageModal(true);
-              // Snapshot margin at dialog open
+              // Snapshot order amount (margin) at dialog open
               const price =
                 orderType === "market"
                   ? Number(currentPrice) || 0
                   : Number(orderPrice) || 0;
               const quantity = Number(orderQuantity) || 0;
-              const margin =
-                leverage > 0 && price > 0 && quantity > 0
-                  ? (price * quantity) / leverage
-                  : null;
-              marginSnapshotRef.current = margin;
+              const orderAmount = (quantity * price) / leverage;
+              positionSizeSnapshotRef.current = orderAmount;
             }}
             className="flex items-center justify-between gap-1 py-1.5 px-3 w-full text-xs font-medium"
             disabled={!isHost}
@@ -326,37 +388,63 @@ export function TradingForm({
                 </DialogDescription>
               </DialogHeader>
               <div className="flex flex-col gap-4 py-4">
-                <label className="block text-sm font-medium text-foreground mb-4">
-                  Leverage
-                </label>
-                <Input
-                  type="number"
-                  value={pendingLeverage}
-                  onChange={(e) => setPendingLeverage(Number(e.target.value))}
-                  className="w-full text-center text-lg mb-4"
-                  min="1"
-                  max="100"
-                />
-                <Slider
-                  defaultValue={[pendingLeverage]}
-                  max={100}
-                  step={1}
-                  onValueChange={(value: number[]) =>
-                    setPendingLeverage(value[0])
-                  }
-                  className="w-full"
-                />
-                <div className="flex justify-between text-muted-foreground text-xs mt-2">
-                  <span>1x</span>
-                  <span>10x</span>
-                  <span>20x</span>
-                  <span>30x</span>
-                  <span>40x</span>
-                  <span>50x</span>
-                  <span>60x</span>
-                  <span>70x</span>
-                  <span>80x</span>
-                  <span>100x</span>
+                <div className="flex items-center gap-2 mb-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10"
+                    onClick={() =>
+                      setPendingLeverage((prev) => Math.max(1, prev - 1))
+                    }
+                    disabled={pendingLeverage <= 1}
+                  >
+                    <MinusIcon className="h-4 w-4" />
+                  </Button>
+                  <Input
+                    type="number"
+                    value={pendingLeverage}
+                    onChange={(e) => setPendingLeverage(Number(e.target.value))}
+                    className="w-full text-center text-lg h-10"
+                    min="1"
+                    max="100"
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10"
+                    onClick={() =>
+                      setPendingLeverage((prev) => Math.min(100, prev + 1))
+                    }
+                    disabled={pendingLeverage >= 100}
+                  >
+                    <PlusIcon className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="relative w-full">
+                  <Slider
+                    value={[pendingLeverage]}
+                    min={1}
+                    max={100}
+                    step={1}
+                    onValueChange={(value: number[]) =>
+                      setPendingLeverage(value[0])
+                    }
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-muted-foreground text-xs mt-2 select-none">
+                    {[1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(
+                      (option) => (
+                        <span
+                          key={option}
+                          className="cursor-pointer px-1"
+                          onClick={() => setPendingLeverage(option)}
+                          style={{ userSelect: "none" }}
+                        >
+                          {option}x
+                        </span>
+                      )
+                    )}
+                  </div>
                 </div>
               </div>
               <p className="text-muted-foreground text-sm mb-4">
@@ -382,22 +470,8 @@ export function TradingForm({
                 <Button
                   onClick={() => {
                     setLeverage(pendingLeverage);
+                    setShouldUpdateQuantityAfterLeverage(true);
                     setShowLeverageModal(false);
-                    // On confirm, auto-update quantity to keep margin constant
-                    const price =
-                      orderType === "market"
-                        ? Number(currentPrice) || 0
-                        : Number(orderPrice) || 0;
-                    if (
-                      marginSnapshotRef.current !== null &&
-                      pendingLeverage > 0 &&
-                      price > 0
-                    ) {
-                      const newQuantity =
-                        (marginSnapshotRef.current * pendingLeverage) / price;
-                      setOrderQuantity(newQuantity.toFixed(6));
-                    }
-                    marginSnapshotRef.current = null;
                   }}
                   disabled={!isHost}
                 >
@@ -476,7 +550,7 @@ export function TradingForm({
             <Input
               type="number"
               value={orderQuantity}
-              onChange={(e) => setOrderQuantity(e.target.value)}
+              onChange={(e) => handleQuantityChange(e.target.value)}
               className="w-full bg-transparent border-0 p-0 h-6 text-xs focus-visible:ring-0 no-spinner"
               readOnly={!isHost}
             />
@@ -491,20 +565,34 @@ export function TradingForm({
             </label>
             <div
               className={`flex items-center bg-secondary border rounded-md px-3 py-1.5 ${
-                orderAmountError ? "border-red-500" : "border-border"
+                !hasEnoughBalance ? "border-red-500" : "border-border"
               }`}
             >
               <Input
                 type="number"
-                value={positionSize ? positionSize.toFixed(2) : "0"}
-                readOnly
+                value={Number(orderAmount).toFixed(4)}
+                onChange={(e) => {
+                  setOrderAmount(e.target.value);
+                  const price =
+                    orderType === "limit"
+                      ? Number(orderPrice) || 0
+                      : Number(currentPrice) || 0;
+                  if (!price || !leverage) {
+                    setOrderQuantity("");
+                    return;
+                  }
+                  const quantity = (Number(e.target.value) * leverage) / price;
+                  setOrderQuantity(quantity.toFixed(6));
+                }}
+                step="0.0001"
+                readOnly={!isHost}
                 className="w-full bg-transparent border-0 p-0 h-6 text-xs focus-visible:ring-0 no-spinner"
               />
               <span className="text-muted-foreground text-xs">USDT</span>
             </div>
-            {orderAmountError && (
+            {!hasEnoughBalance && (
               <div className="text-xs text-red-500 mt-1">
-                {orderAmountError}
+                Insufficient balance.
               </div>
             )}
           </div>
@@ -577,12 +665,12 @@ export function TradingForm({
           <Button
             className="flex-1 bg-green-600 hover:bg-green-700 text-white h-9 text-xs font-medium"
             onClick={() => handleOpenOrderDialog("long")}
-            disabled={!isHost || !!orderAmountError}
+            disabled={!isHost || !hasEnoughBalance}
             title={
               !isHost
                 ? "Only the room creator can trade in this room."
-                : orderAmountError
-                ? orderAmountError
+                : !hasEnoughBalance
+                ? "Insufficient balance."
                 : undefined
             }
           >
@@ -591,12 +679,12 @@ export function TradingForm({
           <Button
             className="flex-1 bg-red-600 hover:bg-red-700 text-white h-9 text-xs font-medium"
             onClick={() => handleOpenOrderDialog("short")}
-            disabled={!isHost || !!orderAmountError}
+            disabled={!isHost || !hasEnoughBalance}
             title={
               !isHost
                 ? "Only the room creator can trade in this room."
-                : orderAmountError
-                ? orderAmountError
+                : !hasEnoughBalance
+                ? "Insufficient balance."
                 : undefined
             }
           >
@@ -683,8 +771,9 @@ export function TradingForm({
                 }`}
               >
                 $
-                {positionSize.toLocaleString("en-US", {
-                  maximumFractionDigits: 2,
+                {Number(orderAmount).toLocaleString("en-US", {
+                  maximumFractionDigits: 4,
+                  minimumFractionDigits: 4,
                 })}
               </span>
             </div>

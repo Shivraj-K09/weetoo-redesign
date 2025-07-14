@@ -204,7 +204,7 @@ export function ParticipantsList({
           {participants.length}
         </span>
       </div>
-      <ScrollArea className="flex-1 overflow-y-auto">
+      <ScrollArea className="flex-1 overflow-y-auto select-none">
         <div className="p-2">
           {participants.map((participant) => (
             <div

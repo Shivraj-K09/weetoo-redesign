@@ -192,7 +192,7 @@ export function Chat({ roomId, creatorId }: ChatProps) {
         <MessageSquare className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-medium">Chat</span>
       </div>
-      <ScrollArea className="flex-1 overflow-y-auto">
+      <ScrollArea className="flex-1 overflow-y-auto select-none">
         <div className="p-4 space-y-4">
           {messages.map((msg) => (
             <div

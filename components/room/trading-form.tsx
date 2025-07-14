@@ -90,16 +90,11 @@ export function TradingForm({
     setOrderQuantity(quantity.toFixed(6));
   };
 
-  // Margin Mode Dialog state
   const [pendingMarginMode, setPendingMarginMode] = useState(marginMode);
-  // Leverage Dialog state
   const [pendingLeverage, setPendingLeverage] = useState(leverage);
 
-  // Remove lastConfirmedMargin state and useEffect
-  // Use a ref to store the margin snapshot when opening the leverage dialog
   const marginSnapshotRef = useRef<number | null>(null);
 
-  // Error state for insufficient balance
   const [orderAmountError, setOrderAmountError] = useState<string | null>(null);
 
   // Validate order amount against virtual balance

@@ -1,6 +1,5 @@
+import { TradingRoomsListServer } from "@/components/trading/trading-rooms-list-server";
 import { Metadata } from "next";
-
-import { TradingRoomsList } from "@/components/trading/trading-rooms-list";
 
 export const metadata: Metadata = {
   title: "Trading | Weetoo",
@@ -32,7 +31,7 @@ export default function TradingPage() {
         </div>
       </div>
 
-      <TradingRoomsList />
+      <TradingRoomsListServer />
     </div>
   );
 }

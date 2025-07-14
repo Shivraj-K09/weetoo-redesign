@@ -181,7 +181,7 @@ export function TradingRoomsList() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 20,
   });
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -193,6 +193,7 @@ export function TradingRoomsList() {
   ]);
 
   const [rooms, setRooms] = useState<TradingRoom[] | null>(null);
+  const [total, setTotal] = useState<number>(0);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -208,10 +209,13 @@ export function TradingRoomsList() {
   useEffect(() => {
     setLoading(true);
     const start = performance.now();
-    fetch("/api/trading-rooms")
+    const page = pagination.pageIndex + 1;
+    const pageSize = pagination.pageSize;
+    fetch(`/api/trading-rooms?page=${page}&pageSize=${pageSize}`)
       .then((res) => res.json())
-      .then((data) => {
-        setRooms(data);
+      .then((result) => {
+        setRooms(result.data);
+        setTotal(result.total);
         setLoading(false);
         const end = performance.now();
         console.log(
@@ -220,7 +224,7 @@ export function TradingRoomsList() {
           "ms"
         );
       });
-  }, []);
+  }, [pagination.pageIndex, pagination.pageSize]);
 
   useEffect(() => {
     const supabase = createClient();

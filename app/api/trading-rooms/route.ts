@@ -30,20 +30,32 @@ interface TradeDb {
   pnl: number | null;
 }
 
-export async function GET() {
-  const start = Date.now();
-  const supabase = await createClient();
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get("page") || 1);
+  const pageSize = Number(url.searchParams.get("pageSize") || 20);
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
-  // Fetch rooms first to get room IDs and creator IDs
-  const { data: roomsData, error: roomsError } = await supabase
+  const supabase = await createClient();
+  const start = Date.now();
+
+  // Fetch paginated rooms and total count
+  const {
+    data: roomsData,
+    error: roomsError,
+    count: totalCount,
+  } = await supabase
     .from("trading_rooms")
     .select(
-      "id, name, creator_id, symbol, category, privacy, pnl_percentage, created_at, room_status"
+      "id, name, creator_id, symbol, category, privacy, pnl_percentage, created_at, room_status",
+      { count: "exact" }
     )
     .eq("room_status", "active")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, to);
   if (roomsError || !roomsData) {
-    return NextResponse.json([]);
+    return NextResponse.json({ data: [], total: 0 });
   }
   const roomIds = (roomsData as TradingRoomDb[]).map((room) => room.id);
   const creatorIds = Array.from(
@@ -148,5 +160,5 @@ export async function GET() {
   });
   const end = Date.now();
   console.log("API /api/trading-rooms total time:", end - start, "ms");
-  return NextResponse.json(mapped);
+  return NextResponse.json({ data: mapped, total: totalCount || 0 });
 }

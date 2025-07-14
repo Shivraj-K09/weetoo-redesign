@@ -1,4 +1,4 @@
-import { TradingRoomsList } from "@/components/trading/trading-rooms-list";
+import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 interface TradingRoomDb {
@@ -30,7 +30,7 @@ interface TradeDb {
   pnl: number | null;
 }
 
-export async function TradingRoomsListServer() {
+export async function GET() {
   const supabase = await createClient();
   const { data: roomsData, error: roomsError } = await supabase
     .from("trading_rooms")
@@ -40,7 +40,7 @@ export async function TradingRoomsListServer() {
     .eq("room_status", "active")
     .order("created_at", { ascending: false });
   if (roomsError || !roomsData) {
-    return <TradingRoomsList initialRooms={[]} />;
+    return NextResponse.json([]);
   }
   const creatorIds = Array.from(
     new Set((roomsData as TradingRoomDb[]).map((room) => room.creator_id))
@@ -124,10 +124,9 @@ export async function TradingRoomsListServer() {
       createdAt,
       createdAtTimestamp,
       isPublic: room.privacy === "public",
-      isHosted: false, // will be set on client
       participants: countsMap[room.id] ?? 0,
       pnlPercentage: pnlPercent,
     };
   });
-  return <TradingRoomsList initialRooms={mapped} />;
+  return NextResponse.json(mapped);
 }

@@ -1,4 +1,4 @@
-import { TradingRoomsListServer } from "@/components/trading/trading-rooms-list-server";
+import { TradingRoomsList } from "@/components/trading/trading-rooms-list";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -31,8 +31,7 @@ export default function TradingPage() {
         </div>
       </div>
 
-      {/* Filters and controls remain here, outside Suspense */}
-      <TradingRoomsListServer />
+      <TradingRoomsList />
     </div>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { TradingRoomsTableSkeleton } from "@/components/trading/TradingRoomsTableSkeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Tooltip,
@@ -45,7 +44,7 @@ import {
   MicIcon,
   UsersIcon,
 } from "lucide-react";
-import { Suspense, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -78,6 +77,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -175,11 +175,7 @@ function CreatedAtCell({ value }: { value: string }) {
   );
 }
 
-export function TradingRoomsList({
-  initialRooms,
-}: {
-  initialRooms: TradingRoom[];
-}) {
+export function TradingRoomsList() {
   const id = useId();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -196,8 +192,9 @@ export function TradingRoomsList({
     },
   ]);
 
-  const [rooms, setRooms] = useState<TradingRoom[]>(initialRooms);
+  const [rooms, setRooms] = useState<TradingRoom[] | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const [passwordDialog, setPasswordDialog] = useState<{
     open: boolean;
@@ -209,6 +206,16 @@ export function TradingRoomsList({
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
+    fetch("/api/trading-rooms")
+      .then((res) => res.json())
+      .then((data) => {
+        setRooms(data);
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
     const supabase = createClient();
     supabase.auth.getSession().then(({ data }) => {
       setCurrentUserId(data.session?.user?.id || null);
@@ -217,12 +224,14 @@ export function TradingRoomsList({
 
   // Update isHosted for rooms when currentUserId is set
   useEffect(() => {
-    if (!currentUserId) return;
+    if (!currentUserId || !rooms) return;
     setRooms((prevRooms) =>
-      prevRooms.map((room) => ({
-        ...room,
-        isHosted: room.creator.id === currentUserId,
-      }))
+      prevRooms
+        ? prevRooms.map((room) => ({
+            ...room,
+            isHosted: room.creator.id === currentUserId,
+          }))
+        : prevRooms
     );
   }, [currentUserId]);
 
@@ -404,7 +413,7 @@ export function TradingRoomsList({
   );
 
   const table = useReactTable({
-    data: rooms,
+    data: rooms || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -545,9 +554,6 @@ export function TradingRoomsList({
     }
   };
 
-  // Only show table data after currentUserId is loaded, to avoid Host badge flicker
-  // const showTable = !!currentUserId;
-
   return (
     <>
       {/* Password Dialog */}
@@ -636,7 +642,7 @@ export function TradingRoomsList({
         </DialogContent>
       </Dialog>
       <div className="space-y-4">
-        {/* Filters */}
+        {/* Filters and controls (always visible) */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
             <div className="relative flex-1 w-full sm:w-auto">
@@ -822,104 +828,108 @@ export function TradingRoomsList({
           </div>
         </div>
 
-        {/* Table */}
+        {/* Table with always-visible headers, skeleton only for rows */}
         <div className="bg-background overflow-x-auto rounded-md border">
           <Table className="table-fixed min-w-[800px]">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead
-                        key={header.id}
-                        style={{ width: `${header.getSize()}px` }}
-                        className="h-11 pl-5"
-                      >
-                        {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                          <div
-                            className={cn(
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      style={{ width: `${header.getSize()}px` }}
+                      className="h-11 pl-5"
+                    >
+                      {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                        <div
+                          className={cn(
+                            header.column.getCanSort() &&
+                              "flex h-full cursor-pointer items-center justify-start gap-2 select-none"
+                          )}
+                          onClick={header.column.getToggleSortingHandler()}
+                          onKeyDown={(e) => {
+                            if (
                               header.column.getCanSort() &&
-                                "flex h-full cursor-pointer items-center justify-start gap-2 select-none"
-                            )}
-                            onClick={header.column.getToggleSortingHandler()}
-                            onKeyDown={(e) => {
-                              if (
-                                header.column.getCanSort() &&
-                                (e.key === "Enter" || e.key === " ")
-                              ) {
-                                e.preventDefault();
-                                header.column.getToggleSortingHandler()?.(e);
-                              }
-                            }}
-                            tabIndex={
-                              header.column.getCanSort() ? 0 : undefined
+                              (e.key === "Enter" || e.key === " ")
+                            ) {
+                              e.preventDefault();
+                              header.column.getToggleSortingHandler()?.(e);
                             }
-                          >
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                            {header.column.getIsSorted() === "asc" ? (
-                              <ChevronUpIcon
-                                className="shrink-0 opacity-80 text-primary"
-                                size={16}
-                                aria-hidden="true"
-                              />
-                            ) : header.column.getIsSorted() === "desc" ? (
-                              <ChevronDownIcon
-                                className="shrink-0 opacity-80 text-primary"
-                                size={16}
-                                aria-hidden="true"
-                              />
-                            ) : (
-                              <span className="flex flex-col items-center opacity-40">
-                                <ChevronUpIcon size={12} />
-                                <ChevronDownIcon
-                                  size={12}
-                                  style={{ marginTop: -4 }}
-                                />
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          flexRender(
+                          }}
+                          tabIndex={header.column.getCanSort() ? 0 : undefined}
+                        >
+                          {flexRender(
                             header.column.columnDef.header,
                             header.getContext()
-                          )
-                        )}
-                      </TableHead>
-                    );
-                  })}
+                          )}
+                          {header.column.getIsSorted() === "asc" ? (
+                            <ChevronUpIcon
+                              className="shrink-0 opacity-80 text-primary"
+                              size={16}
+                              aria-hidden="true"
+                            />
+                          ) : header.column.getIsSorted() === "desc" ? (
+                            <ChevronDownIcon
+                              className="shrink-0 opacity-80 text-primary"
+                              size={16}
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <span className="flex flex-col items-center opacity-40">
+                              <ChevronUpIcon size={12} />
+                              <ChevronDownIcon
+                                size={12}
+                                style={{ marginTop: -4 }}
+                              />
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )
+                      )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
-            <Suspense fallback={<TradingRoomsTableSkeleton />}>
-              <TableBody>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id} className="h-16">
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="pl-5 py-5">
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No trading rooms found.
-                    </TableCell>
+            <TableBody>
+              {loading || !rooms ? (
+                [...Array(8)].map((_, i) => (
+                  <TableRow key={i} className="h-16">
+                    {columns.map((col, j) => (
+                      <TableCell key={j} className="pl-5 py-5">
+                        <Skeleton className="h-6 w-full" />
+                      </TableCell>
+                    ))}
                   </TableRow>
-                )}
-              </TableBody>
-            </Suspense>
+                ))
+              ) : table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} className="h-16">
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="pl-5 py-5">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No trading rooms found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
           </Table>
         </div>
 

@@ -32,6 +32,8 @@ interface TradeDb {
 
 export async function GET() {
   const supabase = await createClient();
+
+  // Fetch rooms first to get room IDs and creator IDs
   const { data: roomsData, error: roomsError } = await supabase
     .from("trading_rooms")
     .select(
@@ -42,64 +44,79 @@ export async function GET() {
   if (roomsError || !roomsData) {
     return NextResponse.json([]);
   }
+  const roomIds = (roomsData as TradingRoomDb[]).map((room) => room.id);
   const creatorIds = Array.from(
     new Set((roomsData as TradingRoomDb[]).map((room) => room.creator_id))
   );
+
+  // Fetch users, participants, positions, and app_settings in parallel
+  const [usersRes, participantsRes, positionsRes, appSettingsRes] =
+    await Promise.all([
+      creatorIds.length > 0
+        ? supabase
+            .from("users")
+            .select("id, first_name, last_name, avatar_url")
+            .in("id", creatorIds)
+        : Promise.resolve({ data: [], error: null }),
+      roomIds.length > 0
+        ? supabase
+            .from("trading_room_participants")
+            .select("room_id, user_id")
+            .in("room_id", roomIds)
+        : Promise.resolve({ data: [], error: null }),
+      roomIds.length > 0
+        ? supabase
+            .from("trading_room_positions")
+            .select("room_id, pnl")
+            .in("room_id", roomIds)
+        : Promise.resolve({ data: [], error: null }),
+      supabase.from("app_settings").select("startingBalance").single(),
+    ]);
+
+  // Aggregate users
   let creatorsMap: Record<string, { name: string; avatar: string }> = {};
-  if (creatorIds.length > 0) {
-    const { data: usersData, error: usersError } = await supabase
-      .from("users")
-      .select("id, first_name, last_name, avatar_url")
-      .in("id", creatorIds);
-    if (!usersError && usersData) {
-      creatorsMap = (usersData as UserDb[]).reduce((acc, user) => {
-        const fullName =
-          [user.first_name, user.last_name].filter(Boolean).join(" ") || "-";
-        acc[user.id] = { name: fullName, avatar: user.avatar_url || "" };
-        return acc;
-      }, {} as Record<string, { name: string; avatar: string }>);
-    }
+  if (!usersRes.error && usersRes.data) {
+    creatorsMap = (usersRes.data as UserDb[]).reduce((acc, user) => {
+      const fullName =
+        [user.first_name, user.last_name].filter(Boolean).join(" ") || "-";
+      acc[user.id] = { name: fullName, avatar: user.avatar_url || "" };
+      return acc;
+    }, {} as Record<string, { name: string; avatar: string }>);
   }
-  const roomIds = (roomsData as TradingRoomDb[]).map((room) => room.id);
+
+  // Aggregate participants
   let countsMap: Record<string, number> = {};
-  if (roomIds.length > 0) {
-    const { data: countsData } = await supabase
-      .from("trading_room_participants")
-      .select("room_id, user_id")
-      .in("room_id", roomIds);
-    countsMap = {};
+  if (!participantsRes.error && participantsRes.data) {
     (roomIds || []).forEach((id) => {
       countsMap[id] = 0;
     });
-    ((countsData || []) as ParticipantCountDb[]).forEach((row) => {
+    ((participantsRes.data || []) as ParticipantCountDb[]).forEach((row) => {
       countsMap[row.room_id] = (countsMap[row.room_id] || 0) + 1;
     });
   }
+
+  // Aggregate PnL
   let pnlMap: Record<string, number> = {};
-  if (roomIds.length > 0) {
-    const { data: tradesData } = await supabase
-      .from("trading_room_positions")
-      .select("room_id, pnl")
-      .in("room_id", roomIds);
-    pnlMap = {};
+  if (!positionsRes.error && positionsRes.data) {
     (roomIds || []).forEach((id) => {
       pnlMap[id] = 0;
     });
-    ((tradesData || []) as TradeDb[]).forEach((row) => {
+    ((positionsRes.data || []) as TradeDb[]).forEach((row) => {
       pnlMap[row.room_id] = (pnlMap[row.room_id] || 0) + Number(row.pnl || 0);
     });
   }
-  // Fetch starting virtual balance from app_settings
+
+  // Get starting balance
   let startingBalance = 100000;
-  try {
-    const { data: appSettings } = await supabase
-      .from("app_settings")
-      .select("startingBalance")
-      .single();
-    if (appSettings && typeof appSettings.startingBalance === "number") {
-      startingBalance = appSettings.startingBalance;
-    }
-  } catch (_e) {}
+  if (
+    !appSettingsRes.error &&
+    appSettingsRes.data &&
+    typeof appSettingsRes.data.startingBalance === "number"
+  ) {
+    startingBalance = appSettingsRes.data.startingBalance;
+  }
+
+  // Map final result
   const mapped = (roomsData as TradingRoomDb[]).map((room) => {
     const creator = creatorsMap[room.creator_id] || {
       name: "-",

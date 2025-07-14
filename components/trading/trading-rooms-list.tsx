@@ -222,7 +222,7 @@ export function TradingRoomsList() {
     });
   }, []);
 
-  // Update isHosted for rooms when currentUserId is set
+  // Update isHosted for rooms when currentUserId or rooms change
   useEffect(() => {
     if (!currentUserId || !rooms) return;
     setRooms((prevRooms) =>
@@ -246,7 +246,7 @@ export function TradingRoomsList() {
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <span className="font-medium">{room.name}</span>
-                {room.isHosted && (
+                {currentUserId && room.creator.id === currentUserId && (
                   <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-0">
                     <Crown className="h-3 w-3 mr-1" />
                     Host

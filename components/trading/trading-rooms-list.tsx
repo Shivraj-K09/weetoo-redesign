@@ -207,11 +207,18 @@ export function TradingRoomsList() {
 
   useEffect(() => {
     setLoading(true);
+    const start = performance.now();
     fetch("/api/trading-rooms")
       .then((res) => res.json())
       .then((data) => {
         setRooms(data);
         setLoading(false);
+        const end = performance.now();
+        console.log(
+          "Trading rooms API fetch took",
+          (end - start).toFixed(2),
+          "ms"
+        );
       });
   }, []);
 

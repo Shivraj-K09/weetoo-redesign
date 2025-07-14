@@ -31,6 +31,7 @@ interface TradeDb {
 }
 
 export async function GET() {
+  const start = Date.now();
   const supabase = await createClient();
 
   // Fetch rooms first to get room IDs and creator IDs
@@ -85,7 +86,7 @@ export async function GET() {
   }
 
   // Aggregate participants
-  let countsMap: Record<string, number> = {};
+  const countsMap: Record<string, number> = {};
   if (!participantsRes.error && participantsRes.data) {
     (roomIds || []).forEach((id) => {
       countsMap[id] = 0;
@@ -96,7 +97,7 @@ export async function GET() {
   }
 
   // Aggregate PnL
-  let pnlMap: Record<string, number> = {};
+  const pnlMap: Record<string, number> = {};
   if (!positionsRes.error && positionsRes.data) {
     (roomIds || []).forEach((id) => {
       pnlMap[id] = 0;
@@ -145,5 +146,7 @@ export async function GET() {
       pnlPercentage: pnlPercent,
     };
   });
+  const end = Date.now();
+  console.log("API /api/trading-rooms total time:", end - start, "ms");
   return NextResponse.json(mapped);
 }

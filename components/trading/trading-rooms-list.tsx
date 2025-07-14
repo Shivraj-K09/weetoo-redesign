@@ -1,5 +1,6 @@
 "use client";
 
+import { TradingRoomsTableSkeleton } from "@/components/trading/TradingRoomsTableSkeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Tooltip,
@@ -44,7 +45,7 @@ import {
   MicIcon,
   UsersIcon,
 } from "lucide-react";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useId, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -77,7 +78,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -158,12 +158,6 @@ function CreatedAtCell({ value }: { value: string }) {
     ? format(dateObj, "dd-MM-yyyy HH:mm:ss")
     : "-";
 
-  // Split the fixedFormat into date and time
-  const [fixedDate, fixedTime] =
-    isValidDate && fixedFormat.includes(" ")
-      ? fixedFormat.split(" ")
-      : [fixedFormat, ""];
-
   return (
     <TooltipProvider>
       <Tooltip>
@@ -172,10 +166,9 @@ function CreatedAtCell({ value }: { value: string }) {
         </TooltipTrigger>
         <TooltipContent
           side="bottom"
-          className="w-[180px] flex flex-col items-center font-mono"
+          className="w-[180px] flex items-center flex-col font-mono"
         >
-          <span>{fixedDate}</span>
-          <span>{fixedTime}</span>
+          <span>{fixedFormat}</span>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -553,7 +546,7 @@ export function TradingRoomsList({
   };
 
   // Only show table data after currentUserId is loaded, to avoid Host badge flicker
-  const showTable = !!currentUserId;
+  // const showTable = !!currentUserId;
 
   return (
     <>
@@ -900,42 +893,33 @@ export function TradingRoomsList({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
-              {!showTable ? (
-                // Show skeleton rows while waiting for user ID
-                [...Array(8)].map((_, i) => (
-                  <TableRow key={i} className="h-16">
-                    {columns.map((col, j) => (
-                      <TableCell key={j} className="pl-5 py-5">
-                        <Skeleton className="h-6 w-full" />
-                      </TableCell>
-                    ))}
+            <Suspense fallback={<TradingRoomsTableSkeleton />}>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id} className="h-16">
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="pl-5 py-5">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No trading rooms found.
+                    </TableCell>
                   </TableRow>
-                ))
-              ) : table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} className="h-16">
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="pl-5 py-5">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No trading rooms found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
+                )}
+              </TableBody>
+            </Suspense>
           </Table>
         </div>
 

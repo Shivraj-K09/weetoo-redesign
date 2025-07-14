@@ -31,6 +31,7 @@ export default function TradingPage() {
         </div>
       </div>
 
+      {/* Filters and controls remain here, outside Suspense */}
       <TradingRoomsListServer />
     </div>
   );

@@ -6,7 +6,13 @@ const nextConfig: NextConfig = {
     viewTransition: true,
   },
   images: {
-    domains: ["source.unsplash.com", "images.unsplash.com", "picsum.photos"],
+    domains: [
+      "source.unsplash.com",
+      "images.unsplash.com",
+      "picsum.photos",
+      "lh3.googleusercontent.com",
+      "elraqghnwdysyqskvqgn.supabase.co",
+    ],
   },
 };
 

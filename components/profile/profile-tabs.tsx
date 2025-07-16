@@ -1,22 +1,17 @@
 "use client";
-import { useState } from "react";
+import { KeyIcon, TicketIcon, UserIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Profile } from "./profile";
-import { Messages } from "./messages";
-import { KorCoinsActivity } from "./kor-coins-activity";
+import { Referral } from "./referral";
 import { UuidRegistration } from "./uuid-registration";
-import { ActivityIcon, KeyIcon, MailIcon, UserIcon } from "lucide-react";
 
 const TABS = [
   { key: "profile", label: "Profile", icon: <UserIcon className="w-4 h-4" /> },
   {
-    key: "messages",
-    label: "Messages",
-    icon: <MailIcon className="w-4 h-4" />,
-  },
-  {
-    key: "kor-coins",
-    label: "Kor-Coins Activity",
-    icon: <ActivityIcon className="w-4 h-4" />,
+    key: "referral",
+    label: "Referral",
+    icon: <TicketIcon className="w-4 h-4" />,
   },
   {
     key: "uuid",
@@ -29,13 +24,29 @@ type TabKey = (typeof TABS)[number]["key"];
 
 const TAB_COMPONENTS = {
   profile: <Profile />,
-  messages: <Messages />,
-  "kor-coins": <KorCoinsActivity />,
+  referral: <Referral />,
   uuid: <UuidRegistration />,
 };
 
 export function ProfileTabs() {
-  const [selectedTab, setSelectedTab] = useState<TabKey>("profile");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab") as TabKey | null;
+  const [selectedTab, setSelectedTab] = useState<TabKey>(tabParam || "profile");
+
+  useEffect(() => {
+    if (tabParam && tabParam !== selectedTab) {
+      setSelectedTab(tabParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabParam]);
+
+  const handleTabClick = (tab: TabKey) => {
+    setSelectedTab(tab);
+    const params = new URLSearchParams(Array.from(searchParams.entries()));
+    params.set("tab", tab);
+    router.replace(`?${params.toString()}`);
+  };
 
   return (
     <>
@@ -51,7 +62,7 @@ export function ProfileTabs() {
                   : "hover:bg-accent text-muted-foreground"
               }
             `}
-            onClick={() => setSelectedTab(tab.key)}
+            onClick={() => handleTabClick(tab.key as TabKey)}
           >
             {tab.icon}
             <span>{tab.label}</span>
@@ -59,7 +70,11 @@ export function ProfileTabs() {
         ))}
       </div>
       {/* Right Content */}
-      <div className="flex-1 flex flex-col">{TAB_COMPONENTS[selectedTab]}</div>
+      <div className="flex-1 flex flex-col">
+        {selectedTab in TAB_COMPONENTS
+          ? TAB_COMPONENTS[selectedTab as keyof typeof TAB_COMPONENTS]
+          : null}
+      </div>
     </>
   );
 }

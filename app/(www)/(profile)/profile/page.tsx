@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { ProfileTabs } from "@/components/profile/profile-tabs";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Profile | Weetoo",
@@ -10,7 +11,9 @@ export default function Profile() {
   return (
     <div className="container flex flex-1 w-full gap-10 mx-auto py-5">
       <div className="border w-full flex flex-1">
-        <ProfileTabs />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ProfileTabs />
+        </Suspense>
       </div>
     </div>
   );

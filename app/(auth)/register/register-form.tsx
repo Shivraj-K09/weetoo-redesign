@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useTransition, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { createClient } from "@/lib/supabase/client";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { toast } from "sonner";
 
 const NAVER_CLIENT_ID = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID;
 const NAVER_REDIRECT_URI =
@@ -31,7 +31,10 @@ function getNaverOAuthUrl() {
   return `https://nid.naver.com/oauth2.0/authorize?${params.toString()}`;
 }
 
-export function RegisterForm() {
+// Referral reward amount (KORCOINS)
+const REFERRAL_REWARD_KORCOINS = 500;
+
+export function RegisterForm({ referralCode = "" }: { referralCode?: string }) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [nickname, setNickname] = useState("");
@@ -43,6 +46,14 @@ export function RegisterForm() {
   const [agree, setAgree] = useState(false);
   const [loading, startTransition] = useTransition();
   const [lastUsed, setLastUsed] = useState<string | null>(null);
+  const [referralCodeState, setReferralCodeState] = useState(referralCode);
+  const [referrer, setReferrer] = useState<{
+    first_name: string;
+    last_name: string;
+  } | null>(null);
+  const [referralError, setReferralError] = useState<string | null>(null);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const lastLookupValue = useRef("");
   const router = useRouter();
   const supabase = createClient();
 
@@ -52,6 +63,42 @@ export function RegisterForm() {
       setLastUsed(localStorage.getItem("weetoo-last-sign-in-method"));
     }
   }, []);
+
+  // On mount, if referralCode prop is provided, trigger lookup for referred by
+  useEffect(() => {
+    if (referralCode && referralCode.trim()) {
+      const code = referralCode.trim().toUpperCase();
+      // Lookup referral code
+      (async () => {
+        const { data: codeRow, error: codeError } = await supabase
+          .from("referral_codes")
+          .select("user_id")
+          .eq("code", code)
+          .single();
+        if (codeError || !codeRow) {
+          setReferrer(null);
+          setReferralError("Referral code not found.");
+          return;
+        }
+        // Lookup user by user_id
+        const { data: userRow, error: userError } = await supabase
+          .from("users")
+          .select("first_name, last_name")
+          .eq("id", codeRow.user_id)
+          .single();
+        if (userError || !userRow) {
+          setReferrer(null);
+          setReferralError("Referrer not found.");
+          return;
+        }
+        setReferralError(null);
+        setReferrer({
+          first_name: userRow.first_name,
+          last_name: userRow.last_name,
+        });
+      })();
+    }
+  }, [referralCode, supabase]);
 
   // Memoized email/password register handler
   const handleSubmit = useCallback(
@@ -87,8 +134,49 @@ export function RegisterForm() {
           // Insert into public.users with role 'user' (if not handled by trigger)
           // This is a fallback; ideally, your DB trigger sets the role.
           localStorage.setItem("weetoo-last-sign-in-method", "email");
+          // --- Referral reward logic ---
+          if (referrer && referralCodeState.trim()) {
+            // Get the new user (should be logged in after signUp)
+            const {
+              data: { user: newUser },
+            } = await supabase.auth.getUser();
+            if (newUser) {
+              // 1. Get the referral_codes row for the code
+              const { data: codeRow } = await supabase
+                .from("referral_codes")
+                .select("id, user_id")
+                .eq("code", referralCodeState.trim().toUpperCase())
+                .single();
+              if (codeRow) {
+                // 2. Insert into referrals table
+                await supabase.from("referrals").insert({
+                  referrer_user_id: codeRow.user_id,
+                  referred_user_id: newUser.id,
+                  referral_code_id: codeRow.id,
+                });
+                // 3. Credit KORCOINS to the new user (add to any existing balance)
+                // Fetch current kor_coins
+                const { data: userRow } = await supabase
+                  .from("users")
+                  .select("kor_coins")
+                  .eq("id", newUser.id)
+                  .single();
+                const currentKorCoins = userRow?.kor_coins || 0;
+                await supabase
+                  .from("users")
+                  .update({
+                    kor_coins: currentKorCoins + REFERRAL_REWARD_KORCOINS,
+                  })
+                  .eq("id", newUser.id);
+                // 4. Show toast
+                toast.success(
+                  `You received ${REFERRAL_REWARD_KORCOINS} KORCOINS for signing up with a referral code!`
+                );
+              }
+            }
+          }
           toast.success("Registration successful! Please log in.");
-          router.push("/login");
+          router.push("/");
         }
       });
     },
@@ -102,6 +190,8 @@ export function RegisterForm() {
       agree,
       router,
       supabase,
+      referrer,
+      referralCodeState,
     ]
   );
 
@@ -136,6 +226,50 @@ export function RegisterForm() {
     localStorage.setItem("weetoo-last-sign-in-method", "naver");
     window.location.href = url;
   }, []);
+
+  // Debounced referral code lookup
+  const handleReferralCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawInput = e.target.value;
+    setReferralCodeState(rawInput); // keep original for input display
+    setReferrer(null);
+    setReferralError(null);
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    if (!rawInput.trim()) return;
+    debounceTimeout.current = setTimeout(async () => {
+      const code = rawInput.trim().toUpperCase();
+      lastLookupValue.current = rawInput;
+      // Lookup referral code
+      const { data: codeRow, error: codeError } = await supabase
+        .from("referral_codes")
+        .select("user_id")
+        .eq("code", code)
+        .single();
+      // Only update if input hasn't changed
+      if (lastLookupValue.current !== rawInput) return;
+      if (codeError || !codeRow) {
+        setReferrer(null);
+        setReferralError("Referral code not found.");
+        return;
+      }
+      // Lookup user by user_id
+      const { data: userRow, error: userError } = await supabase
+        .from("users")
+        .select("first_name, last_name")
+        .eq("id", codeRow.user_id)
+        .single();
+      if (lastLookupValue.current !== rawInput) return;
+      if (userError || !userRow) {
+        setReferrer(null);
+        setReferralError("Referrer not found.");
+        return;
+      }
+      setReferralError(null);
+      setReferrer({
+        first_name: userRow.first_name,
+        last_name: userRow.last_name,
+      });
+    }, 300);
+  };
 
   return (
     <div className="w-full h-full flex items-center justify-center flex-col">
@@ -377,6 +511,58 @@ export function RegisterForm() {
               )}
             </button>
           </div>
+        </div>
+
+        {/* Referral Code Input */}
+        <div className="flex flex-col gap-1 relative">
+          <Input
+            type="text"
+            id="referralCode"
+            placeholder="Referral Code (optional)"
+            className="h-12 bg-transparent"
+            value={referralCodeState}
+            onChange={handleReferralCodeChange}
+            disabled={loading}
+          />
+          {referrer && !referralError && (
+            <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-md bg-green-900/20 border border-green-700 text-green-400 text-sm font-medium">
+              <svg
+                className="w-4 h-4 text-green-400"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Referred by:{" "}
+              <span className="font-semibold">
+                {referrer.first_name} {referrer.last_name}
+              </span>
+            </div>
+          )}
+          {referralError && !referrer && (
+            <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-md bg-red-900/20 border border-red-700 text-red-400 text-sm font-medium">
+              <svg
+                className="w-4 h-4 text-red-400"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              {referralError}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2 w-full">

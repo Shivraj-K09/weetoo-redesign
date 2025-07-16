@@ -10,8 +10,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
-import { GradientAvatar } from "@/utils/gradient-avatar";
-import { Coins, LogOutIcon, ShieldIcon, Star, UserIcon } from "lucide-react";
+import {
+  Coins,
+  Eye,
+  EyeOff,
+  LogOutIcon,
+  ShieldIcon,
+  Star,
+  UserIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -36,6 +43,7 @@ export function UserDropdown() {
   const [loggingOut, setLoggingOut] = useState(false);
   const router = useRouter();
   const lastSessionId = useRef<string | null>(null);
+  const [showEmail, setShowEmail] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -163,6 +171,16 @@ export function UserDropdown() {
     };
   }, [user]);
 
+  // Helper to mask email
+  const maskEmail = (email: string) => {
+    const [name, domain] = email.split("@");
+    if (!name || !domain) return email;
+    if (name.length <= 2) return "*".repeat(name.length) + "@" + domain;
+    return (
+      name.slice(0, 3) + "*".repeat(Math.max(1, name.length - 3)) + "@" + domain
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex justify-end">
@@ -188,7 +206,6 @@ export function UserDropdown() {
     expThisLevel,
     EXP_PER_LEVEL,
   } = computed;
-  const avatarId = user.id || user.email || user.nickname || "weetoo";
 
   return (
     <div className="flex justify-end">
@@ -204,12 +221,12 @@ export function UserDropdown() {
                 <Skeleton className="w-full h-full rounded-full" />
               ) : user.avatar_url ? (
                 <AvatarImage src={avatarUrl} alt={fullName} />
-              ) : (
-                <GradientAvatar id={avatarId} />
+              ) : null}
+              {!loading && !user.avatar_url && (
+                <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
+                  {nickname.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
               )}
-              <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white text-sm font-medium">
-                {nickname.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
             </Avatar>
           </button>
         </DropdownMenuTrigger>
@@ -226,19 +243,38 @@ export function UserDropdown() {
                   <Skeleton className="w-full h-full rounded-full" />
                 ) : user.avatar_url ? (
                   <AvatarImage src={avatarUrl} alt={fullName} />
-                ) : (
-                  <GradientAvatar id={avatarId} />
+                ) : null}
+                {!loading && !user.avatar_url && (
+                  <AvatarFallback className="bg-muted text-muted-foreground font-medium">
+                    {nickname.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
                 )}
-                <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600 text-white font-medium">
-                  {nickname.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium flex items-center gap-1">
                   {loading ? <Skeleton className="h-4 w-24" /> : fullName}
                 </div>
-                <div className="text-xs text-muted-foreground truncate">
-                  {loading ? <Skeleton className="h-3 w-28" /> : email}
+                <div className="text-xs text-muted-foreground truncate flex items-center gap-1">
+                  {loading ? (
+                    <Skeleton className="h-3 w-28" />
+                  ) : (
+                    <>
+                      {showEmail ? email : maskEmail(email)}
+                      <button
+                        type="button"
+                        className="ml-1 p-0.5 rounded hover:bg-accent/50 transition-colors cursor-pointer"
+                        onClick={() => setShowEmail((v) => !v)}
+                        aria-label={showEmail ? "Hide email" : "Show email"}
+                        tabIndex={0}
+                      >
+                        {showEmail ? (
+                          <EyeOff className="w-4 h-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="w-4 h-4 text-muted-foreground" />
+                        )}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

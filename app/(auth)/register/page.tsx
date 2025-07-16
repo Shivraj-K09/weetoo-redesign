@@ -8,7 +8,16 @@ export const metadata = {
     "Register to Weetoo to start trading cryptocurrencies, stocks, and forex.",
 };
 
-export default function Login() {
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  let referralCode = "";
+  if (params?.ref) {
+    referralCode = Array.isArray(params.ref) ? params.ref[0] : params.ref;
+  }
   return (
     <div className="h-screen bg-background w-full px-4 lg:px-0">
       <div className="w-full h-full flex">
@@ -25,7 +34,7 @@ export default function Login() {
               </span>
             </Link>
           </div>
-          <RegisterForm />
+          <RegisterForm referralCode={referralCode} />
         </div>
       </div>
     </div>

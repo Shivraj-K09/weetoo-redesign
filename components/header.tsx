@@ -59,7 +59,7 @@ export function Header() {
         <Button variant="outline" className="cursor-pointer shadow-none h-8">
           <Link href="/login">Login</Link>
         </Button>
-        <Button className="cursor-pointer shadow-none h-8 hidden md:block">
+        <Button className="cursor-pointer shadow-none h-8">
           <Link href="/register">Register</Link>
         </Button>
       </>

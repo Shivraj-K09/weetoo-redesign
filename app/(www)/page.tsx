@@ -384,7 +384,7 @@ export default function Home() {
                               size="lg"
                               className="w-full md:w-auto rounded-lg bg-green-600 hover:bg-green-700 text-white text-base font-semibold shadow-none h-12"
                             >
-                              <Link href="/information/news">Read News</Link>
+                              <Link href="/news">Read News</Link>
                             </Button>
                           </div>
                           {/* Right-side image illustration (only on md and up) */}

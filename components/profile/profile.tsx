@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { PhoneInput } from "../ui/phone-input";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface UserData {
   id: string;
@@ -25,7 +26,7 @@ interface UserData {
 export function Profile() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [user, setUser] = useState<UserData | null>(null);
-  const [, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -62,28 +63,21 @@ export function Profile() {
       <div className="flex flex-col h-full">
         <div className="border-b flex flex-shrink-0">
           <div className="p-4 border-r space-y-2">
-            <Image
-              src={user?.avatar_url || ""}
-              alt="Profile Picture"
-              className="object-cover h-[250px] w-[300px] border bg-gray-100"
-              width={300}
-              height={250}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.onerror = null;
-                target.src = "";
-                target.style.display = "none";
-                const fallback = document.getElementById(
-                  "profile-avatar-fallback"
-                );
-                if (fallback) fallback.style.display = "flex";
-              }}
-            />
-            {/* Fallback for avatar: first two letters of first name */}
-            {(!user?.avatar_url || user.avatar_url === "") && (
+            {/* Avatar image or fallback */}
+            {loading ? (
+              <Skeleton className="h-[250px] w-[250px] border" />
+            ) : user?.avatar_url && user.avatar_url !== "" ? (
+              <Image
+                src={user.avatar_url}
+                alt="Profile Picture"
+                className="object-cover h-[250px] w-[300px] border"
+                width={300}
+                height={250}
+              />
+            ) : (
               <div
                 id="profile-avatar-fallback"
-                className="object-cover h-[250px] w-[300px] border flex items-center justify-center text-5xl font-bold text-gray-400 bg-gray-100"
+                className="object-cover h-[250px] w-[300px] border flex items-center justify-center text-5xl font-bold text-gray-400"
                 style={{ position: "absolute" }}
               >
                 {(user?.first_name?.slice(0, 2) || "?").toUpperCase()}
@@ -100,63 +94,83 @@ export function Profile() {
                 <Label htmlFor="first-name" className="text-sm font-semibold">
                   First Name
                 </Label>
-                <Input
-                  placeholder="First Name"
-                  className="rounded-none h-10"
-                  value={user?.first_name || ""}
-                  readOnly
-                />
+                {loading ? (
+                  <Skeleton className="rounded-none h-10 w-full" />
+                ) : (
+                  <Input
+                    placeholder="First Name"
+                    className="rounded-none h-10"
+                    value={user?.first_name || ""}
+                    readOnly
+                  />
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="last-name" className="text-sm font-semibold">
                   Last Name
                 </Label>
-                <Input
-                  placeholder="Last Name"
-                  className="rounded-none h-10"
-                  value={user?.last_name || ""}
-                  readOnly
-                />
+                {loading ? (
+                  <Skeleton className="rounded-none h-10 w-full" />
+                ) : (
+                  <Input
+                    placeholder="Last Name"
+                    className="rounded-none h-10"
+                    value={user?.last_name || ""}
+                    readOnly
+                  />
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="nickname" className="text-sm font-semibold">
                   Nickname
                 </Label>
-                <Input
-                  placeholder="Nickname"
-                  className="rounded-none h-10"
-                  value={user?.nickname || ""}
-                  readOnly
-                />
+                {loading ? (
+                  <Skeleton className="rounded-none h-10 w-full" />
+                ) : (
+                  <Input
+                    placeholder="Nickname"
+                    className="rounded-none h-10"
+                    value={user?.nickname || ""}
+                    readOnly
+                  />
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-semibold">
                   Email
                 </Label>
-                <Input
-                  placeholder="Email"
-                  className="rounded-none h-10"
-                  value={user?.email || ""}
-                  readOnly
-                />
+                {loading ? (
+                  <Skeleton className="rounded-none h-10 w-full" />
+                ) : (
+                  <Input
+                    placeholder="Email"
+                    className="rounded-none h-10"
+                    value={user?.email || ""}
+                    readOnly
+                  />
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-sm font-semibold">
                   Phone
                 </Label>
-                <PhoneInput
-                  value={phoneNumber}
-                  onChange={setPhoneNumber}
-                  international
-                  defaultCountry="KR"
-                  className="rounded-none"
-                  id="phone"
-                  readOnly
-                />
+                {loading ? (
+                  <Skeleton className="rounded-none h-10 w-full" />
+                ) : (
+                  <PhoneInput
+                    value={phoneNumber}
+                    onChange={setPhoneNumber}
+                    international
+                    defaultCountry="KR"
+                    className="rounded-none"
+                    id="phone"
+                    readOnly
+                  />
+                )}
               </div>
             </div>
           </div>

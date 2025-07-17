@@ -197,7 +197,9 @@ export function TradingRoomsList() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   // Add a ref to store the Supabase channel for cleanup
-  const supabaseChannelRef = useRef<any>(null);
+  const supabaseChannelRef = useRef<ReturnType<
+    ReturnType<typeof createClient>["channel"]
+  > | null>(null);
 
   // Refetch function for rooms
   const fetchRooms = () => {

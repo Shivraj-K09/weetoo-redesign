@@ -19,6 +19,8 @@ import { Info } from "lucide-react";
 import { useState } from "react";
 import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { mutate } from "swr";
+import { VIRTUAL_BALANCE_KEY } from "@/hooks/use-virtual-balance";
 
 interface OpenPosition {
   id: string;
@@ -148,6 +150,7 @@ export function TradeHistoryTabs({
                 onClick={async () => {
                   await closeAllPositions(currentPrice ?? 0);
                   setShowCloseAllDialog(false);
+                  mutate(VIRTUAL_BALANCE_KEY(roomId)); // Refetch balance after closing all
                 }}
                 className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
               >
@@ -335,6 +338,7 @@ export function TradeHistoryTabs({
                                   position.id,
                                   currentPrice || position.entry_price
                                 );
+                                mutate(VIRTUAL_BALANCE_KEY(roomId)); // Refetch balance after closing
                               }}
                               className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
                             >

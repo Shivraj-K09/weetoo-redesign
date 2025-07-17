@@ -1,20 +1,30 @@
 import { createClient } from "@/lib/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import useSWR from "swr";
+
+export const VIRTUAL_BALANCE_KEY = (roomId: string) => [
+  "virtual-balance",
+  roomId,
+];
+
+const fetchBalance = async (roomId: string) => {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("trading_rooms")
+    .select("virtual_balance")
+    .eq("id", roomId)
+    .single();
+  return data?.virtual_balance ?? 0;
+};
 
 export function useVirtualBalance(roomId: string) {
-  const [balance, setBalance] = useState<number | null>(null);
+  const { data: balance, mutate } = useSWR(
+    roomId ? VIRTUAL_BALANCE_KEY(roomId) : null,
+    () => fetchBalance(roomId)
+  );
 
   useEffect(() => {
     const supabase = createClient();
-
-    supabase
-      .from("trading_rooms")
-      .select("virtual_balance")
-      .eq("id", roomId)
-      .single()
-      .then(({ data }) => setBalance(data?.virtual_balance ?? 0));
-
-    // Subscribe to balance changes
     const channel = supabase
       .channel("trading_rooms_balance_" + roomId)
       .on(
@@ -26,15 +36,16 @@ export function useVirtualBalance(roomId: string) {
           filter: `id=eq.${roomId}`,
         },
         (payload) => {
-          setBalance(payload.new.virtual_balance);
+          mutate(); // Refetch balance instantly on realtime update
         }
       )
       .subscribe();
-
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [roomId]);
+  }, [roomId, mutate]);
 
-  return balance !== null ? Math.max(0, balance) : balance;
+  return balance !== null && balance !== undefined
+    ? Math.max(0, balance)
+    : balance;
 }

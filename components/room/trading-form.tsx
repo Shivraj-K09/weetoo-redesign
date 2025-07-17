@@ -17,6 +17,7 @@ import { createClient } from "@/lib/supabase/client";
 import { MinusIcon, PlusIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import useSWR, { mutate } from "swr";
+import { VIRTUAL_BALANCE_KEY } from "@/hooks/use-virtual-balance";
 
 export function TradingForm({
   currentPrice,
@@ -188,10 +189,12 @@ export function TradingForm({
       } else {
         setShowOrderDialog(false);
         setOrderQuantity("");
-        setOrderPrice("");
+        setOrderAmount("");
         // Force SWR to re-fetch positions instantly
         mutate(["open-positions", roomId]);
         mutate(["closed-positions", roomId]);
+        // Force SWR to re-fetch virtual balance instantly
+        mutate(VIRTUAL_BALANCE_KEY(roomId));
       }
     } catch (e: unknown) {
       if (

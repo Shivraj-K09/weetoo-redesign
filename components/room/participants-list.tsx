@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Crown, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import useSWR, { mutate } from "swr";
 
 interface Participant {
   id: string;
@@ -11,20 +12,20 @@ interface Participant {
   avatar: string;
   isOnline: boolean;
   role: string;
+  pending?: boolean;
 }
 
-interface ParticipantRow {
+interface JoinedParticipantRow {
   user_id: string;
   left_at: string | null;
-}
-
-interface UserRow {
-  id: string;
-  first_name?: string;
-  last_name?: string;
-  avatar_url?: string;
-  role?: string;
-  status?: string;
+  users: {
+    id: string;
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string;
+    role?: string;
+    status?: string;
+  };
 }
 
 export function ParticipantsList({
@@ -34,7 +35,6 @@ export function ParticipantsList({
   roomId: string;
   hostId: string;
 }) {
-  const [participants, setParticipants] = useState<Participant[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const supabaseRef = useRef(createClient());
 
@@ -45,66 +45,50 @@ export function ParticipantsList({
     });
   }, []);
 
-  // Helper to map user row or payload to Participant
-  function mapUser(user: UserRow | ParticipantRow): Participant {
-    if ("id" in user) {
-      return {
-        id: user.id,
-        name:
-          [user.first_name, user.last_name].filter(Boolean).join(" ") || "-",
-        avatar: user.avatar_url || "",
-        isOnline: user.status === "Active",
-        role: user.role || "member",
-      };
-    }
-    // Fallback for ParticipantRow (should not be used for display)
-    return {
-      id: user.user_id,
-      name: "-",
-      avatar: "",
-      isOnline: true,
-      role: "member",
-    };
-  }
-
-  // Fetch participants function for initial load
-  async function fetchParticipants() {
+  // SWR fetcher for participants
+  const fetchParticipants = async () => {
     const supabase = supabaseRef.current;
     const { data: participantRows, error } = await supabase
       .from("trading_room_participants")
-      .select("user_id, left_at")
+      .select(
+        "user_id, left_at, users(id, first_name, last_name, avatar_url, role, status)"
+      )
       .eq("room_id", roomId)
       .is("left_at", null);
     if (error || !participantRows) {
-      setParticipants([]);
-      return;
+      return [];
     }
-    const userIds = (participantRows as ParticipantRow[]).map((p) => p.user_id);
-    if (userIds.length === 0) {
-      setParticipants([]);
-      return;
-    }
-    const { data: users, error: userError } = await supabase
-      .from("users")
-      .select("id, first_name, last_name, avatar_url, role, status")
-      .in("id", userIds);
-    if (userError || !users) {
-      setParticipants([]);
-      return;
-    }
-    let mapped = (users as UserRow[]).map(mapUser);
+    // Map joined user info
+    const mapped = (participantRows as unknown as JoinedParticipantRow[]).map(
+      (row) => {
+        const user = row.users;
+        return {
+          id: user.id,
+          name:
+            [user.first_name, user.last_name].filter(Boolean).join(" ") || "-",
+          avatar: user.avatar_url || "",
+          isOnline: user.status === "Active",
+          role: user.role || "member",
+          pending: row.left_at === null && user.id === currentUserId,
+        };
+      }
+    );
     // Sort so host is at the top
-    mapped = mapped.sort((a, b) => {
+    mapped.sort((a, b) => {
       if (a.id === hostId) return -1;
       if (b.id === hostId) return 1;
       return 0;
     });
-    setParticipants(mapped);
-  }
+    return mapped;
+  };
 
+  const { data: participants = [], isLoading } = useSWR(
+    ["participants", roomId],
+    fetchParticipants
+  );
+
+  // Realtime subscription: on any event, call mutate to refetch
   useEffect(() => {
-    fetchParticipants(); // Only on mount/roomId change
-    // Subscribe to realtime changes
     const channel = supabaseRef.current
       .channel("room-participants-" + roomId)
       .on(
@@ -115,83 +99,54 @@ export function ParticipantsList({
           table: "trading_room_participants",
           filter: `room_id=eq.${roomId}`,
         },
-        async (payload) => {
-          setParticipants((prev) => {
-            if (payload.eventType === "INSERT") {
-              // Fetch user info for the new participant
-              const userId = payload.new.user_id;
-              supabaseRef.current
-                .from("users")
-                .select("id, first_name, last_name, avatar_url, role, status")
-                .eq("id", userId)
-                .single()
-                .then(({ data: user }) => {
-                  if (user) {
-                    setParticipants((current) => {
-                      // Avoid duplicates
-                      if (current.some((p) => p.id === userId)) return current;
-                      let updated = [...current, mapUser(user as UserRow)];
-                      // Sort so host is at the top
-                      updated = updated.sort((a, b) => {
-                        if (a.id === hostId) return -1;
-                        if (b.id === hostId) return 1;
-                        return 0;
-                      });
-                      return updated;
-                    });
-                  }
-                });
-              return prev;
-            }
-            if (payload.eventType === "UPDATE") {
-              // If left_at is set, remove participant
-              if (payload.new.left_at) {
-                return prev.filter((p) => p.id !== payload.new.user_id);
-              }
-              // Otherwise, update participant info
-              const userId = payload.new.user_id;
-              supabaseRef.current
-                .from("users")
-                .select("id, first_name, last_name, avatar_url, role, status")
-                .eq("id", userId)
-                .single()
-                .then(({ data: user }) => {
-                  if (user) {
-                    setParticipants((current) => {
-                      let updated = current.map((p) =>
-                        p.id === userId ? mapUser(user as UserRow) : p
-                      );
-                      // Sort so host is at the top
-                      updated = updated.sort((a, b) => {
-                        if (a.id === hostId) return -1;
-                        if (b.id === hostId) return 1;
-                        return 0;
-                      });
-                      return updated;
-                    });
-                  }
-                });
-              return prev;
-            }
-            if (payload.eventType === "DELETE") {
-              return prev.filter((p) => p.id !== payload.old.user_id);
-            }
-            return prev;
-          });
+        async (_payload) => {
+          mutate(["participants", roomId]);
         }
       )
       .subscribe();
     return () => {
       supabaseRef.current.removeChannel(channel);
     };
-  }, [roomId, hostId]);
+  }, [roomId]);
 
-  const handleJoinRoom = () => {
+  const handleJoinRoom = async () => {
     if (!currentUserId) {
       toast.error("Please log in to join the room.", {
         description: "You must be logged in to participate.",
       });
       return;
+    }
+    // Optimistic UI: add current user to the list instantly with pending state
+    mutate(
+      ["participants", roomId],
+      (current: Participant[] = []) => {
+        if (current.some((p) => p.id === currentUserId)) return current;
+        return [
+          ...current,
+          {
+            id: currentUserId,
+            name: "You", // Optionally fetch/display real name
+            avatar: "",
+            isOnline: true,
+            role: "participant",
+            pending: true,
+          },
+        ];
+      },
+      false
+    );
+    // Insert to Supabase
+    const supabase = supabaseRef.current;
+    const { error } = await supabase.from("trading_room_participants").insert({
+      room_id: roomId,
+      user_id: currentUserId,
+    });
+    // After insert, revalidate to get real data
+    mutate(["participants", roomId], undefined, { revalidate: true });
+    if (error) {
+      // Roll back optimistic update if error
+      mutate(["participants", roomId], undefined, { revalidate: true });
+      toast.error("Failed to join room.");
     }
   };
 
@@ -206,42 +161,70 @@ export function ParticipantsList({
       </div>
       <ScrollArea className="flex-1 overflow-y-auto select-none">
         <div className="p-2">
-          {participants.map((participant) => (
-            <div
-              key={participant.id}
-              className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors"
-            >
-              <div className="relative">
-                <Avatar className="h-8 w-8 border">
-                  <AvatarImage
-                    src={participant.avatar}
-                    alt={participant.name}
-                  />
-                  <AvatarFallback className="bg-muted text-muted-foreground">
-                    {participant.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                {/* <span
-                  className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-background ${
-                    participant.isOnline ? "bg-green-500" : "bg-gray-400"
-                  }`}
-                /> */}
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">{participant.name}</span>
-                <div className="text-xs text-muted-foreground capitalize">
-                  {participant.id === hostId ? (
-                    <div className="flex items-center gap-0">
-                      <span>Host</span>
-                      <Crown className="inline-block ml-1 h-3 w-3 text-amber-400 align-text-bottom" />
-                    </div>
-                  ) : (
-                    "Participant"
-                  )}
+          {isLoading ? (
+            <div className="text-center text-muted-foreground py-8">
+              Loading...
+            </div>
+          ) : participants.length === 0 ? (
+            <div className="text-center text-muted-foreground py-8">
+              No participants yet.
+            </div>
+          ) : (
+            participants.map((participant) => (
+              <div
+                key={participant.id}
+                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors"
+              >
+                <div className="relative">
+                  <Avatar className="h-8 w-8 border">
+                    <AvatarImage
+                      src={participant.avatar}
+                      alt={participant.name}
+                    />
+                    <AvatarFallback className="bg-muted text-muted-foreground">
+                      {participant.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium flex items-center gap-1">
+                    {participant.name}
+                    {participant.pending && (
+                      <svg
+                        className="animate-spin h-3 w-3 text-muted-foreground ml-1"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        />
+                      </svg>
+                    )}
+                  </span>
+                  <div className="text-xs text-muted-foreground capitalize">
+                    {participant.id === hostId ? (
+                      <div className="flex items-center gap-0">
+                        <span>Host</span>
+                        <Crown className="inline-block ml-1 h-3 w-3 text-amber-400 align-text-bottom" />
+                      </div>
+                    ) : (
+                      "Participant"
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
           {/* Show join button for not-logged-in users */}
           {!currentUserId && (
             <div className="flex justify-center mt-4">

@@ -50,9 +50,9 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-3 space-y-8">
-            <h3 className="text-sm font-semibold text-foreground">
+            <h2 className="text-sm font-semibold text-foreground">
               Quick Links
-            </h3>
+            </h2>
             <div className="grid grid-cols-1 gap-3">
               <Link
                 href="/terms"

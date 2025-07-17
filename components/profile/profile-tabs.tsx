@@ -1,10 +1,11 @@
 "use client";
-import { KeyIcon, TicketIcon, UserIcon } from "lucide-react";
+import { KeyIcon, ShieldUserIcon, TicketIcon, UserIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Profile } from "./profile";
 import { Referral } from "./referral";
 import { UuidRegistration } from "./uuid-registration";
+import { UuidAdmin } from "./uuid-admin";
 
 const TABS = [
   { key: "profile", label: "Profile", icon: <UserIcon className="w-4 h-4" /> },
@@ -18,6 +19,11 @@ const TABS = [
     label: "UUID Registration",
     icon: <KeyIcon className="w-4 h-4" />,
   },
+  {
+    key: "uuid-admin",
+    label: "UUID Admin",
+    icon: <ShieldUserIcon className="w-4 h-4" />,
+  },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -26,6 +32,7 @@ const TAB_COMPONENTS = {
   profile: <Profile />,
   referral: <Referral />,
   uuid: <UuidRegistration />,
+  "uuid-admin": <UuidAdmin />,
 };
 
 export function ProfileTabs() {

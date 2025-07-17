@@ -537,32 +537,33 @@ export function TradingRoomsList() {
   const handlePasswordSubmit = async () => {
     if (!passwordDialog.roomId) return;
     setPasswordDialog((d) => ({ ...d, loading: true }));
-    const supabase = createClient();
 
-    const { data: room, error } = await supabase
-      .from("trading_rooms")
-      .select("password")
-      .eq("id", passwordDialog.roomId)
-      .single();
-    if (error) {
-      toast.error("Failed to verify password. Please try again.");
+    // Use API route for password verification
+    const response = await fetch("/api/verify-room-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        roomId: passwordDialog.roomId,
+        password: passwordDialog.password,
+      }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      toast.error(result.error || "Incorrect password. Please try again.");
       setPasswordDialog((d) => ({ ...d, loading: false }));
       return;
     }
-    if (room?.password === passwordDialog.password) {
-      toast.success("Password correct! Joining room...");
-      setPasswordDialog({
-        open: false,
-        roomId: null,
-        roomName: "",
-        password: "",
-        loading: false,
-      });
-      window.open(`/room/${passwordDialog.roomId}`, "_blank");
-    } else {
-      toast.error("Incorrect password. Please try again.");
-      setPasswordDialog((d) => ({ ...d, loading: false }));
-    }
+
+    toast.success("Password correct! Joining room...");
+    setPasswordDialog({
+      open: false,
+      roomId: null,
+      roomName: "",
+      password: "",
+      loading: false,
+    });
+    window.open(`/room/${passwordDialog.roomId}`, "_blank");
   };
 
   return (

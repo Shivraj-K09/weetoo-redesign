@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import bcrypt from "bcryptjs";
 
 interface UserData {
   id: string;
@@ -150,6 +151,10 @@ export function CreateRoom() {
       .eq("key", "default_virtual_balance")
       .single();
     const defaultVirtualBalance = settings?.value ?? 100000;
+    let hashedPassword = null;
+    if (privacy === "private" && roomPassword) {
+      hashedPassword = await bcrypt.hash(roomPassword, 10);
+    }
     const { data, error } = await supabase
       .from("trading_rooms")
       .insert([
@@ -159,7 +164,7 @@ export function CreateRoom() {
           symbol,
           category,
           privacy,
-          password: privacy === "private" ? roomPassword : null,
+          password: privacy === "private" ? hashedPassword : null,
           // participants_count: 1,
           max_participants: 100,
           room_status: "active",

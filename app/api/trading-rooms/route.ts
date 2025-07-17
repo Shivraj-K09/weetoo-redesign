@@ -162,3 +162,82 @@ export async function GET(request: Request) {
   console.log("API /api/trading-rooms total time:", end - start, "ms");
   return NextResponse.json({ data: mapped, total: totalCount || 0 });
 }
+
+// Add PATCH handler for backend validation
+export async function PATCH(request: Request) {
+  const body = await request.json();
+  const { id, name, symbol, privacy, password, updatedAt } = body;
+  // Allowed symbols (no hardcoding elsewhere)
+  const allowedSymbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
+  if (!id) {
+    return new Response(JSON.stringify({ error: "Room ID is required." }), {
+      status: 400,
+    });
+  }
+  if (!name || typeof name !== "string" || !name.trim()) {
+    return new Response(JSON.stringify({ error: "Room name is required." }), {
+      status: 400,
+    });
+  }
+  if (
+    !symbol ||
+    typeof symbol !== "string" ||
+    !allowedSymbols.includes(symbol)
+  ) {
+    return new Response(JSON.stringify({ error: "Invalid symbol." }), {
+      status: 400,
+    });
+  }
+  if (
+    privacy === "private" &&
+    (!password || typeof password !== "string" || !password.trim())
+  ) {
+    return new Response(
+      JSON.stringify({ error: "Password is required for private rooms." }),
+      { status: 400 }
+    );
+  }
+  if (privacy !== "public" && privacy !== "private") {
+    return new Response(JSON.stringify({ error: "Invalid privacy value." }), {
+      status: 400,
+    });
+  }
+  if (!updatedAt) {
+    return new Response(
+      JSON.stringify({
+        error: "updatedAt is required for concurrency control.",
+      }),
+      { status: 400 }
+    );
+  }
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("trading_rooms")
+    .update({
+      name: name.trim(),
+      symbol,
+      privacy,
+      password: privacy === "private" ? password : null,
+    })
+    .eq("id", id)
+    .eq("updated_at", updatedAt)
+    .select("updated_at")
+    .maybeSingle();
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+    });
+  }
+  if (!data) {
+    return new Response(
+      JSON.stringify({
+        error: "Room was updated elsewhere. Please refresh and try again.",
+      }),
+      { status: 409 }
+    );
+  }
+  return new Response(
+    JSON.stringify({ success: true, updatedAt: data.updated_at }),
+    { status: 200 }
+  );
+}

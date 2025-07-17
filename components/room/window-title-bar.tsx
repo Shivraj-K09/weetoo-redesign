@@ -3,8 +3,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import React from "react";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import useSWR from "swr";
 
 import { Donation } from "@/components/room/donation";
@@ -34,8 +33,19 @@ import {
   LockIcon,
   MicIcon,
   MicOffIcon,
+  PencilIcon,
   Volume2Icon,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Separator } from "../ui/separator";
+import { EditRoomForm } from "./edit-room";
 
 interface WindowTitleBarProps {
   roomName: string;
@@ -47,11 +57,14 @@ interface WindowTitleBarProps {
   hostId: string;
   roomId: string;
   currentPrice?: number;
+  symbol: string;
+  setSymbol: (symbol: string) => void;
+  initialUpdatedAt: string;
 }
 
 export function WindowTitleBar({
-  roomName,
-  isPublic,
+  roomName: initialRoomName,
+  isPublic: initialIsPublic,
   roomType,
   onCloseRoom,
   onTitleBarMouseDown,
@@ -59,6 +72,9 @@ export function WindowTitleBar({
   hostId,
   roomId,
   currentPrice,
+  symbol,
+  setSymbol,
+  initialUpdatedAt,
 }: WindowTitleBarProps) {
   const { isMicOn, toggleMic, currentUserId, roomConnected } =
     useLivektHostAudio({ roomType, hostId, roomId });
@@ -91,11 +107,23 @@ export function WindowTitleBar({
   const supabase = useRef(createClient());
   const [showLateJoinWarning, setShowLateJoinWarning] = useState(true);
 
+  // Add local state for editable fields
+  const [roomName, setRoomName] = useState(initialRoomName);
+  const [isPublic, setIsPublic] = useState(initialIsPublic);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState(initialUpdatedAt);
+
+  useEffect(() => {
+    setRoomName(initialRoomName);
+    setIsPublic(initialIsPublic);
+    setUpdatedAt(initialUpdatedAt);
+  }, [initialRoomName, initialIsPublic, initialUpdatedAt]);
+
   // Fetch open and closed positions for PNL calculation
   const { openPositions, closedPositions } = usePositions(roomId);
 
   // Memoized calculation of unrealized and realized PNL
-  const { unrealizedPnl, realizedPnl } = React.useMemo(() => {
+  const { unrealizedPnl, realizedPnl } = useMemo(() => {
     let unrealized = 0;
     let realized = 0;
     if (Array.isArray(openPositions) && typeof currentPrice === "number") {
@@ -142,6 +170,18 @@ export function WindowTitleBar({
     };
   }, [roomId, router]);
 
+  const refetchUpdatedAt = async () => {
+    const supabaseClient = createClient();
+    const { data } = await supabaseClient
+      .from("trading_rooms")
+      .select("updated_at")
+      .eq("id", roomId)
+      .maybeSingle();
+    if (data && data.updated_at) {
+      setUpdatedAt(data.updated_at);
+    }
+  };
+
   return (
     <div className="px-3 pt-2">
       <div
@@ -153,18 +193,19 @@ export function WindowTitleBar({
           <div className="w-6 h-6 bg-gradient-to-br from-[#c3e3fa] via-[#63b3e4] to-[#7cc3f0] rounded-md flex items-center justify-center">
             <span className="text-white text-xs font-bold">W</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <span className="font-medium text-sm truncate max-w-[200px] sm:max-w-none">
               {roomName}
             </span>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="ml-1 align-middle cursor-pointer pointer-events-auto">
+                  <span className="align-middle cursor-pointer pointer-events-auto">
                     {isPublic ? (
-                      <GlobeIcon className="h-4 w-4 text-slate-500" />
+                      <GlobeIcon className="h-4 w-4 text-muted-foreground" />
                     ) : (
-                      <LockIcon className="h-4 w-4 text-slate-500" />
+                      <LockIcon className="h-4 w-4 text-muted-foreground" />
                     )}
                   </span>
                 </TooltipTrigger>
@@ -173,6 +214,59 @@ export function WindowTitleBar({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+
+            {/* Edit Room Button ONLY for Creator */}
+            {currentUserId === hostId && (
+              <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+                <DialogTrigger asChild>
+                  <span className="align-middle cursor-pointer pointer-events-auto">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span>
+                            <PencilIcon className="h-4 w-4" />
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" align="center">
+                          Edit Room
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </span>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle className="select-none">
+                      Edit Room Settings
+                    </DialogTitle>
+                    <DialogDescription className="select-none">
+                      Edit the room name, symbol, and privacy settings.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Separator className="my-0" />
+                  <EditRoomForm
+                    roomId={roomId}
+                    initialName={roomName}
+                    initialPrivacy={isPublic ? "public" : "private"}
+                    initialSymbol={symbol}
+                    initialUpdatedAt={updatedAt}
+                    onRoomUpdated={async ({
+                      name,
+                      privacy,
+                      symbol: newSymbol,
+                      updatedAt: newUpdatedAt,
+                    }) => {
+                      setRoomName(name);
+                      setIsPublic(privacy === "public");
+                      setSymbol(newSymbol);
+                      setEditDialogOpen(false);
+                      await refetchUpdatedAt();
+                    }}
+                    onCancel={() => setEditDialogOpen(false)}
+                  />
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </div>
 

@@ -32,7 +32,7 @@ export default async function TradingRoomPage({
   const { data: room, error } = await supabase
     .from("trading_rooms")
     .select(
-      "id, name, creator_id, symbol, category, privacy, is_active, room_status, virtual_balance"
+      "id, name, creator_id, symbol, category, privacy, is_active, room_status, virtual_balance, updated_at"
     )
     .eq("id", roomId)
     .single();
@@ -50,6 +50,7 @@ export default async function TradingRoomPage({
       symbol={room.symbol}
       roomId={roomId}
       virtualBalance={room.virtual_balance}
+      initialUpdatedAt={room.updated_at}
     />
   );
 }

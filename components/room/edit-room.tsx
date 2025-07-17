@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
+import debounce from "lodash.debounce";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { DialogFooter } from "../ui/dialog";
 import { Input } from "../ui/input";
@@ -48,9 +49,44 @@ export function EditRoomForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [updatedAt, setUpdatedAt] = useState(initialUpdatedAt);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [checkingName, setCheckingName] = useState(false);
 
   // Allowed symbols from dropdown (no hardcoding)
   const allowedSymbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
+
+  // Debounced room name check
+  const checkRoomName = useMemo(
+    () =>
+      debounce(async (name: string) => {
+        if (!name.trim() || name.trim() === initialName.trim()) {
+          setNameError(null);
+          setCheckingName(false);
+          return;
+        }
+        setCheckingName(true);
+        try {
+          const res = await fetch(
+            `/api/trading-rooms/check-name?name=${encodeURIComponent(
+              name
+            )}&excludeId=${encodeURIComponent(roomId)}`
+          );
+          const data = await res.json();
+          if (data.exists) {
+            setNameError(
+              "This room name is already in use. Please choose another."
+            );
+          } else {
+            setNameError(null);
+          }
+        } catch (_e) {
+          setNameError("Could not check room name. Please try again.");
+        } finally {
+          setCheckingName(false);
+        }
+      }, 400),
+    [initialName, roomId]
+  );
 
   useEffect(() => {
     setName(initialName);
@@ -58,14 +94,21 @@ export function EditRoomForm({
     setSymbol(initialSymbol);
   }, [initialName, initialPrivacy, initialSymbol]);
 
+  useEffect(() => {
+    checkRoomName(name);
+    return () => {
+      checkRoomName.cancel();
+    };
+  }, [name, checkRoomName]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    // Basic validation (no hardcoding)
-    if (!name.trim()) {
-      setError("Room name is required.");
+    if (!name.trim() || nameError) {
+      setError(nameError || "Room name is required.");
       return;
     }
+    // Basic validation (no hardcoding)
     if (!symbol || !allowedSymbols.includes(symbol)) {
       setError("Please select a valid symbol.");
       return;
@@ -130,7 +173,16 @@ export function EditRoomForm({
             onChange={(e) => setName(e.target.value)}
             required
             disabled={loading}
+            aria-invalid={!!nameError}
           />
+          {checkingName && (
+            <span className="text-xs text-muted-foreground">
+              Checking name...
+            </span>
+          )}
+          {nameError && (
+            <span className="text-xs text-red-600">{nameError}</span>
+          )}
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="room-privacy">Room Privacy</Label>
@@ -204,7 +256,7 @@ export function EditRoomForm({
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading || !!nameError || checkingName}>
           {loading ? "Saving..." : "Save Changes"}
         </Button>
       </DialogFooter>

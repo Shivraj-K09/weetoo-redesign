@@ -17,6 +17,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { createClient } from "@/lib/supabase/client";
+import bcrypt from "bcryptjs";
+import debounce from "lodash.debounce";
 import { Coins, Eye, EyeOff, PlusIcon, Wallet } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -26,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import bcrypt from "bcryptjs";
 
 interface UserData {
   id: string;
@@ -46,7 +47,47 @@ export function CreateRoom() {
   const [roomName, setRoomName] = useState("");
   const [roomPassword, setRoomPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [checkingName, setCheckingName] = useState(false);
   const supabase = createClient();
+
+  // Debounced room name check
+  const checkRoomName = useMemo(
+    () =>
+      debounce(async (name: string) => {
+        if (!name.trim()) {
+          setNameError(null);
+          setCheckingName(false);
+          return;
+        }
+        setCheckingName(true);
+        try {
+          const res = await fetch(
+            `/api/trading-rooms/check-name?name=${encodeURIComponent(name)}`
+          );
+          const data = await res.json();
+          if (data.exists) {
+            setNameError(
+              "This room name is already in use. Please choose another."
+            );
+          } else {
+            setNameError(null);
+          }
+        } catch (_e) {
+          setNameError("Could not check room name. Please try again.");
+        } finally {
+          setCheckingName(false);
+        }
+      }, 400),
+    []
+  );
+
+  useEffect(() => {
+    checkRoomName(roomName);
+    return () => {
+      checkRoomName.cancel();
+    };
+  }, [roomName, checkRoomName]);
 
   useEffect(() => {
     let mounted = true;
@@ -143,7 +184,7 @@ export function CreateRoom() {
 
   async function handleCreateRoom(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !roomName.trim()) return;
+    if (!user || !roomName.trim() || nameError) return;
     setSubmitting(true);
     const { data: settings } = await supabase
       .from("app_settings")
@@ -228,7 +269,16 @@ export function CreateRoom() {
                 className="text-sm h-10"
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}
+                aria-invalid={!!nameError}
               />
+              {checkingName && (
+                <span className="text-xs text-muted-foreground">
+                  Checking name...
+                </span>
+              )}
+              {nameError && (
+                <span className="text-xs text-red-600">{nameError}</span>
+              )}
             </div>
             <div className="flex flex-col gap-1">
               <Label
@@ -387,7 +437,10 @@ export function CreateRoom() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || submitting}>
+            <Button
+              type="submit"
+              disabled={loading || submitting || !!nameError || checkingName}
+            >
               {submitting
                 ? "Creating..."
                 : loading

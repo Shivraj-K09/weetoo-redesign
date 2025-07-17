@@ -56,7 +56,6 @@ export function Referral() {
   const [shareCopied, setShareCopied] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  const [lastDebouncedInput, setLastDebouncedInput] = useState("");
 
   const [referrals, setReferrals] = useState<ReferralDashboardRow[]>([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);

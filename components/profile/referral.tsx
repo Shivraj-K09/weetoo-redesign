@@ -10,7 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { reservedReferralCodes } from "@/lib/reserved-referral-codes";
+import {
+  reservedReferralCodes,
+  reservedReferralPatterns,
+} from "@/lib/reserved-referral-codes";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import leoProfanity from "leo-profanity";
 import {
@@ -34,7 +37,6 @@ interface ReferralDashboardRow {
 // Placeholder for error reporting service
 type ErrorWithMessage = { message: string } | Error | unknown;
 function logErrorToService(error: ErrorWithMessage, context?: string) {
-  // TODO: Integrate with Sentry, LogRocket, etc.
   if (process.env.NODE_ENV !== "production") {
     console.error("[ReferralDashboard]", context, error);
   }
@@ -42,7 +44,7 @@ function logErrorToService(error: ErrorWithMessage, context?: string) {
 
 export function Referral() {
   const [code, setCode] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true); // Start as true for initial fetch
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
@@ -54,15 +56,14 @@ export function Referral() {
   const [shareCopied, setShareCopied] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const [lastDebouncedInput, setLastDebouncedInput] = useState("");
 
-  // Remove mockReferrals, rowsPerPage, paginatedReferrals, etc.
   const [referrals, setReferrals] = useState<ReferralDashboardRow[]>([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
 
-  // Memoized derived values for stats
   const totalReferred = useMemo(() => referrals.length, [referrals]);
   const totalEarned = useMemo(
     () => referrals.reduce((sum, r) => sum + (parseInt(r.earnings) || 0), 0),
@@ -74,15 +75,12 @@ export function Referral() {
   );
 
   useEffect(() => {
-    // Fetch referral code and userId on mount
     const fetchCodeAndUser = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Get referral code
         const result = await getReferralCode();
         setCode(result.code);
-        // Get userId from Supabase auth
         const supabase = createSupabaseClient();
         const {
           data: { user },
@@ -95,7 +93,6 @@ export function Referral() {
       setLoading(false);
     };
     fetchCodeAndUser();
-    // Fetch dashboard referrals
     const fetchDashboard = async () => {
       setDashboardLoading(true);
       setDashboardError(null);
@@ -111,7 +108,6 @@ export function Referral() {
     fetchDashboard();
   }, []);
 
-  // Realtime subscription for referrals (INSERT only)
   useEffect(() => {
     if (!userId) return;
     const supabase = createSupabaseClient();
@@ -120,13 +116,12 @@ export function Referral() {
       .on(
         "postgres_changes",
         {
-          event: "INSERT", // Only listen for new referrals
+          event: "INSERT",
           schema: "public",
           table: "referrals",
           filter: `referrer_user_id=eq.${userId}`,
         },
         (payload) => {
-          // Re-fetch dashboard data on new referral
           (async () => {
             setDashboardLoading(true);
             try {
@@ -173,75 +168,123 @@ export function Referral() {
     setPendingCode(null);
   };
 
-  // Reserved words (add more as needed)
-  // const reserved = ["ADMIN", "SUPPORT", "WEETOO", "HELP"];
-
-  // Add custom bad words if needed
   leoProfanity.add([""]);
-
-  // Custom regex for extra bad word patterns (add more as needed)
   const customBadWordRegex =
     /(f+\W*u+\W*c+\W*k+|s+\W*h+\W*i+\W*t+|b+\W*i+\W*t+\W*c+\W*h+|a+\W*s+\W*s+|c+\W*u+\W*n+\W*t+)/i;
 
+  // Validate input and return error message if invalid, or null if valid
+  const validateInput = (input: string): string | null => {
+    if (!input) {
+      return null; // Empty input is valid (no error shown)
+    }
+    if (!/^[A-Z0-9]{4,12}$/.test(input)) {
+      return "Code must be 4-12 characters, A-Z and 0-9 only.";
+    }
+    const reservedWordMatch = reservedReferralCodes.some((reserved) =>
+      input.toLowerCase().includes(reserved.toLowerCase())
+    );
+    if (reservedWordMatch) {
+      return "This code is reserved. Please choose another.";
+    }
+    const reservedPatternMatch = reservedReferralPatterns.some((pattern) =>
+      pattern.test(input)
+    );
+    if (reservedPatternMatch) {
+      return "This code is reserved. Please choose another.";
+    }
+    if (leoProfanity.check(input) || customBadWordRegex.test(input)) {
+      return "This code is not allowed.";
+    }
+    if (input === code) {
+      return "Don't use the same code as your current code.";
+    }
+    return null;
+  };
+
   // Custom code input validation
   useEffect(() => {
-    if (!customInput) {
-      setCustomError(null);
-      return;
-    }
-    if (!/^[A-Z0-9]{4,12}$/.test(customInput)) {
-      setCustomError("Code must be 4-12 characters, A-Z and 0-9 only.");
-      return;
-    }
-    if (
-      reservedReferralCodes.some((reserved) =>
-        customInput.toLowerCase().includes(reserved.toLowerCase())
-      )
-    ) {
-      setCustomError("This code is reserved. Please choose another.");
-      return;
-    }
-    if (
-      leoProfanity.check(customInput) ||
-      customBadWordRegex.test(customInput)
-    ) {
-      setCustomError("This code is not allowed.");
-      return;
-    }
-    if (customInput === code) {
-      setCustomError("Don't use the same code as your current code.");
-      return;
-    }
-    // Debounced DB check for uniqueness
     if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    // Synchronous validation
+    const syncError = validateInput(customInput);
+    setCustomError(syncError);
+
+    if (syncError || !customInput) return;
+
+    // Capture the value at debounce time (local variable, not state)
+    const inputAtDebounce = customInput;
+
     debounceRef.current = setTimeout(async () => {
+      // Only proceed if input hasn't changed and still passes sync validation
+      if (customInput !== inputAtDebounce) return;
+      if (validateInput(customInput)) return;
+
+      try {
+        const supabase = createSupabaseClient();
+        const { data, error } = await supabase
+          .from("referral_codes")
+          .select("user_id")
+          .eq("code", inputAtDebounce);
+
+        // Only update error if input is still current and valid
+        if (customInput !== inputAtDebounce) return;
+        if (validateInput(customInput)) return;
+
+        if (error) {
+          setCustomError("Error checking code. Try again.");
+          return;
+        }
+        if (data && data.length > 0 && data[0].user_id !== userId) {
+          setCustomError("This code is already taken.");
+        } else {
+          setCustomError(null);
+        }
+      } catch (err) {
+        setCustomError("Error checking code. Try again.");
+        logErrorToService(err, "validateInput");
+      }
+    }, 400);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [customInput, userId, code]);
+
+  const handleCustomSave = async () => {
+    // Re-validate input before submission
+    const syncError = validateInput(customInput);
+    if (syncError) {
+      setCustomError(syncError);
+      return;
+    }
+
+    // Ensure no async errors are pending
+    if (customError) {
+      return;
+    }
+
+    setCustomizing(true);
+    setCustomError(null);
+    setPendingCode(null);
+    try {
+      // Double-check availability in DB before saving
       const supabase = createSupabaseClient();
       const { data, error } = await supabase
         .from("referral_codes")
         .select("user_id")
         .eq("code", customInput);
+
       if (error) {
-        setCustomError("Error checking code. Try again.");
+        setCustomError("Error checking code availability. Try again.");
+        setCustomizing(false);
         return;
       }
-      if (data && data.length > 0) {
-        // If the code belongs to the current user, allow it
-        if (data[0].user_id !== userId) {
-          setCustomError("This code is already taken.");
-          return;
-        }
+      if (data && data.length > 0 && data[0].user_id !== userId) {
+        setCustomError("This code is already taken.");
+        setCustomizing(false);
+        return;
       }
-      setCustomError(null);
-    }, 400);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customInput, userId, code]);
 
-  const handleCustomSave = async () => {
-    if (customError) return;
-    setCustomizing(true);
-    setCustomError(null);
-    setPendingCode(null);
-    try {
       const result = await setCustomReferralCode(customInput);
       if (result.error) {
         setCustomError(result.error);
@@ -253,6 +296,7 @@ export function Referral() {
       }
     } catch (_err) {
       setCustomError("Failed to set custom code. Please try again.");
+      logErrorToService(_err, "handleCustomSave");
     }
     setCustomizing(false);
   };
@@ -290,7 +334,6 @@ export function Referral() {
       <div className="flex items-center justify-between w-full">
         <h2 className="text-xl font-semibold">Referral Code</h2>
         <div className="flex gap-1 items-center">
-          {/* Only show code design after code is generated */}
           {loading && <Skeleton className="w-32 h-10" />}
           {code && !loading && (
             <div className="border-2 border-dotted px-10 h-10 flex items-center">
@@ -454,7 +497,6 @@ export function Referral() {
               )}
             </tbody>
           </table>
-          {/* Pagination controls */}
           <div className="flex justify-end items-center gap-2 px-6 py-3 border-t rounded-none">
             <button
               className="px-3 py-1 border bg-muted rounded-none text-xs"
@@ -575,22 +617,6 @@ export function Referral() {
               )}
               <span className="text-xs truncate sr-only">Copy Link</span>
             </Button>
-            {/* KakaoTalk button (leave as-is for now) */}
-            {/* <Button
-              variant="outline"
-              className="w-full flex items-center justify-center rounded-none h-10"
-              onClick={() =>
-                window.open(
-                  `https://sharer.kakao.com/talk/friends/picker/link?url=${encodeURIComponent(
-                    shareUrl
-                  )}&text=Join%20Weetoo%20with%20my%20referral%20code%3A%20${code}`
-                )
-              }
-            >
-              <Icons.kakaoTalk className="w-5 h-5 grayscale" />
-              <span className="text-xs truncate sr-only">KakaoTalk</span>
-            </Button> */}
-            {/* Threads button (with pre-filled message and link) */}
             <Button
               variant="outline"
               className="w-full flex items-center justify-center rounded-none h-10"
@@ -606,7 +632,6 @@ export function Referral() {
               <Icons.threads className="w-5 h-5 grayscale" />
               <span className="text-xs truncate sr-only">Threads</span>
             </Button>
-            {/* Facebook button */}
             <Button
               variant="outline"
               className="w-full flex items-center justify-center rounded-none h-10"
@@ -622,7 +647,6 @@ export function Referral() {
               <Icons.facebook className="w-5 h-5 grayscale" />
               <span className="text-xs truncate sr-only">Facebook</span>
             </Button>
-            {/* X (Twitter) button */}
             <Button
               variant="outline"
               className="w-full flex items-center justify-center rounded-none h-10"

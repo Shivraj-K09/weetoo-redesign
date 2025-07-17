@@ -196,17 +196,11 @@ export function TradingRoomsList() {
   const [, setTotal] = useState<number>(0);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  // Add a ref to store the Supabase channel for cleanup
+  const supabaseChannelRef = useRef<any>(null);
 
-  const [passwordDialog, setPasswordDialog] = useState<{
-    open: boolean;
-    roomId: string | null;
-    roomName: string;
-    password: string;
-    loading: boolean;
-  }>({ open: false, roomId: null, roomName: "", password: "", loading: false });
-  const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
+  // Refetch function for rooms
+  const fetchRooms = () => {
     setLoading(true);
     const start = performance.now();
     const page = pagination.pageIndex + 1;
@@ -224,6 +218,48 @@ export function TradingRoomsList() {
           "ms"
         );
       });
+  };
+
+  const [passwordDialog, setPasswordDialog] = useState<{
+    open: boolean;
+    roomId: string | null;
+    roomName: string;
+    password: string;
+    loading: boolean;
+  }>({ open: false, roomId: null, roomName: "", password: "", loading: false });
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    fetchRooms();
+  }, [pagination.pageIndex, pagination.pageSize]);
+
+  // Add Supabase realtime subscription for trading_rooms updates
+  useEffect(() => {
+    const supabase = createClient();
+    // Subscribe to UPDATE events on trading_rooms
+    const channel = supabase
+      .channel("trading-rooms-list-updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "trading_rooms",
+        },
+        (payload) => {
+          // If a room is closed (room_status changed to 'ended'), refetch the list
+          if (payload.new?.room_status === "ended") {
+            fetchRooms();
+          }
+        }
+      )
+      .subscribe();
+    supabaseChannelRef.current = channel;
+    return () => {
+      if (supabaseChannelRef.current) {
+        supabase.removeChannel(supabaseChannelRef.current);
+      }
+    };
   }, [pagination.pageIndex, pagination.pageSize]);
 
   useEffect(() => {

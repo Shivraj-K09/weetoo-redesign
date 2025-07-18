@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { TRADING_SYMBOLS } from "@/lib/trading/symbols-config";
 
 interface TradingRoomDb {
   id: string;
@@ -168,7 +169,7 @@ export async function PATCH(request: Request) {
   const body = await request.json();
   const { id, name, symbol, privacy, password, updatedAt } = body;
   // Allowed symbols (no hardcoding elsewhere)
-  const allowedSymbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
+  const allowedSymbols = TRADING_SYMBOLS.map((s) => s.value);
   if (!id) {
     return new Response(JSON.stringify({ error: "Room ID is required." }), {
       status: 400,

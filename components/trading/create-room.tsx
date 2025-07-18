@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { TRADING_SYMBOLS } from "@/lib/trading/symbols-config";
 
 interface UserData {
   id: string;
@@ -337,10 +338,21 @@ export function CreateRoom() {
               <SelectTrigger id="symbol" className="w-full text-sm h-10">
                 <SelectValue placeholder="Select symbol" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="BTCUSDT">BTCUSDT</SelectItem>
-                <SelectItem value="ETHUSDT">ETHUSDT</SelectItem>
-                <SelectItem value="BNBUSDT">BNBUSDT</SelectItem>
+              <SelectContent className="max-h-60 overflow-y-auto">
+                {TRADING_SYMBOLS.map((symbol) => (
+                  <SelectItem
+                    key={symbol.value}
+                    value={symbol.value}
+                    className="flex items-center gap-2"
+                  >
+                    <span>{symbol.label}</span>
+                    {symbol.isNew && (
+                      <span className="ml-2 px-2 py-0.5 text-xs rounded bg-amber-200 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                        NEW
+                      </span>
+                    )}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

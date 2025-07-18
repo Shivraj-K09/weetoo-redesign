@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { TRADING_SYMBOLS } from "@/lib/trading/symbols-config";
 
 export type RoomUpdateData = {
   name: string;
@@ -51,9 +52,6 @@ export function EditRoomForm({
   const [updatedAt, setUpdatedAt] = useState(initialUpdatedAt);
   const [nameError, setNameError] = useState<string | null>(null);
   const [checkingName, setCheckingName] = useState(false);
-
-  // Allowed symbols from dropdown (no hardcoding)
-  const allowedSymbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
 
   // Debounced room name check
   const checkRoomName = useMemo(
@@ -109,7 +107,7 @@ export function EditRoomForm({
       return;
     }
     // Basic validation (no hardcoding)
-    if (!symbol || !allowedSymbols.includes(symbol)) {
+    if (!symbol || !TRADING_SYMBOLS.some((s) => s.value === symbol)) {
       setError("Please select a valid symbol.");
       return;
     }
@@ -238,10 +236,21 @@ export function EditRoomForm({
           <SelectTrigger className="h-10" id="symbol">
             <SelectValue placeholder="Select a symbol" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="BTCUSDT">BTCUSDT</SelectItem>
-            <SelectItem value="ETHUSDT">ETHUSDT</SelectItem>
-            <SelectItem value="BNBUSDT">BNBUSDT</SelectItem>
+          <SelectContent className="max-h-60 overflow-y-auto">
+            {TRADING_SYMBOLS.map((s) => (
+              <SelectItem
+                key={s.value}
+                value={s.value}
+                className="flex items-center gap-2"
+              >
+                <span>{s.label}</span>
+                {s.isNew && (
+                  <span className="ml-2 px-2 py-0.5 text-xs rounded bg-amber-200 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                    NEW
+                  </span>
+                )}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

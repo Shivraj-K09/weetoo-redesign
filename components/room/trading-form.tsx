@@ -248,16 +248,16 @@ export function TradingForm({
   const actualAvailableBalance = safeVirtualBalance;
   const hasEnoughBalance = actualAvailableBalance - marginRequired >= -EPSILON;
   // Always log for debugging
-  console.log(
-    "[DEBUG] actualAvailableBalance:",
-    actualAvailableBalance,
-    "marginRequired:",
-    marginRequired,
-    "orderAmount:",
-    orderAmount,
-    "hasEnoughBalance:",
-    hasEnoughBalance
-  );
+  // console.log(
+  //   "[DEBUG] actualAvailableBalance:",
+  //   actualAvailableBalance,
+  //   "marginRequired:",
+  //   marginRequired,
+  //   "orderAmount:",
+  //   orderAmount,
+  //   "hasEnoughBalance:",
+  //   hasEnoughBalance
+  // );
 
   return (
     <div className="flex flex-col h-full bg-background text-xs text-foreground p-2 overflow-y-auto scrollbar-none select-none">

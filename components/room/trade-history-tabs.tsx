@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { mutate } from "swr";
 import { VIRTUAL_BALANCE_KEY } from "@/hooks/use-virtual-balance";
+import { TRADER_PNL_KEY } from "./trading-overview-container";
 
 interface OpenPosition {
   id: string;
@@ -151,6 +152,7 @@ export function TradeHistoryTabs({
                   await closeAllPositions(currentPrice ?? 0);
                   setShowCloseAllDialog(false);
                   mutate(VIRTUAL_BALANCE_KEY(roomId)); // Refetch balance after closing all
+                  mutate(TRADER_PNL_KEY(roomId)); // Refetch P&L stats after closing all
                 }}
                 className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
               >
@@ -339,6 +341,7 @@ export function TradeHistoryTabs({
                                   currentPrice || position.entry_price
                                 );
                                 mutate(VIRTUAL_BALANCE_KEY(roomId)); // Refetch balance after closing
+                                mutate(TRADER_PNL_KEY(roomId)); // Refetch P&L stats after closing
                               }}
                               className="bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
                             >

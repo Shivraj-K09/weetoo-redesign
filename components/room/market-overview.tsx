@@ -94,8 +94,8 @@ export function MarketOverview({
           <p
             className={
               ticker && parseFloat(ticker.priceChange) < 0
-                ? "text-red-500 font-semibold min-w-[110px] text-[0.8rem]"
-                : "text-green-500 font-semibold min-w-[110px] text-[0.8rem]"
+                ? "text-red-500 font-semibold min-w-[110px] text-[0.77rem]"
+                : "text-green-500 font-semibold min-w-[110px] text-[0.77rem]"
             }
           >
             {ticker && ticker.priceChange && ticker.priceChangePercent

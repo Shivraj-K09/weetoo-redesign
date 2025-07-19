@@ -1,20 +1,22 @@
 "use client";
 
 import { Chat } from "@/components/room/chat";
+import LightweightChart from "@/components/room/lightweight-chart";
+import { CandlestickData } from "lightweight-charts";
 import { LivektParticipantAudio } from "@/components/room/livekit-participant-audio";
 import { MarketOverview } from "@/components/room/market-overview";
 import { OrderBook } from "@/components/room/order-book";
 import { ParticipantsList } from "@/components/room/participants-list";
 import { TradeHistoryTabs } from "@/components/room/trade-history-tabs";
 import { TradingForm } from "@/components/room/trading-form";
-import { TradingViewWidget } from "@/components/room/trading-view-widget";
 import { Separator } from "@/components/ui/separator";
+import { useBinanceFutures } from "@/hooks/use-binance-futures";
+import { usePositions } from "@/hooks/use-positions";
 import { createClient } from "@/lib/supabase/client";
-import { useEffect } from "react";
+import { useTheme } from "next-themes";
+import React, { useEffect } from "react";
 import useSWR from "swr";
 import { TradingOverviewContainer } from "./trading-overview-container";
-import { useBinanceFutures } from "@/hooks/use-binance-futures";
-import React from "react";
 
 function RoomJoiner({ roomId }: { roomId: string }) {
   useEffect(() => {
@@ -23,24 +25,22 @@ function RoomJoiner({ roomId }: { roomId: string }) {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      console.log("[RoomJoiner] Current user:", user);
+      // console.log("[RoomJoiner] Current user:", user);
       if (!user) return;
-      const { data: existing, error: checkError } = await supabase
+      const { data: existing } = await supabase
         .from("trading_room_participants")
         .select("id")
         .eq("room_id", roomId)
         .eq("user_id", user.id)
         .is("left_at", null)
         .maybeSingle();
-      console.log("[RoomJoiner] Existing participant:", existing, checkError);
+      // console.log("[RoomJoiner] Existing participant:", existing, checkError);
       if (!existing) {
-        const { error: insertError } = await supabase
-          .from("trading_room_participants")
-          .insert({
-            room_id: roomId,
-            user_id: user.id,
-          });
-        console.log("[RoomJoiner] Insert participant error:", insertError);
+        const {} = await supabase.from("trading_room_participants").insert({
+          room_id: roomId,
+          user_id: user.id,
+        });
+        // console.log("[RoomJoiner] Insert participant error:", insertError);
       }
     }
     joinRoom();
@@ -70,6 +70,8 @@ export function RoomWindowContent({
     { refreshInterval: 1000 }
   );
 
+  const { theme } = useTheme();
+
   // Notify parent of current price
   React.useEffect(() => {
     if (onCurrentPrice) {
@@ -87,6 +89,38 @@ export function RoomWindowContent({
     lastFundingRate: fundingRate,
     nextFundingTime,
   };
+
+  // Fetch open positions for the chart
+  const { openPositions } = usePositions(roomId) as {
+    openPositions: Array<{
+      id: string;
+      symbol: string;
+      side: string;
+      quantity: number;
+      entry_price: number;
+      initial_margin?: number;
+      stop_loss?: number;
+      take_profit?: number;
+    }>;
+  };
+
+  // Debug: Log when openPositions changes
+  console.log(
+    "RoomWindowContent: openPositions updated:",
+    openPositions?.length,
+    "positions"
+  );
+
+  // Transform candle data for lightweight-charts
+  // Expecting: { time, open, high, low, close }[]
+  const candles = (data?.candles || []).map((candle: CandlestickData) => ({
+    time: candle.time, // should be UNIX timestamp (seconds) or 'YYYY-MM-DD'
+    open: candle.open,
+    high: candle.high,
+    low: candle.low,
+    close: candle.close,
+  }));
+
   return (
     <div className="h-[calc(100%-3rem)] bg-background flex flex-col gap-2 px-3 py-2">
       <RoomJoiner roomId={roomId} />
@@ -107,8 +141,16 @@ export function RoomWindowContent({
         <div className="col-span-5  w-full h-full gap-5">
           <div className="flex flex-col gap-2 w-full h-full">
             <div className="flex w-full h-[550px] gap-2">
-              <div className="flex-[3.5] border-border h-full w-full bg-background">
-                <TradingViewWidget symbol={symbol} />
+              <div className="flex-[3.5] border-border border h-full w-full bg-background">
+                {/* Replace TradingViewWidget with LightweightChart */}
+                <LightweightChart
+                  key={`${symbol}-${openPositions?.length || 0}`}
+                  candles={candles}
+                  theme={theme as "light" | "dark"}
+                  symbol={symbol}
+                  openPositions={openPositions}
+                  ticker={data?.ticker}
+                />
               </div>
               <div className="flex-1 border border-border h-full w-full bg-background p-2">
                 <OrderBook symbol={symbol} data={data} />

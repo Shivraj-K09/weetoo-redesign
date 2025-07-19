@@ -17,21 +17,6 @@ import { KorCoinsRankingTable } from "./kor-coins-ranking-table";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-// Animation variants
-const cardVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: (index: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.4,
-      delay: index * 0.1,
-      ease: [0.25, 0.46, 0.45, 0.94],
-    },
-  }),
-};
-
 // Memoized components
 const RankBadge = memo(({ rank }: { rank: number }) => {
   const getBadgeConfig = (rank: number) => {

@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { TradingOverview } from "./trading-overview";
 
 export const TRADER_PNL_KEY = (roomId: string) =>
-  `/api/room/${roomId}/trader-pnl`;
+  `/api/room/${encodeURIComponent(roomId)}/trader-pnl`;
 
 export function TradingOverviewContainer({ roomId }: { roomId: string }) {
   const fetcher = (url: string) => fetch(url).then((res) => res.json());

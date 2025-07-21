@@ -146,7 +146,7 @@ export function RoomWindowContent({
                 <LightweightChart
                   key={`${symbol}-${openPositions?.length || 0}`}
                   candles={candles}
-                  theme={theme as "light" | "dark"}
+                  theme={theme === "dark" ? "dark" : "light"}
                   symbol={symbol}
                   openPositions={openPositions}
                   ticker={data?.ticker}

@@ -45,8 +45,9 @@ export function CustomerSupportDialog() {
         <div className="flex flex-col gap-4">
           {/* KakaoTalk Option */}
           <Link
-            href="#"
+            href="https://pf.kakao.com/_sUKMn"
             className="flex items-center gap-4 p-4 rounded-lg border hover:bg-yellow-50 dark:hover:bg-yellow-100/10 transition-colors group"
+            target="_blank"
           >
             <span
               className="inline-flex items-center justify-center w-10 h-10 rounded-full"
@@ -79,8 +80,9 @@ export function CustomerSupportDialog() {
 
           {/* Telegram Option */}
           <Link
-            href="#"
+            href="https://t.me/weetoo_kor"
             className="flex items-center gap-4 p-4 rounded-lg border hover:bg-blue-50 dark:hover:bg-blue-100/10 transition-colors group"
+            target="_blank"
           >
             <span
               className="inline-flex items-center justify-center w-10 h-10 rounded-full"

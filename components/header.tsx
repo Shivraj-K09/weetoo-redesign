@@ -56,10 +56,14 @@ export function Header() {
     if (isLoggedIn) return <UserDropdown />;
     return (
       <>
-        <Button variant="outline" className="cursor-pointer shadow-none h-8">
+        <Button
+          variant="outline"
+          className="cursor-pointer shadow-none h-8"
+          asChild
+        >
           <Link href="/login">Login</Link>
         </Button>
-        <Button className="cursor-pointer shadow-none h-8">
+        <Button className="cursor-pointer shadow-none h-8" asChild>
           <Link href="/register">Register</Link>
         </Button>
       </>

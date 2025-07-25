@@ -2,7 +2,6 @@
 
 import { Chat } from "@/components/room/chat";
 import LightweightChart from "@/components/room/lightweight-chart";
-import { CandlestickData } from "lightweight-charts";
 import { LivektParticipantAudio } from "@/components/room/livekit-participant-audio";
 import { MarketOverview } from "@/components/room/market-overview";
 import { OrderBook } from "@/components/room/order-book";
@@ -14,7 +13,7 @@ import { useBinanceFutures } from "@/hooks/use-binance-futures";
 import { usePositions } from "@/hooks/use-positions";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "next-themes";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { TradingOverviewContainer } from "./trading-overview-container";
 
@@ -72,6 +71,22 @@ export function RoomWindowContent({
 
   const { theme } = useTheme();
 
+  // Check if current user is the host
+  const [isHost, setIsHost] = useState(false);
+
+  useEffect(() => {
+    const checkIfHost = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setIsHost(user.id === hostId);
+      }
+    };
+    checkIfHost();
+  }, [hostId]);
+
   // Notify parent of current price
   React.useEffect(() => {
     if (onCurrentPrice) {
@@ -105,21 +120,21 @@ export function RoomWindowContent({
   };
 
   // Debug: Log when openPositions changes
-  console.log(
-    "RoomWindowContent: openPositions updated:",
-    openPositions?.length,
-    "positions"
-  );
+  // console.log(
+  //   "RoomWindowContent: openPositions updated:",
+  //   openPositions?.length,
+  //   "positions"
+  // );
 
-  // Transform candle data for lightweight-charts
-  // Expecting: { time, open, high, low, close }[]
-  const candles = (data?.candles || []).map((candle: CandlestickData) => ({
-    time: candle.time, // should be UNIX timestamp (seconds) or 'YYYY-MM-DD'
-    open: candle.open,
-    high: candle.high,
-    low: candle.low,
-    close: candle.close,
-  }));
+  // const candles = (data?.candles || []).map((candle: CandlestickData) => ({
+  //   time: candle.time,
+  //   open: candle.open,
+  //   high: candle.high,
+  //   low: candle.low,
+  //   close: candle.close,
+  // }));
+
+  const chartOuterRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="h-[calc(100%-3rem)] bg-background flex flex-col gap-2 px-3 py-2">
@@ -141,15 +156,19 @@ export function RoomWindowContent({
         <div className="col-span-5  w-full h-full gap-5">
           <div className="flex flex-col gap-2 w-full h-full">
             <div className="flex w-full h-[550px] gap-2">
-              <div className="flex-[3.5] border-border border h-full w-full bg-background">
-                {/* Replace TradingViewWidget with LightweightChart */}
+              <div
+                ref={chartOuterRef}
+                className="max-w-[972px] border-border border h-full w-full bg-background"
+              >
                 <LightweightChart
                   key={`${symbol}-${openPositions?.length || 0}`}
-                  candles={candles}
                   theme={theme === "dark" ? "dark" : "light"}
                   symbol={symbol}
                   openPositions={openPositions}
                   ticker={data?.ticker}
+                  roomId={roomId}
+                  hostId={hostId}
+                  isHost={isHost}
                 />
               </div>
               <div className="flex-1 border border-border h-full w-full bg-background p-2">

@@ -36,7 +36,7 @@ interface RichTextEditorProps {
 
 export function RichTextEditor({ onChange }: RichTextEditorProps) {
   return (
-    <div className="bg-background w-full overflow-hidden rounded-lg border">
+    <div className="bg-background w-full overflow-hidden rounded-none border">
       <LexicalComposer
         initialConfig={{
           ...editorConfig,

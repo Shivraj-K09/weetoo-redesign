@@ -62,7 +62,7 @@ export function ImageUploader({
             <img
               src={img}
               alt={`Upload ${idx + 1}`}
-              className="w-20 h-20 object-cover rounded-lg border border-border shadow-sm cursor-pointer hover:ring-2 hover:ring-primary/40"
+              className="w-20 h-20 object-cover rounded-none border border-border shadow-sm cursor-pointer hover:ring-2 hover:ring-primary/40"
               onClick={() => setCarouselIndex(idx)}
             />
             <Button
@@ -78,7 +78,7 @@ export function ImageUploader({
           </div>
         ))}
         {images.length < 4 && (
-          <Label className="w-20 h-20 flex items-center justify-center border-2 border-dashed border-muted-foreground/40 rounded-lg cursor-pointer hover:border-primary/60 transition-colors bg-muted/40">
+          <Label className="w-20 h-20 flex items-center justify-center border-2 border-dashed border-muted-foreground/40 rounded-none cursor-pointer hover:border-primary/60 transition-colors bg-muted/40">
             <span className="text-muted-foreground text-2xl">+</span>
             <input
               ref={fileInputRef}

@@ -1,21 +1,20 @@
 "use client";
 
-import { memo, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  Coins,
-  Trophy,
-  Medal,
-  Award,
-  TrendingUp,
-  Clock,
-  Crown,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { KorCoinsRankingTable } from "./kor-coins-ranking-table";
-import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
+import {
+  Award,
+  Clock,
+  Coins,
+  Crown,
+  Medal,
+  TrendingUp,
+  Trophy,
+} from "lucide-react";
+import { memo, useEffect, useMemo, useState } from "react";
+import { KorCoinsRankingTable } from "./kor-coins-ranking-table";
 
 // Memoized components
 const RankBadge = memo(({ rank }: { rank: number }) => {
@@ -249,14 +248,11 @@ export const KorCoinsRanking = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold flex items-center gap-2">
-                      {getMainName(user)}
+                      {getNickname(user)}
                       {user.rank === 1 && (
                         <Crown className="w-5 h-5 text-yellow-500" />
                       )}
                     </h3>
-                    <div className="text-sm text-muted-foreground">
-                      {getNickname(user)}
-                    </div>
                   </div>
                 </div>
                 <div className="space-y-3 pt-4 border-t border-border/50">

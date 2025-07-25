@@ -247,7 +247,7 @@ export const KorCoinsRankingTable = memo(
                 </div>
                 <div>
                   <div className="font-semibold text-foreground flex items-center gap-2">
-                    {getMainName(user)}
+                    {getNickname(user)}
                     {rank === 1 && (
                       <Crown className="w-4 h-4 text-yellow-500" />
                     )}
@@ -259,9 +259,6 @@ export const KorCoinsRankingTable = memo(
                         Top {rank}
                       </Badge>
                     )}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {getNickname(user)}
                   </div>
                 </div>
               </div>

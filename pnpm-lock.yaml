@@ -140,6 +140,9 @@ importers:
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.1.0)
+      frimousse:
+        specifier: ^0.3.0
+        version: 0.3.0(react@19.1.0)(typescript@5.8.3)
       gsap:
         specifier: ^3.13.0
         version: 3.13.0
@@ -2463,6 +2466,15 @@ packages:
 
   french-badwords-list@1.0.7:
     resolution: {integrity: sha512-H1ziKs2PJh2+UXZ9oCGJ/rRQpsI9NBykGf2Sc7WaKaj1OnWFuBXfsvANTdRcfVmOghGQaUmRyZ1hJOPbDpy04Q==}
+
+  frimousse@0.3.0:
+    resolution: {integrity: sha512-kO6LMoKY/cLAYEhXXtqLRaLIE6L/DagpFPrUZaLv3LsUa1/8Iza3HhwZcgN8eZ+weXnhv69eoclNUPohcCa/IQ==}
+    peerDependencies:
+      react: ^18 || ^19
+      typescript: '>=5.1.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
@@ -6280,6 +6292,12 @@ snapshots:
 
   french-badwords-list@1.0.7:
     optional: true
+
+  frimousse@0.3.0(react@19.1.0)(typescript@5.8.3):
+    dependencies:
+      react: 19.1.0
+    optionalDependencies:
+      typescript: 5.8.3
 
   function-bind@1.1.2: {}
 

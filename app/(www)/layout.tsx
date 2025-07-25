@@ -12,11 +12,14 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
   // List of routes where Footer should be hidden
-  const hideFooterRoutes = ["/profile"];
+  const hideFooterRoutes = ["/profile", "/create-post"];
   const hideFooter = hideFooterRoutes.includes(pathname);
 
   return (
-    <div className="flex-1 flex flex-col font-[family-name:var(--font-geist-sans)] min-h-screen w-full">
+    <div
+      className="flex-1 flex flex-col font-[family-name:var(--font-geist-sans)] min-h-screen w-full"
+      suppressHydrationWarning
+    >
       {/* <UtilityBar /> */}
       <Header />
       <main className="flex-1 flex flex-col">{children}</main>

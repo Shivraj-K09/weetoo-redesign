@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       "picsum.photos",
       "lh3.googleusercontent.com",
       "elraqghnwdysyqskvqgn.supabase.co",
+      "eethmghfrmkfjxeqjngd.supabase.co",
     ],
   },
 };

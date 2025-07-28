@@ -1,5 +1,5 @@
-import { NewsList } from "@/components/news/news-list";
 import { Metadata } from "next";
+import { NewsList } from "@/components/news/news-list";
 
 export const metadata: Metadata = {
   title: "News | Weetoo",

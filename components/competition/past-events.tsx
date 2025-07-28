@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -17,184 +16,96 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
 
-const pastEvents = [
-  {
-    symbol: "🏅",
-    name: "Spring Stock Showdown",
-    description: "A fierce battle in the spring markets.",
-    date: "2024-03-01 to 2024-03-31",
-    time: "All Day",
-    status: "Completed",
-  },
-  {
-    symbol: "🦾",
-    name: "AI Trading Cup",
-    description: "Algorithmic traders went head to head.",
-    date: "2024-02-10 to 2024-02-20",
-    time: "24/7",
-    status: "Completed",
-  },
-  {
-    symbol: "🌟",
-    name: "Star Investors League",
-    description: "Top investors competed for the star title.",
-    date: "2023-12-01 to 2023-12-31",
-    time: "All Day",
-    status: "Completed",
-  },
-  {
-    symbol: "💰",
-    name: "Big Gains Bonanza",
-    description: "Who made the biggest gains this fall?",
-    date: "2023-10-01 to 2023-10-15",
-    time: "Market Hours",
-    status: "Completed",
-  },
-  {
-    symbol: "📊",
-    name: "ETF Autumn Clash",
-    description: "ETF traders battled for the top spot.",
-    date: "2023-09-10 to 2023-09-20",
-    time: "All Day",
-    status: "Completed",
-  },
-  {
-    symbol: "🪙",
-    name: "Crypto Winter Classic",
-    description: "Surviving the toughest crypto season.",
-    date: "2023-08-01 to 2023-08-31",
-    time: "All Day",
-    status: "Completed",
-  },
-  {
-    symbol: "📈",
-    name: "Growth Gurus",
-    description: "Who grew their portfolio the most?",
-    date: "2023-07-01 to 2023-07-15",
-    time: "Market Hours",
-    status: "Completed",
-  },
-  {
-    symbol: "🏆",
-    name: "Summer Trading Tournament",
-    description: "A hot contest in the summer markets.",
-    date: "2023-06-10 to 2023-06-30",
-    time: "All Day",
-    status: "Completed",
-  },
-  {
-    symbol: "🧠",
-    name: "Smart Money Masters",
-    description: "Who made the smartest moves?",
-    date: "2023-05-01 to 2023-05-20",
-    time: "Market Hours",
-    status: "Completed",
-  },
-  {
-    symbol: "💹",
-    name: "Forex Frenzy",
-    description: "Currency traders in a global battle.",
-    date: "2023-04-01 to 2023-04-15",
-    time: "24/5",
-    status: "Completed",
-  },
-  {
-    symbol: "🔮",
-    name: "Futures Forecast",
-    description: "Who predicted the markets best?",
-    date: "2023-03-10 to 2023-03-25",
-    time: "All Day",
-    status: "Completed",
-  },
-  {
-    symbol: "🥈",
-    name: "Silver Bulls Bash",
-    description: "A contest for the silver bulls.",
-    date: "2023-02-01 to 2023-02-14",
-    time: "Market Hours",
-    status: "Completed",
-  },
-  {
-    symbol: "🥉",
-    name: "Bronze Bears Battle",
-    description: "Who survived the bear market?",
-    date: "2023-01-10 to 2023-01-25",
-    time: "All Day",
-    status: "Completed",
-  },
-  {
-    symbol: "🛢️",
-    name: "Commodities Clash",
-    description: "Oil, gold, and more in this commodities event.",
-    date: "2022-12-01 to 2022-12-15",
-    time: "Market Hours",
-    status: "Completed",
-  },
-  {
-    symbol: "🏠",
-    name: "REIT Rumble",
-    description: "Real estate investment trust showdown.",
-    date: "2022-11-01 to 2022-11-20",
-    time: "All Day",
-    status: "Completed",
-  },
-  {
-    symbol: "🧊",
-    name: "Winter Wealth War",
-    description: "Who kept their cool in the cold markets?",
-    date: "2022-10-01 to 2022-10-31",
-    time: "All Day",
-    status: "Completed",
-  },
-  {
-    symbol: "🌾",
-    name: "Harvest Hedge",
-    description: "A contest for the best hedging strategies.",
-    date: "2022-09-10 to 2022-09-25",
-    time: "Market Hours",
-    status: "Completed",
-  },
-  {
-    symbol: "🦅",
-    name: "Eagle Eye Investors",
-    description: "Spotting the best opportunities.",
-    date: "2022-08-01 to 2022-08-15",
-    time: "All Day",
-    status: "Completed",
-  },
-  {
-    symbol: "🦄",
-    name: "Unicorn Fund Finals",
-    description: "Who found the next unicorn?",
-    date: "2022-07-01 to 2022-07-20",
-    time: "Market Hours",
-    status: "Completed",
-  },
-  {
-    symbol: "🦈",
-    name: "Shark Tank Traders",
-    description: "A fierce trading competition for the bold.",
-    date: "2022-06-01 to 2022-06-15",
-    time: "All Day",
-    status: "Completed",
-  },
-  {
-    symbol: "🧲",
-    name: "Magnet Market Masters",
-    description: "Who attracted the most gains?",
-    date: "2022-05-01 to 2022-05-10",
-    time: "Market Hours",
-    status: "Completed",
-  },
-];
+interface Competition {
+  id: string;
+  name: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  start_time: string;
+  end_time: string;
+  competition_url: string;
+  created_at: string;
+  status: string;
+}
+
+interface DisplayItem {
+  type: "competition" | "empty";
+  data: Competition | null;
+}
 
 const ITEMS_PER_PAGE = 12;
 
 export function PastEvents() {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(pastEvents.length / ITEMS_PER_PAGE);
-  const currentEvents = pastEvents.slice(
+  const [competitions, setCompetitions] = useState<Competition[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Helper function to parse time string (e.g., "2:30 PM")
+  const parseTimeString = (timeStr: string) => {
+    const [time, period] = timeStr.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+    let hour = hours;
+
+    if (period === "PM" && hours !== 12) {
+      hour += 12;
+    } else if (period === "AM" && hours === 12) {
+      hour = 0;
+    }
+
+    return { hours: hour, minutes };
+  };
+
+  // Helper function to create full datetime
+  const createDateTime = (dateStr: string, timeStr: string) => {
+    const date = new Date(dateStr);
+    const { hours, minutes } = parseTimeString(timeStr);
+    date.setHours(hours, minutes, 0, 0);
+    return date;
+  };
+
+  // Helper function to check if competition has ended (real-time)
+  const isCompetitionEnded = (competition: Competition) => {
+    const now = new Date();
+    const endDateTime = createDateTime(
+      competition.end_date,
+      competition.end_time
+    );
+    return now.getTime() > endDateTime.getTime();
+  };
+
+  // Fetch competitions
+  const fetchCompetitions = async () => {
+    try {
+      const response = await fetch("/api/competitions");
+      if (response.ok) {
+        const data = await response.json();
+        setCompetitions(data.competitions || []);
+      } else {
+        console.error("Failed to fetch competitions");
+      }
+    } catch (error) {
+      console.error("Error fetching competitions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch competitions on component mount
+  useEffect(() => {
+    fetchCompetitions();
+  }, []);
+
+  // Filter competitions to show only completed ones (real-time)
+  const completedCompetitions = competitions.filter((competition) =>
+    isCompetitionEnded(competition)
+  );
+
+  const totalPages = Math.ceil(completedCompetitions.length / ITEMS_PER_PAGE);
+  const currentCompetitions = completedCompetitions.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
@@ -205,75 +116,154 @@ export function PastEvents() {
     }
   };
 
+  // Helper function to format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  // Create array of items to display (only actual competitions)
+  const displayItems: DisplayItem[] = [];
+
+  // Add only actual competitions
+  currentCompetitions.forEach((competition) => {
+    displayItems.push({
+      type: "competition",
+      data: competition,
+    });
+  });
+
+  // Loading skeleton
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <Card key={index} className="rounded-none flex flex-col h-full">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-32" />
+                </div>
+                <Skeleton className="h-4 w-full" />
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-28" />
+                </div>
+              </CardContent>
+              <div className="px-6 pb-4">
+                <Skeleton className="h-9 w-full" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (!loading && displayItems.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="text-center space-y-4">
+          <div className="text-6xl mb-4">🏆</div>
+          <h3 className="text-xl font-semibold">No Past Competitions</h3>
+          <p className="text-muted-foreground max-w-md">
+            No completed competitions yet. Past competitions will appear here
+            once they finish.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {currentEvents.map((event) => (
-          <Card key={event.name} className="rounded-none flex flex-col h-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {displayItems.map((item, index) => (
+          <Card
+            key={item.data?.id || `competition-${index}`}
+            className="rounded-none flex flex-col"
+          >
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">
-                  <span className="text-2xl mr-2">{event.symbol}</span>
-                  {event.name}
+                  <span className="text-2xl mr-2">🏆</span>
+                  {item.data?.name || "Unknown Competition"}
                 </CardTitle>
-                <Badge
-                  variant="outline"
-                  className="text-muted-foreground rounded-none h-9 px-3 flex items-center justify-center text-sm border border-border"
-                >
-                  {event.status}
-                </Badge>
               </div>
-              <CardDescription>{event.description}</CardDescription>
+              <CardDescription>
+                {item.data?.description || "No description available"}
+              </CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow">
+            <CardContent>
               <div className="text-sm text-muted-foreground space-y-2">
                 <p>
-                  <strong>Date:</strong> {event.date}
+                  <strong>Start:</strong>{" "}
+                  {item.data ? formatDate(item.data.start_date) : "N/A"} at{" "}
+                  {item.data?.start_time || "N/A"}
                 </p>
                 <p>
-                  <strong>Time:</strong> {event.time}
+                  <strong>End:</strong>{" "}
+                  {item.data ? formatDate(item.data.end_date) : "N/A"} at{" "}
+                  {item.data?.end_time || "N/A"}
                 </p>
               </div>
             </CardContent>
+            <div className="px-6">
+              <Badge
+                variant="outline"
+                className="text-muted-foreground w-full rounded-none flex items-center justify-center text-sm border border-border h-10"
+              >
+                Completed
+              </Badge>
+            </div>
           </Card>
         ))}
       </div>
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                handlePageChange(currentPage - 1);
-              }}
-            />
-          </PaginationItem>
-          {[...Array(totalPages)].map((_, i) => (
-            <PaginationItem key={i}>
-              <PaginationLink
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
                 href="#"
-                isActive={currentPage === i + 1}
                 onClick={(e) => {
                   e.preventDefault();
-                  handlePageChange(i + 1);
+                  handlePageChange(currentPage - 1);
                 }}
-              >
-                {i + 1}
-              </PaginationLink>
+              />
             </PaginationItem>
-          ))}
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                handlePageChange(currentPage + 1);
-              }}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            {[...Array(totalPages)].map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  href="#"
+                  isActive={currentPage === i + 1}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(i + 1);
+                  }}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage + 1);
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }

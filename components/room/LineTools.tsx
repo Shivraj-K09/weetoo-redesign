@@ -149,11 +149,11 @@ const LineTools: React.FC<LineToolsProps> = ({
     if (value) {
       setLineTool(null);
       setEraserActive(false);
+      setEmojiTool(null);
     }
 
     setDrawTool(value);
   };
-
   const handlePencilColorChange = (value: string) => {
     if (!isHost) return;
     setPencilColor(value);
@@ -170,11 +170,11 @@ const LineTools: React.FC<LineToolsProps> = ({
     if (value) {
       setDrawTool(null);
       setEraserActive(false);
+      setEmojiTool(null);
     }
 
     setLineTool(value);
   };
-
   const handleEraserToggle = () => {
     if (!isHost) return;
 
@@ -183,6 +183,7 @@ const LineTools: React.FC<LineToolsProps> = ({
     if (newEraserState) {
       setDrawTool(null);
       setLineTool(null);
+      setEmojiTool(null);
     }
 
     setEraserActive(newEraserState);
@@ -522,7 +523,11 @@ const LineTools: React.FC<LineToolsProps> = ({
 
       {/* Eraser */}
       <button
-        className={`p-2 text-muted-foreground flex items-center  ${
+        className={`p-2 text-muted-foreground flex items-center ${
+          eraserActive
+            ? "bg-accent text-accent-foreground"
+            : "text-muted-foreground"
+        } ${
           isHost
             ? "hover:bg-accent cursor-pointer"
             : "cursor-not-allowed opacity-50"

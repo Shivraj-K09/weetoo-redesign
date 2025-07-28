@@ -35,7 +35,7 @@ export function LeaderboardTable({ board }: LeaderboardTableProps) {
         // Convert board parameter to database format
         const boardParam = board.replace("-board", "");
         const response = await fetch(
-          `/api/posts?board=${boardParam}&limit=100`
+          `/api/posts?board=${encodeURIComponent(boardParam)}&limit=100`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch posts");
@@ -107,9 +107,11 @@ export function LeaderboardTable({ board }: LeaderboardTableProps) {
                 <AvatarImage src={author.avatar} alt={author.name} />
                 <AvatarFallback>
                   {author.name
-                    .split(" ")
-                    .map((n: string) => n[0])
-                    .join("")}
+                    ? author.name
+                        .split(" ")
+                        .map((n: string) => n[0])
+                        .join("")
+                    : "U"}
                 </AvatarFallback>
               </Avatar>
               <span className="text-sm font-medium text-foreground">
@@ -155,7 +157,7 @@ export function LeaderboardTable({ board }: LeaderboardTableProps) {
         accessorKey: "createdAt",
         cell: ({ row }) => (
           <span className="text-xs text-muted-foreground">
-            {row.original.createdAt}
+            {new Date(row.original.createdAt).toLocaleDateString()}
           </span>
         ),
         size: 120,

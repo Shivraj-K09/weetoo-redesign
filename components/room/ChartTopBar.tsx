@@ -107,16 +107,16 @@ const ChartTopBar: React.FC<ChartTopBarProps> = ({
               aria-label="Chart type"
               disabled={!isHost}
             >
-              {CHART_TYPES.find((t: ChartType) => t.value === chartType)
-                ?.icon ? (
-                React.createElement(
-                  CHART_TYPES.find((t: ChartType) => t.value === chartType)!
-                    .icon,
-                  { size: 18 }
-                )
-              ) : (
-                <CandlestickChart size={18} />
-              )}
+              {(() => {
+                const selectedType = CHART_TYPES.find(
+                  (t: ChartType) => t.value === chartType
+                );
+                return selectedType?.icon ? (
+                  React.createElement(selectedType.icon, { size: 18 })
+                ) : (
+                  <CandlestickChart size={18} />
+                );
+              })()}
             </button>
           </PopoverTrigger>
           <PopoverContent align="start" className="w-36 p-1.5 rounded-none">

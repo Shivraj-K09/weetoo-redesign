@@ -3,6 +3,16 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Investment Competition | Weetoo",
   description: "Join the investment competition to win amazing prizes.",
+  keywords: ["investment", "competition", "trading", "prizes", "leaderboard"],
+  openGraph: {
+    title: "Investment Competition | Weetoo",
+    description: "Join the investment competition to win amazing prizes.",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -45,12 +55,6 @@ export default function InvestmentCompetition() {
             Ongoing Events
           </TabsTrigger>
           <TabsTrigger
-            value="winners"
-            className="data-[state=active]:text-primary relative h-10 rounded-none border border-b-transparent bg-transparent px-4 pb-3 pt-2 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:shadow-none cursor-pointer"
-          >
-            Winner Announcement
-          </TabsTrigger>
-          <TabsTrigger
             value="past"
             className="data-[state=active]:text-primary relative h-10 rounded-none border border-b-transparent bg-transparent px-4 pb-3 pt-2 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-b-primary data-[state=active]:shadow-none cursor-pointer"
           >
@@ -59,16 +63,6 @@ export default function InvestmentCompetition() {
         </TabsList>
         <TabsContent value="ongoing" className="py-4">
           <OngoingEvents />
-        </TabsContent>
-        <TabsContent value="winners" className="py-4">
-          <div className="text-center p-8 border-t">
-            <h3 className="text-xl font-semibold">
-              Winner Announcements Coming Soon
-            </h3>
-            <p className="text-muted-foreground">
-              Winners for the recent competitions will be announced here.
-            </p>
-          </div>
         </TabsContent>
         <TabsContent value="past" className="py-4">
           <PastEvents />

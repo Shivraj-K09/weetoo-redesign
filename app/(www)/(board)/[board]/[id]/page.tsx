@@ -4,20 +4,38 @@ import { Metadata } from "next";
 import { PostPageProps, Post } from "@/types/post";
 import PostDetailClient from "@/components/post/post-detail-client";
 
+// Shared function to fetch post with author details
+async function fetchPostWithAuthor(id: string) {
+  try {
+    const supabase = await createClient();
+    const result = await supabase
+      .from("posts")
+      .select(
+        `*, author:users ( id, first_name, last_name, avatar_url, nickname )`
+      )
+      .eq("id", id)
+      .single();
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching post with author details:", error);
+    // Return a structured error response that matches the expected format
+    return {
+      data: null,
+      error: {
+        message: "Failed to fetch post data",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+}
+
 // Generate metadata for SEO
 export async function generateMetadata({
   params,
 }: PostPageProps): Promise<Metadata> {
-  const supabase = await createClient();
   const { id } = await params;
-
-  const { data: post } = await supabase
-    .from("posts")
-    .select(
-      `*, author:users ( id, first_name, last_name, avatar_url, nickname )`
-    )
-    .eq("id", id)
-    .single();
+  const { data: post } = await fetchPostWithAuthor(id);
 
   if (!post) {
     return {
@@ -33,27 +51,20 @@ export async function generateMetadata({
 }
 
 export default async function PostPage({ params }: PostPageProps) {
-  const supabase = await createClient();
   const { id, board } = await params;
-
-  const { data: post, error } = await supabase
-    .from("posts")
-    .select(
-      `*, author:users ( id, first_name, last_name, avatar_url, nickname )`
-    )
-    .eq("id", id)
-    .single();
+  const { data: post, error } = await fetchPostWithAuthor(id);
 
   if (error || !post) {
     notFound();
   }
 
+  const EXCERPT_LENGTH = 160;
   // Format the post data
   const formattedPost: Post = {
     id: post.id,
     title: post.title,
     content: post.content,
-    excerpt: post.excerpt || post.content.slice(0, 120),
+    excerpt: post.excerpt || post.content.slice(0, EXCERPT_LENGTH),
     board: post.board,
     views: post.views || 0,
     likes: post.likes || 0,

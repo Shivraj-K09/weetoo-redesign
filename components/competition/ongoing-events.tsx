@@ -17,179 +17,210 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
+import { AddCompetitionDialog } from "./add-competition-dialog";
+import { ManagePermissionsDialog } from "./manage-permissions-dialog";
 
-const events = [
-  {
-    symbol: "🥇",
-    name: "Golden Gurus Trading",
-    description: "The ultimate test of trading prowess.",
-    date: "2024-08-01 to 2024-08-31",
-    time: "All Day",
-    status: "inprogress",
-  },
-  {
-    symbol: "🚀",
-    name: "Rocket Returns Challenge",
-    description: "Aim for the highest returns in a week.",
-    date: "2024-09-05 to 2024-09-12",
-    time: "9:00 AM - 5:00 PM",
-    status: "joinable",
-  },
-  {
-    symbol: "💎",
-    name: "Diamond Hands Derby",
-    description: "Hold your assets and prove your conviction.",
-    date: "2024-09-15 to 2024-10-15",
-    time: "Market Hours",
-    status: "inprogress",
-  },
-  {
-    symbol: "📈",
-    name: "Momentum Masters",
-    description: "Ride the wave of market momentum.",
-    date: "2024-10-01 to 2024-10-07",
-    time: "All Day",
-    status: "joinable",
-  },
-  {
-    symbol: "⚡",
-    name: "Lightning FX Fray",
-    description: "Fast-paced forex trading competition.",
-    date: "2024-10-10",
-    time: "10:00 AM - 2:00 PM",
-    status: "inprogress",
-  },
-  {
-    symbol: "🏆",
-    name: "Championship Challenge",
-    description: "The annual grand trading championship.",
-    date: "2024-11-01 to 2024-11-30",
-    time: "All Day",
-    status: "joinable",
-  },
-  {
-    symbol: "💡",
-    name: "Innovative Investors",
-    description: "Showcase your unique investment strategies.",
-    date: "2024-11-05 to 2024-11-19",
-    time: "Market Hours",
-    status: "inprogress",
-  },
-  {
-    symbol: "🌍",
-    name: "Global Growth Contest",
-    description: "Compete on the international stage.",
-    date: "2024-12-01 to 2024-12-31",
-    time: "All Day",
-    status: "joinable",
-  },
-  {
-    symbol: "🤖",
-    name: "Algo-Trading Arena",
-    description: "Let your trading bots do the talking.",
-    date: "2024-12-10 to 2024-12-15",
-    time: "24/7",
-    status: "inprogress",
-  },
-  {
-    symbol: "👑",
-    name: "King of Crypto",
-    description: "Dominate the cryptocurrency markets.",
-    date: "2025-01-02 to 2025-01-31",
-    time: "All Day",
-    status: "joinable",
-  },
-  {
-    symbol: "S",
-    name: "Stock Market Scholars",
-    description: "A battle of wits in the stock market.",
-    date: "2025-02-01 to 2025-02-28",
-    time: "Market Hours",
-    status: "inprogress",
-  },
-  {
-    symbol: "O",
-    name: "Options Olympiad",
-    description: "Master the art of options trading.",
-    date: "2025-03-01 to 2025-03-15",
-    time: "9:00 AM - 4:00 PM",
-    status: "joinable",
-  },
-  {
-    symbol: "F",
-    name: "Futures Frenzy",
-    description: "Predict the future and win big.",
-    date: "2025-03-20 to 2025-03-27",
-    time: "All Day",
-    status: "inprogress",
-  },
-  {
-    symbol: "E",
-    name: "ETF Enigma",
-    description: "The ultimate challenge in ETF trading.",
-    date: "2025-04-01 to 2025-04-10",
-    time: "Market Hours",
-    status: "joinable",
-  },
-  {
-    symbol: "B",
-    name: "Bond Baron Bonanza",
-    description: "A test of skill in the bond market.",
-    date: "2025-04-15 to 2025-04-30",
-    time: "All Day",
-    status: "inprogress",
-  },
-  {
-    symbol: "C",
-    name: "Commodities Clash",
-    description: "Trade your way to victory in commodities.",
-    date: "2025-05-05 to 2025-05-12",
-    time: "24/5",
-    status: "joinable",
-  },
-  {
-    symbol: "V",
-    name: "Volatility Vikings",
-    description: "Conquer the markets in times of volatility.",
-    date: "2025-05-20 to 2025-05-27",
-    time: "Market Hours",
-    status: "inprogress",
-  },
-  {
-    symbol: "P",
-    name: "Penny Stock Power",
-    description: "The ultimate challenge in penny stocks.",
-    date: "2025-06-02 to 2025-06-09",
-    time: "9:30 AM - 4:00 PM",
-    status: "joinable",
-  },
-  {
-    symbol: "R",
-    name: "REIT Rumble",
-    description: "Compete for the top spot in real estate.",
-    date: "2025-06-15 to 2025-06-30",
-    time: "Market Hours",
-    status: "inprogress",
-  },
-  {
-    symbol: "I",
-    name: "Index Fund Invitational",
-    description: "A battle of strategies in index funds.",
-    date: "2025-07-01 to 2025-07-15",
-    time: "All Day",
-    status: "joinable",
-  },
-];
+interface Competition {
+  id: string;
+  name: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  start_time: string;
+  end_time: string;
+  competition_url: string;
+  created_at: string;
+  status: string;
+}
+
+interface DisplayItem {
+  type: "competition" | "empty";
+  data: Competition | null;
+}
+
+interface Permission {
+  userId: string;
+  name: string;
+  email: string;
+  grantedAt: string;
+}
 
 const ITEMS_PER_PAGE = 12;
 
 export function OngoingEvents() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [competitions, setCompetitions] = useState<Competition[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hasCompetitionPermission, setHasCompetitionPermission] =
+    useState(false);
 
-  const totalPages = Math.ceil(events.length / ITEMS_PER_PAGE);
+  // Fetch competitions
+  const fetchCompetitions = async () => {
+    try {
+      const response = await fetch("/api/competitions");
 
-  const currentEvents = events.slice(
+      if (response.ok) {
+        const data = await response.json();
+        setCompetitions(data.competitions || []);
+      } else {
+        console.error("Failed to fetch competitions");
+      }
+    } catch (error) {
+      console.error("Error fetching competitions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch user role, competitions, and competition permissions
+  useEffect(() => {
+    const supabase = createClient();
+
+    supabase.auth.getUser().then(({ data, error }) => {
+      const sessionId = data.user?.id || null;
+
+      if (error) {
+        console.error("Failed to get user:", error);
+        setUserRole(null);
+        return;
+      }
+
+      if (!sessionId) {
+        setUserRole(null);
+        return;
+      }
+
+      // Fetch user role
+      supabase
+        .from("users")
+        .select("role")
+        .eq("id", sessionId)
+        .single()
+        .then(({ data, error }) => {
+          if (error) {
+            console.error("Failed to fetch user role:", error);
+            setUserRole(null);
+          } else {
+            setUserRole(data?.role || null);
+          }
+        });
+
+      // Fetch competition permissions
+      fetchCompetitionPermissions(sessionId);
+    });
+
+    fetchCompetitions();
+  }, []);
+
+  // Function to fetch competition permissions
+  const fetchCompetitionPermissions = async (sessionId: string) => {
+    try {
+      const response = await fetch("/api/competition-permissions");
+      const data = await response.json();
+
+      if (data.permissions) {
+        const hasPermission = data.permissions.some(
+          (permission: Permission) => permission.userId === sessionId
+        );
+        setHasCompetitionPermission(hasPermission);
+      }
+    } catch (error) {
+      console.error("Error fetching competition permissions:", error);
+    }
+  };
+
+  // Function to refresh permissions (called when permissions change)
+  const handlePermissionsChange = async () => {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user?.id) {
+      await fetchCompetitionPermissions(user.id);
+    }
+  };
+
+  // Refresh competitions when dialog closes (after creating a new competition)
+  useEffect(() => {
+    if (!dialogOpen) {
+      fetchCompetitions();
+    }
+  }, [dialogOpen]);
+
+  // Helper function to parse time string (e.g., "2:30 PM")
+  const parseTimeString = (timeStr: string) => {
+    const [time, period] = timeStr.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+    let hour = hours;
+
+    if (period === "PM" && hours !== 12) {
+      hour += 12;
+    } else if (period === "AM" && hours === 12) {
+      hour = 0;
+    }
+
+    return { hours: hour, minutes };
+  };
+
+  // Helper function to create full datetime
+  const createDateTime = (dateStr: string, timeStr: string) => {
+    const date = new Date(dateStr);
+    const { hours, minutes } = parseTimeString(timeStr);
+    date.setHours(hours, minutes, 0, 0);
+    return date;
+  };
+
+  // Helper function to check if competition is in progress (real-time)
+  const isCompetitionInProgress = (competition: Competition) => {
+    const now = new Date();
+    const startDateTime = createDateTime(
+      competition.start_date,
+      competition.start_time
+    );
+    const endDateTime = createDateTime(
+      competition.end_date,
+      competition.end_time
+    );
+    return (
+      now.getTime() >= startDateTime.getTime() &&
+      now.getTime() <= endDateTime.getTime()
+    );
+  };
+
+  // Helper function to check if competition has ended (real-time)
+  const isCompetitionEnded = (competition: Competition) => {
+    const now = new Date();
+    const endDateTime = createDateTime(
+      competition.end_date,
+      competition.end_time
+    );
+    return now.getTime() > endDateTime.getTime();
+  };
+
+  // Helper function to check if competition has started (real-time)
+  const isCompetitionStarted = (competition: Competition) => {
+    const now = new Date();
+    const startDateTime = createDateTime(
+      competition.start_date,
+      competition.start_time
+    );
+    return now.getTime() >= startDateTime.getTime();
+  };
+
+  // Filter competitions to show only ongoing ones (not ended yet)
+  const ongoingCompetitions = competitions.filter(
+    (competition) => !isCompetitionEnded(competition)
+  );
+
+  const totalPages = Math.ceil(ongoingCompetitions.length / ITEMS_PER_PAGE);
+
+  const currentCompetitions = ongoingCompetitions.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
@@ -200,98 +231,236 @@ export function OngoingEvents() {
     }
   };
 
+  // Check if user has admin privileges
+  const isAdmin = ["admin", "super_admin"].includes(userRole || "");
+
+  // Helper function to format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  // Helper function to get competition status display (real-time)
+  const getCompetitionStatus = (competition: Competition) => {
+    if (isCompetitionInProgress(competition)) {
+      return "In Progress";
+    }
+    if (isCompetitionStarted(competition)) {
+      return "Active";
+    }
+    return "Active"; // Before start time
+  };
+
+  // Helper function to check if user can join competition (real-time)
+  const canJoinCompetition = (competition: Competition) => {
+    // Users can join if competition hasn't started yet (active status)
+    return !isCompetitionStarted(competition);
+  };
+
+  // Handle competition button click
+  const handleCompetitionClick = (competition: Competition) => {
+    if (competition?.competition_url) {
+      // Validate URL before opening
+      try {
+        const url = new URL(competition.competition_url);
+        window.open(url.toString(), "_blank", "noopener,noreferrer");
+      } catch (error) {
+        console.error("Invalid competition URL:", error);
+      }
+    }
+  };
+
+  // Create array of items to display (only actual competitions)
+  const displayItems: DisplayItem[] = [];
+
+  // Add only actual competitions
+  currentCompetitions.forEach((competition) => {
+    displayItems.push({
+      type: "competition",
+      data: competition,
+    });
+  });
+
+  // Loading skeleton
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {(isAdmin || hasCompetitionPermission) && (
+          <div className="flex justify-end gap-3">
+            <Skeleton className="h-10 w-40" />
+            <Skeleton className="h-10 w-40" />
+          </div>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <Card key={index} className="rounded-none flex flex-col h-full">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-32" />
+                </div>
+                <Skeleton className="h-4 w-full" />
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-28" />
+                </div>
+              </CardContent>
+              <div className="px-6 pb-4">
+                <Skeleton className="h-9 w-full" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (!loading && displayItems.length === 0) {
+    return (
+      <div className="space-y-4">
+        {(isAdmin || hasCompetitionPermission) && (
+          <div className="flex justify-end gap-3">
+            {isAdmin && (
+              <ManagePermissionsDialog
+                open={permissionsDialogOpen}
+                onOpenChange={setPermissionsDialogOpen}
+                onPermissionsChange={handlePermissionsChange}
+              />
+            )}
+            <AddCompetitionDialog
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+            />
+          </div>
+        )}
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="text-center space-y-4">
+            <div className="text-6xl mb-4">🏆</div>
+            <h3 className="text-xl font-semibold">No Ongoing Competitions</h3>
+            <p className="text-muted-foreground max-w-md">
+              There are currently no active competitions. Check back later for
+              new opportunities to test your trading skills!
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {currentEvents.map((event) => (
-          <Card key={event.name} className="rounded-none flex flex-col h-full">
+      {(isAdmin || hasCompetitionPermission) && (
+        <div className="flex justify-end gap-3">
+          {isAdmin && (
+            <ManagePermissionsDialog
+              open={permissionsDialogOpen}
+              onOpenChange={setPermissionsDialogOpen}
+              onPermissionsChange={handlePermissionsChange}
+            />
+          )}
+          <AddCompetitionDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+          />
+        </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {displayItems.map((item, index) => (
+          <Card
+            key={item.data?.id || `competition-${index}`}
+            className="rounded-none flex flex-col"
+          >
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">
-                  <span className="text-2xl mr-2">{event.symbol}</span>
-                  {event.name}
+                  <span className="text-2xl mr-2">🏆</span>
+                  {item.data?.name || "Unknown Competition"}
                 </CardTitle>
-                <div className="hidden sm:block">
-                  {event.status === "inprogress" ? (
-                    <Badge
-                      variant="outline"
-                      className="text-green-500 rounded-none h-9 px-3 flex items-center justify-center text-sm"
-                    >
-                      In Progress
-                    </Badge>
-                  ) : (
-                    <Button size="sm" className="rounded-none">
-                      Join Competition
-                    </Button>
-                  )}
-                </div>
               </div>
-              <CardDescription>{event.description}</CardDescription>
+              <CardDescription>
+                {item.data?.description || "No description available"}
+              </CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow">
+            <CardContent>
               <div className="text-sm text-muted-foreground space-y-2">
                 <p>
-                  <strong>Date:</strong> {event.date}
+                  <strong>Start:</strong>{" "}
+                  {item.data ? formatDate(item.data.start_date) : "N/A"} at{" "}
+                  {item.data?.start_time || "N/A"}
                 </p>
                 <p>
-                  <strong>Time:</strong> {event.time}
+                  <strong>End:</strong>{" "}
+                  {item.data ? formatDate(item.data.end_date) : "N/A"} at{" "}
+                  {item.data?.end_time || "N/A"}
                 </p>
               </div>
             </CardContent>
-            <div className="px-6 pb-4 sm:hidden">
-              {event.status === "inprogress" ? (
-                <Badge
-                  variant="outline"
-                  className="text-green-500 w-full h-9 rounded-none flex items-center justify-center text-sm"
+            <div className="px-6">
+              {item.data && canJoinCompetition(item.data) ? (
+                <Button
+                  size="sm"
+                  className="rounded-none w-full h-10"
+                  onClick={() => handleCompetitionClick(item.data!)}
                 >
-                  In Progress
-                </Badge>
-              ) : (
-                <Button size="sm" className="rounded-none w-full">
                   Join Competition
                 </Button>
+              ) : (
+                <Badge
+                  variant="outline"
+                  className="text-green-500 w-full rounded-none flex items-center justify-center text-sm h-10"
+                >
+                  {item.data ? getCompetitionStatus(item.data) : "Unknown"}
+                </Badge>
               )}
             </div>
           </Card>
         ))}
       </div>
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                handlePageChange(currentPage - 1);
-              }}
-            />
-          </PaginationItem>
-          {[...Array(totalPages)].map((_, i) => (
-            <PaginationItem key={i}>
-              <PaginationLink
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
                 href="#"
-                isActive={currentPage === i + 1}
                 onClick={(e) => {
                   e.preventDefault();
-                  handlePageChange(i + 1);
+                  handlePageChange(currentPage - 1);
                 }}
-              >
-                {i + 1}
-              </PaginationLink>
+              />
             </PaginationItem>
-          ))}
+            {[...Array(totalPages)].map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  href="#"
+                  isActive={currentPage === i + 1}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(i + 1);
+                  }}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
 
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                handlePageChange(currentPage + 1);
-              }}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage + 1);
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }

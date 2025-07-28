@@ -7,6 +7,9 @@ export function useTrackPostView(postId: string) {
     const key = `viewed_post_${postId}`;
     if (sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, "1");
-    fetch(`/api/posts/${postId}/view`, { method: "POST" });
+    fetch(`/api/posts/${postId}/view`, { method: "POST" }).catch((error) => {
+      console.error("Error tracking post view:", error);
+      sessionStorage.removeItem(key);
+    });
   }, [postId]);
 }

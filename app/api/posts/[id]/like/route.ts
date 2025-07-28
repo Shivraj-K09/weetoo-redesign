@@ -35,11 +35,14 @@ export async function POST(
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   // Only call the like_post function, which handles both insert and counter
-  await supabase.rpc("like_post", {
+  const { error: rpcError } = await supabase.rpc("like_post", {
     post_id_input: postId,
     user_id_input: user.id,
   });
 
+  if (rpcError) {
+    return NextResponse.json({ error: "Failed to like post" }, { status: 500 });
+  }
   // Get updated like count
   const { data: post } = await supabase
     .from("posts")

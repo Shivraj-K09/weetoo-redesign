@@ -21,12 +21,15 @@ export async function DELETE(
     .select("user_id")
     .eq("id", commentId)
     .single();
-  if (commentError)
+  if (commentError) {
+    if (commentError.code === "PGRST116") {
+      return NextResponse.json({ error: "Comment not found" }, { status: 404 });
+    }
     return NextResponse.json({ error: commentError.message }, { status: 500 });
-  if (!comment || comment.user_id !== user.id)
+  }
+  if (comment.user_id !== user.id) {
     return NextResponse.json({ error: "Not authorized" }, { status: 403 });
-
-  // Call atomic function to delete comment and decrement counter
+  } // Call atomic function to delete comment and decrement counter
   const { error: fnError } = await supabase.rpc("delete_post_comment", {
     comment_id_input: commentId,
   });
